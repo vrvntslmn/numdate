@@ -41,7 +41,8 @@
     </nav>
     </header>
     <main>
-       <section class="swipe">
+        <div style="display: flex;">
+        <section class="swipe">
             <div class="profile">
                 <div>
                     <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div>
@@ -81,10 +82,12 @@
                 </button>
             </div>
        </section>
-       <section class="catogeries">
-            <button>
-                <h1>Орд</h1>
-                <div>
+       <section class="catogeries" style="display:flex; flex-direction:column; gap:10px; width:250px;">
+            <div>
+                <button>
+                    <h1>Орд</h1>
+                </button>
+                <div style="display:flex;">
                     <button>
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" width="30px" height="30px" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
 <polyline fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="0,28 16,16 20,28 36,16 40,28 55,16 63,28   "/>
@@ -170,7 +173,7 @@
                         <h2>Хумх</h2>
                     </button>
                 </div>
-            </button>
+            </div>
             
             <button>
                 <h1>MBTI</h1>
@@ -191,6 +194,7 @@
                 <h1>Хобби</h1>
             </button>
        </section>
+       </div>
     </main>
 </body>
 </html>
