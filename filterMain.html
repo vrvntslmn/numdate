@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Navbar with Inline SVG Logo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; background-color: #F5F5F5; font-family: 'Yanone Kaffeesatz', sans-serif;">
+    <header>
+    <nav style="
+        background-color: #EE0067; 
+        padding: 12px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    ">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="#home" style="text-decoration: none;">
+             <img src="logo.png" alt="Logo" style="height: 40px; width: 140px;">
+            </a>
+        </div>
+        <ul style="
+            list-style: none; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            align-items: center;
+            gap: 25px;
+        ">
+            <li><a href="#home" style="color: white; text-decoration: none; font-size: 22px;">Home</a></li>
+            <li><a href="#dateidea" style="color: white; text-decoration: none; font-size: 22px;">Date idea</a></li>
+            <li><a href="#messages" style="color: white; text-decoration: none; font-size: 22px;">Messages</a></li>
+            <li>
+                <a href="#profile" aria-label="Profile">
+                    <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z" fill="white"/>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    </header>
+    <main>
+        <div style="display: flex;">
+        <section class="swipe">
+            <div class="profile">
+                <div>
+                    <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div>
+                    <!-- <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div>
+                    <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div> -->
+                </div>
+                <h1>Temuujin</h1>
+                <p>20</p>
+            </div>
+            <div class="buttons">
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 64 64" stroke-width="6.4" stroke="#000000" fill="none">
+
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+
+<g id="SVGRepo_iconCarrier">
+
+<path d="M54.89,26.73A23.52,23.52,0,0,1,15.6,49" stroke-linecap="round"/>
+
+<path d="M9,37.17a23.75,23.75,0,0,1-.53-5A23.51,23.51,0,0,1,48.3,15.2" stroke-linecap="round"/>
+
+<polyline points="37.73 16.24 48.62 15.44 47.77 5.24" stroke-linecap="round"/>
+
+<polyline points="25.91 47.76 15.03 48.56 15.88 58.76" stroke-linecap="round"/>
+
+</g>
+
+</svg>
+                </button>
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="30px" height="30px" viewBox="0 0 24 24"><path d="M20.808,11.079C19.829,16.132,12,20.5,12,20.5s-7.829-4.368-8.808-9.421C2.227,6.1,5.066,3.5,8,3.5a4.444,4.444,0,0,1,4,2,4.444,4.444,0,0,1,4-2C18.934,3.5,21.773,6.1,20.808,11.079Z"/></svg>
+                </button>
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="30px" height="30px" viewBox="0 0 32 32"><path d="M18.8,16l5.5-5.5c0.8-0.8,0.8-2,0-2.8l0,0C24,7.3,23.5,7,23,7c-0.5,0-1,0.2-1.4,0.6L16,13.2l-5.5-5.5  c-0.8-0.8-2.1-0.8-2.8,0C7.3,8,7,8.5,7,9.1s0.2,1,0.6,1.4l5.5,5.5l-5.5,5.5C7.3,21.9,7,22.4,7,23c0,0.5,0.2,1,0.6,1.4  C8,24.8,8.5,25,9,25c0.5,0,1-0.2,1.4-0.6l5.5-5.5l5.5,5.5c0.8,0.8,2.1,0.8,2.8,0c0.8-0.8,0.8-2.1,0-2.8L18.8,16z"/></svg>
+                </button>
+            </div>
+       </section>
+       <section class="catogeries" style="display:flex; flex-direction:column; gap:10px; width:250px;">
+            <a href="filterZodiac.html">
+                <button>
+                    <h1>Орд</h1>
+                </button>
+            </a>
+            <a href="">
+                <button>
+                    <h1>MBTI</h1>
+                </button>
+            </a>
+            <a href="">
+                <button>
+                    <h1>Love style</h1>
+                </button>
+            </a>
+            <a href="">
+                <button>
+                    <h1>Love language</h1>
+                </button>
+            </a>
+            <a href="">
+                <button>
+                    <h1>Хөтөлбөр</h1>
+                </button>
+            </a>
+            <a href="">
+                <button>
+                    <h1>Түвшин</h1>
+                </button>
+            </a>
+            <a href="">
+                <button>
+                    <h1>Хобби</h1>
+                </button>
+            </a>
+       </section>
+       </div>
+    </main>
+</body>
+</html>
