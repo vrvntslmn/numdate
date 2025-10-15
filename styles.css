@@ -1,0 +1,108 @@
+h2{
+ font-family:'Yanone Kaffeesatz';
+}
+
+body{
+    margin: 0px;
+    background-color: #F5F5F5;
+}
+
+main{
+    margin: 0px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+header{
+    display: flex;
+    width: 100%;
+    height: 55px;
+    background-color: #FF0B55;
+    justify-content: space-between;
+}
+
+ul{
+    display: flex;
+    justify-content: space-between;
+    color:white;
+}
+
+main{
+    display: flex;
+    justify-content: space-around;
+    gap:50px;
+    padding: 25px;
+}
+
+div.main-container{
+    padding: 20px;
+    min-height: 500px;
+    background-color: white;
+    border-radius: 43px;
+    display: flex;
+    flex: 0 1 770px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+div.main-container > article{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    width: 38%;
+    min-width: 300px;
+}
+
+div.main-container > article :first-child{
+    margin: 0px;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+
+div.main-container h2{
+    color: #CF0F47;
+}
+
+div.avatar{
+    margin: 50px 0px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 3px solid #CF0F47;
+    justify-content: center;
+}
+
+div.main-container > section{
+    width: 58%;
+}
+
+article.subscription{
+    padding: 20px;
+    width: 25%;
+    height: 250px;
+    background-color: white;
+    border-radius: 41px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    min-width: 300px;
+}
+
+
+
+
+
+
+/*grid-template-areas: "as mn" "ft ft";
+grid-area: as;
+yanz huwirah flex
+margin width deer zaaj ogno
+overflow hidden
+overflow scroll
+*/
+nav{
+
+}
+
