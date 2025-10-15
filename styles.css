@@ -1,21 +1,5 @@
-header > div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
- 
-nav {
-  display: flex;
-  margin-left: auto;
-}
- 
- 
-nav ul {
-  display: flex;
-  list-style: none;
-  gap: 20px;
-  padding: 0;
-  margin: 0;
+h2 {
+  font-family: 'Yanone Kaffeesatz', sans-serif;
 }
 
 .edit-button{
@@ -65,11 +49,11 @@ header{
     display: flex;
     width: 100%;
     height: 55px;
-    background-color: #FF0B55;
+    background-color: #EE0067;;
     justify-content: space-between;
     align-items: center;
     gap: 20px
-} 
+}
 
 ul{
     display: flex;
@@ -160,7 +144,30 @@ margin width deer zaaj ogno
 overflow hidden
 overflow scroll
 */
-nav{
-
+header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+nav {
+  display: flex;
+  margin-left: auto;
+}
+
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+div>h1{
+    color:white;
+    font-family: "Yanone Kaffeesatz";
+}
+nav {
+  font-family: 'Yanone Kaffeesatz';
+  font-size: 20px;
+}
