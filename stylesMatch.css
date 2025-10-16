@@ -1,0 +1,108 @@
+body{
+    margin: 0px;
+    background-color: #F5F5F5;
+}
+
+main{
+    margin: 0px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+header{
+    display: flex;
+    width: 100%;
+    height: 65px;
+    background-color: #EE0067;;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px
+}
+ul{
+    display: flex;
+    justify-content: space-between;
+    color:white;
+}
+
+main{
+    display: flex;
+    justify-content: space-around;
+    gap:50px;
+    padding: 25px;
+}
+
+div.main-container{
+    padding: 20px;
+    min-height: 700px;
+    background-color: white;
+    border-radius: 43px;
+    display: flex;
+    flex: 0 1 1000px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+}
+ div.main-container > article{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    width: 38%;
+    min-width: 300px;
+}
+
+div.main-container h2{
+    color: #CF0F47;
+}
+
+div.avatar{
+    margin: 50px 0px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #CF0F47;
+    justify-content: center;
+}
+div.main-container > section{
+    width: 58%;
+}
+header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+nav {
+  display: flex;
+  margin-left: auto;
+}
+
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+div>h1{
+    color:white;
+    font-family: "Yanone Kaffeesatz";
+}
+nav {
+  font-family: 'Yanone Kaffeesatz';
+  font-size: 20px;
+}
+ .OtherAvatar img,
+.MyAvatar img {
+    width:250px;              /* Зургийн өргөн */
+    height: 250px;             /* Зургийн өндөр */
+    object-fit: cover;         /* Зургийг хүрээ дотор зөв тааруулах */
+    border-radius: 50%;        /* Бөөрөнхий болгох */
+    border: 3px solid #CF0F47;;    /* Хүрээ нэмэх (заавал биш) */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Зөөлөн сүүдэр */
+}
+p{
+    font-family:'Roboto condensed' ;
+}
+
