@@ -46,6 +46,7 @@ header nav ul li a {
 
 main>div {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 25%;
     margin-top: 40px;
