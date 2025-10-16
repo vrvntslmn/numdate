@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Yanone+Kaffeesatz:wght@200..700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href='https://fonts.googleapis.com/css?family=Yanone Kaffeesatz' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Nerko+One&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Yanone+Kaffeesatz:wght@200..700&display=swap" rel="stylesheet">
 
 </head>
 <body>
@@ -57,7 +53,7 @@
     <main>
         <div class="main-container">
             <article>
-                <div>
+                <div class="profile-head">
                     <h2>
                     My profile
                     </h2>
@@ -69,11 +65,11 @@
                 </div>
                 <p class="name">Тэмүүжин, <span>21</span></p>
                 <p class="bio">Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулдаг ялагдашгүй нэгдэл юм.</p>
-                <div>
-                    <img>
-                    <img>
-                    <img>
-                    <img>
+                <div class="user-image-container">
+                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
                 </div>
                 <audio>
 
@@ -109,23 +105,29 @@
                 Миний багц:<span>Free</span>
             </h4>
             <div>
-                <p>Хэн чамайг зүрхлэсэн бэ?</p>
-                <p>Хязгааргүй алгасалт</p>
-                <p>Алгассан хүнээ буцаах</p>
-                <p>Ярих</p>
+                <div class="description">
+                    <h4>Юу байгаа вэ?</h4>
+                    <p>Хэн чамайг зүрхлэсэн бэ?</p>
+                    <p>Хязгааргүй алгасалт</p>
+                    <p>Алгассан хүнээ буцаах</p>
+                    <p>Ярих</p>
+                </div>
+                <div class="minus">
+                    <h4>Free</h4>
+                    <p>-</p>
+                    <p>-</p>
+                    <p>-</p>
+                    <p>-</p>
+                </div>
+                <div class="plus">
+                    <h4>Premium</h4>
+                    <p>+</p> 
+                    <p>+</p>
+                    <p>+</p>
+                    <p>+</p>
+                </div>
             </div>
-            <div>
-                - 
-                - 
-                - 
-                -
-            </div>
-            <div>
-                +
-                + 
-                + 
-                +
-            </div>
+            
             <button>Premium авах</button>
         </article>
     </main>

@@ -15,6 +15,7 @@ h2{
     font-family:"Yanone Kaffeesatz", sans-serif;
     font-weight: 400;
     font-size: 36px;
+    margin: 0;
 }
 
 h3{
@@ -89,7 +90,7 @@ div.main-container > article{
     min-width: 300px;
 }
 
-div.main-container > article :first-child{
+div.profile-head{
     margin: 0px;
     display: flex;
     width: 100%;
@@ -132,6 +133,25 @@ div.avatar > img{
     color: rgba(0, 0, 0, 0.7);
 }
 
+
+
+.border-red{
+    height: 50px;
+    width: 20%;
+    border:2px solid #CF0F47;
+    border-radius: 7px;
+}
+
+
+
+.user-image-container{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    justify-content: space-around;
+}
+
+
 .redline{
     width: 1px;
     height: 500px;
@@ -151,6 +171,59 @@ article.subscription{
     border-radius: 41px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     min-width: 300px;
+}
+
+article.subscription > h4{
+    margin: 10px 60px;
+    font-size: 20px;
+    text-align: center;
+    padding: 5px 0px;
+    background-color: #FF0B55;
+    border: 2px solid #CF0F47;
+    border-radius: 14px;
+    color:white;
+    
+}
+
+article.subscription > div{
+    display: flex;
+    justify-content: space-between;
+}
+
+article.subscription > div h4{
+    font-size: 16px;
+    font-weight: 400;
+    margin: 10px 0px;
+}
+
+.description p{
+    font-size: 12px;
+}
+
+.minus p{
+    margin: 0;
+    font-family:'Nerko One';
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 25px;
+}
+
+.plus p{
+    margin: 0;
+    color:#CF0F47;
+    font-family:'Nerko One';
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 25px;
+}
+
+article.subscription button:last-of-type{
+    color:white;
+    background-color:#FF0B55;
+    border: 2px solid #CF0F47;
+    padding: 10px;
+    border-radius: 5px;
+    
 }
 
 
