@@ -223,7 +223,7 @@ article.subscription button:last-of-type{
     border: 2px solid #CF0F47;
     padding: 10px;
     border-radius: 5px;
-    
+    align-self: flex-end;
 }
 
 
