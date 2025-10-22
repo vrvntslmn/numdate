@@ -33,8 +33,9 @@ main{
 }
 
 div.main-container{
-    padding: 20px;
-    min-height: 65rem;
+    padding: 10px;
+    min-height: 60px;
+    max-height: 600px;
     background-color: white;
     border-radius: 43px;
     display: flex;
@@ -56,7 +57,7 @@ div.main-container h2{
 }
 
 div.avatar{
-    margin: 50px 0px;
+    margin: 20px 0px;
     width: 120px;
     height: 120px;
     border-radius: 50%;
@@ -95,25 +96,43 @@ nav {
 }
  .OtherAvatar img,
 .MyAvatar img {
-    width:25rem;              /* Зургийн өргөн */
-    height: 25rem;             /* Зургийн өндөр */
+    width:15rem;              /* Зургийн өргөн */
+    height: 15rem;             /* Зургийн өндөр */
     object-fit: cover;         /* Зургийг хүрээ дотор зөв тааруулах */
     border-radius: 50%;        /* Бөөрөнхий болгох */
-    border: 3px solid #CF0F47;;    /* Хүрээ нэмэх (заавал биш) */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Зөөлөн сүүдэр */
+    border: 3px solid #CF0F47;;    /* Хүрээ */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /*сүүдэр */
 }
 
 div.congrats{
     font-family: "Rubik Bubbles", bold;
     text-align: center;
     justify-content: center;   
+    transform: translate(300px, -200px);
 }
 div.MyAvatar, .OtherAvatar{
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0px;
+    font-family: "Roboto Condensed";
 }
 div.MyAvatar{
-    transform: translate(540px, -160px);
+    transform: translate(600px, -170px);
+}
+div.OtherAvatar{
+    transform: translate(30px, 35px);
+}
+.name {
+  font-weight: bold;
+    font-size: 24px;
+      margin: 0;
+}
+.button {
+    margin: 0;              /* Гадна зайг арилгах */
+    padding: 8px 16px;      /* Дотор зай нэмэх */
+    background-color: #FF0000; /* Улаан button */
+    border: none;           /* Хүрээ байхгүй */
+    border-radius: 4px;     /* Буланг жаахан бөгтөр */
+    cursor: pointer;        /* Мышийг дээгүүр байвал гарын сум */
+
 }
