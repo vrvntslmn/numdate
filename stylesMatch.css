@@ -34,7 +34,7 @@ main{
 
 div.main-container{
     padding: 20px;
-    min-height: 700px;
+    min-height: 650px;
     background-color: white;
     border-radius: 43px;
     display: flex;
@@ -102,7 +102,10 @@ nav {
     border: 3px solid #CF0F47;;    /* Хүрээ нэмэх (заавал биш) */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Зөөлөн сүүдэр */
 }
-p{
-    font-family:'Roboto condensed' ;
-}
 
+div.congrats{
+    font-family: "Rubik Bubbles", bold;
+    text-align: center;
+    justify-content: center;
+    
+}
