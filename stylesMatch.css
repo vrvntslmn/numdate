@@ -1,0 +1,145 @@
+body{
+    margin: 0px;
+    background-color: #F5F5F5;
+}
+
+main{
+    margin: 0px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+header{
+    display: flex;
+    width: 100%;
+    height: 65px;
+    background-color: #EE0067;;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px
+}
+ul{
+    display: flex;
+    justify-content: space-between;
+    color:white;
+}
+
+main{
+    display: flex;
+    justify-content: space-around;
+    gap:50px;
+    padding: 25px;
+}
+
+div.main-container{
+    padding: 10px;
+    height: 550px;
+    background-color: white;
+    border-radius: 43px;
+    min-width: 900px;
+    max-width: 1200px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+    margin-top: 30px;
+}
+
+div.main-container div.close-btn{
+    width: 100%;
+}
+
+div.main-container div.Matches{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 50px;
+    padding: 20px;
+}
+
+div.main-container h2{
+    color: #CF0F47;
+}
+
+div.avatar{
+    margin: 20px 0px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #CF0F47;
+    justify-content: center;
+}
+div.main-container > section{
+    width: 58%;
+}
+header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+nav {
+  display: flex;
+  margin-left: auto;
+}
+
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+div>h1{
+    color:white;
+    font-family: "Yanone Kaffeesatz";
+}
+nav {
+  font-family: 'Yanone Kaffeesatz';
+  font-size: 20px;
+}
+
+
+
+
+ .OtherAvatar img,
+.MyAvatar img {
+    width:15rem;              /* Зургийн өргөн */
+    height: 15rem;             /* Зургийн өндөр */
+    object-fit: cover;         /* Зургийг хүрээ дотор зөв тааруулах */
+    border-radius: 50%;        /* Бөөрөнхий болгох */
+    border: 3px solid #CF0F47;;    /* Хүрээ */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /*сүүдэр */
+}
+
+div.congrats{
+    font-family: "Rubik Bubbles", bold;
+    text-align: center;
+    justify-content: center !important;   
+}
+div.MyAvatar, .OtherAvatar{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: "Roboto Condensed";
+    width: 50%;
+}
+div.MyAvatar{
+    
+}
+div.OtherAvatar{
+    
+}
+.name {
+  font-weight: bold;
+    font-size: 24px;
+      margin: 0;
+}
+button.cancel-btn {   
+    border: none;              
+    background: none;          
+    cursor: pointer;      
+}
+div.main-container div:first-child{
+    display: flex;
+    justify-content: right;
+}
