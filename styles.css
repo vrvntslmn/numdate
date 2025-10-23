@@ -47,15 +47,46 @@ main{
     justify-content: space-between;
 }
 
-header{
+header nav {
     display: flex;
     width: 100%;
     height: 55px;
-    background-color: #EE0067;;
+    background-color: #FF0B55;
     justify-content: space-between;
     align-items: center;
     gap: 20px
 }
+
+header nav div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header nav div h1 {
+    color: #F5F5F5;
+}
+
+header nav div a img {
+    height: 30px;
+    width: 140px;
+}
+
+
+header nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    padding: 0;
+    margin: 0;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 22px;
+}
+
 
 ul{
     display: flex;
@@ -217,23 +248,32 @@ article.subscription > div h4{
     line-height: 25px;
 }
 
+article.subscription > div:last-of-type{
+    display: flex;
+    justify-content:right;
+}
+
 article.subscription button:last-of-type{
+    cursor: pointer;
     color:white;
+    font-family: 'Yanone Kaffeesatz';
+    font-size: 18px;
+    font-weight: bold;
     background-color:#FF0B55;
-    border: 2px solid #CF0F47;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
     padding: 10px;
     border-radius: 5px;
-    align-self: flex-end;
+    border:none;
+}
+
+.blackline{
+    height: 100%;
+    width: 1px;
+    background-color: black;
 }
 
 
-/*grid-template-areas: "as mn" "ft ft";
-grid-area: as;
-yanz huwirah flex
-margin width deer zaaj ogno
-overflow hidden
-overflow scroll
-*/
+
 header > div {
   display: flex;
   align-items: center;
@@ -261,3 +301,27 @@ nav {
   font-family: 'Yanone Kaffeesatz';
   font-size: 20px;
 }
+
+/*grid-template-areas: "as mn" "ft ft";
+grid-area: as;
+yanz huwirah flex
+margin width deed tald zaaj ogno
+overflow hidden
+overflow scroll
+css portal transition
+filter :none;
+user select: none; 
+select hiigdehgvi
+cursor: pointer;
+css eer hurdan ajillaj baigaa yum shig js ees hamaarahgvi hun huurch chadna. hurdan ajillaj baigaa met medremj toroh.
+:root buh block iin gadna baidag. golduu huwisagch zarladag.
+figma gaas huwisagchuudaa awch bolno.
+grid template: "as" auto
+                "mn" 1fr
+                "foot"
+
+componentuudaar huuhded ni oorchlol oruulahgvi baij bolno. harin gants hoyr yumiig ni oorchilmoor baiwal huwisagchaa ashiglana.
+orientation: landscape; utsan deer hewtuuleh uyd.
+open props > huwisagchuudiig belneer ashiglaj bolno
+huwisagch, box model, animation, transition, layout ashigluulna
+ */
