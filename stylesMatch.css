@@ -34,22 +34,25 @@ main{
 
 div.main-container{
     padding: 10px;
-    min-height: 60px;
-    max-height: 600px;
+    height: 550px;
     background-color: white;
     border-radius: 43px;
-    display: flex;
-    flex: 0 1 1000px;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    min-width: 900px;
+    max-width: 1200px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+    margin-top: 30px;
 }
- div.main-container > article{
-    display:flex;
-    flex-direction: column;
+
+div.main-container div.close-btn{
+    width: 100%;
+}
+
+div.main-container div.Matches{
+    display: flex;
+    justify-content: space-around;
     align-items: center;
-    width: 38%;
-    min-width: 300px;
+    gap: 50px;
+    padding: 20px;
 }
 
 div.main-container h2{
@@ -94,6 +97,10 @@ nav {
   font-family: 'Yanone Kaffeesatz';
   font-size: 20px;
 }
+
+
+
+
  .OtherAvatar img,
 .MyAvatar img {
     width:15rem;              /* Зургийн өргөн */
@@ -107,32 +114,32 @@ nav {
 div.congrats{
     font-family: "Rubik Bubbles", bold;
     text-align: center;
-    justify-content: center;   
-    transform: translate(300px, -200px);
+    justify-content: center !important;   
 }
 div.MyAvatar, .OtherAvatar{
     display: flex;
     flex-direction: column;
     align-items: center;
     font-family: "Roboto Condensed";
+    width: 50%;
 }
 div.MyAvatar{
-    transform: translate(600px, -170px);
+    
 }
 div.OtherAvatar{
-    transform: translate(30px, 35px);
+    
 }
 .name {
   font-weight: bold;
     font-size: 24px;
       margin: 0;
 }
-.button {
-    margin: 0;              /* Гадна зайг арилгах */
-    padding: 8px 16px;      /* Дотор зай нэмэх */
-    background-color: #FF0000; /* Улаан button */
-    border: none;           /* Хүрээ байхгүй */
-    border-radius: 4px;     /* Буланг жаахан бөгтөр */
-    cursor: pointer;        /* Мышийг дээгүүр байвал гарын сум */
-
+button.cancel-btn {   
+    border: none;              
+    background: none;          
+    cursor: pointer;      
+}
+div.main-container div:first-child{
+    display: flex;
+    justify-content: right;
 }
