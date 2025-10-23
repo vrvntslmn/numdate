@@ -51,7 +51,6 @@ div.main-container div.Matches{
     display: flex;
     justify-content: space-around;
     align-items: center;
-    gap: 50px;
     padding: 20px;
 }
 
@@ -98,17 +97,14 @@ nav {
   font-size: 20px;
 }
 
-
-
-
  .OtherAvatar img,
 .MyAvatar img {
-    width:15rem;              /* Зургийн өргөн */
-    height: 15rem;             /* Зургийн өндөр */
-    object-fit: cover;         /* Зургийг хүрээ дотор зөв тааруулах */
-    border-radius: 50%;        /* Бөөрөнхий болгох */
-    border: 3px solid #CF0F47;;    /* Хүрээ */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /*сүүдэр */
+    width:27dvh;              
+    height: 27dvh;             
+    object-fit: cover;         
+    border-radius: 50%;        
+    border: 3px solid #CF0F47;;    
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); 
 }
 
 div.congrats{
@@ -122,12 +118,18 @@ div.MyAvatar, .OtherAvatar{
     align-items: center;
     font-family: "Roboto Condensed";
     width: 50%;
+    p:last-child{
+        font-size: 12px;
+        opacity: 0.7;
+        margin: 5px;
+    }
+
 }
 div.MyAvatar{
-    
+    transform: translateY(50px);
 }
 div.OtherAvatar{
-    
+    padding-bottom: 50px;
 }
 .name {
   font-weight: bold;
