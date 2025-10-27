@@ -235,7 +235,6 @@ main>div {
     box-shadow: 0 10px 20px rgba(217, 59, 95, 0.18);
 }
 
-/* Dropdown хэв маягт тохируулсан */
 .dropdown {
     position: relative;
     display: flex;
@@ -263,7 +262,6 @@ main>div {
     transform: translateY(-2px);
 }
 
-/* Dropdown агуулга эхэнд далд */
 .dropdown-content {
     display: none;
     justify-content: space-around;
@@ -272,12 +270,15 @@ main>div {
     margin-top: 12px;
 }
 
-/* Hover үед гарч ирнэ */
+.dropdown-content .button svg {
+    color: #f50057;
+}
+
 .dropdown:hover .dropdown-content {
     display: flex;
 }
 
-/* Ордуудын button-ууд хуучин загвараар */
+
 .dropdown-content button {
     width: 110px;
     height: 50px;
@@ -302,7 +303,6 @@ main>div {
     transform: translateY(-2px);
 }
 
-/* Бусад товчнууд хэвээр */
 .catogeries a button,
 .catogeries .filter {
     width: 100%;
