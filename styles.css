@@ -1,5 +1,8 @@
-h2 {
-  font-family: 'Yanone Kaffeesatz', sans-serif;
+:root{
+    --first-color:#FF0B55;
+    --second-color:#CF0F47;
+    --font-header: "Yanone Kaffeesatz", sans-serif;
+    --font-body:"Roboto Condensed", sans-serif;
 }
 
 .edit-button{
@@ -11,8 +14,17 @@ h2 {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 32'><path fill-rule='evenodd' clip-rule='evenodd' d='M19.4782 0.947093L17.4437 3.19506L26.1083 12.7688L28.1428 10.5209C29.2857 9.25806 29.2857 7.21068 28.1428 5.94789L23.6169 0.947092C22.474 -0.315698 20.621 -0.315697 19.4782 0.947093ZM4.02359 18.2305C3.72599 18.5593 3.91974 19.1223 4.33989 19.1496L4.98994 19.1918C5.36024 19.2158 5.65567 19.5422 5.67741 19.9514L5.79611 22.1845C5.80336 22.3209 5.90184 22.4297 6.02527 22.4377L8.04638 22.5689C8.41668 22.5929 8.71211 22.9193 8.73386 23.3285L8.85256 25.5617C8.85981 25.698 8.95828 25.8069 9.08172 25.8149L11.1028 25.946C11.4731 25.97 11.7686 26.2965 11.7903 26.7056L11.8269 27.394C11.8516 27.8582 12.3611 28.0723 12.6587 27.7434L23.7762 15.4595C23.9667 15.2491 23.9667 14.9078 23.7762 14.6974L15.8436 5.93251C15.6531 5.72205 15.3443 5.72205 15.1538 5.93251L4.02359 18.2305ZM0.716566 22.1597C0.327776 22.1345 -3.77004e-05 22.4761 3.25206e-09 22.9064L0.000735568 31.2514C0.000772011 31.6644 0.303771 31.9991 0.67755 31.9992L8.23013 32C8.61959 32 8.92875 31.6378 8.90591 31.2083L8.80063 29.2276C8.78051 28.849 8.50719 28.547 8.1646 28.5248L6.29474 28.4035C6.18055 28.3961 6.08944 28.2954 6.08273 28.1692L5.97291 26.1032C5.95279 25.7246 5.67947 25.4226 5.33688 25.4004L3.46703 25.2791C3.35283 25.2717 3.26172 25.171 3.25502 25.0448L3.1452 22.9788C3.12508 22.6002 2.85176 22.2982 2.50917 22.276L0.716566 22.1597Z' fill='%23CF0F47'/></svg>");
 }
 
+html{
+    width: 100%;
+}
+
+h1 {
+    color: #F5F5F5;
+    font-family:var(--font-header);
+}
+
 h2{
-    font-family:"Yanone Kaffeesatz", sans-serif;
+    font-family:var(--font-header);
     font-weight: 400;
     font-size: 36px;
     margin: 0;
@@ -20,17 +32,18 @@ h2{
 
 h3{
     margin: 0px;
-    font-family:"Yanone Kaffeesatz", sans-serif;
+    font-family:var(--font-header);
     font-size: 36px;
 }
 
 h4{
-    font-family:"Yanone Kaffeesatz", sans-serif;
+    font-family:var(--font-header);
     font-size: 24px;
+    margin: 0px;
 }
 
 p{
-    font-family: "Roboto Condensed", sans-serif;
+    font-family: var(--font-body);
     font-weight: 400;
 }
 
@@ -47,51 +60,45 @@ main{
     justify-content: space-between;
 }
 
+header{
+    display: flex;
+    width: calc(100%-8px);
+    background: linear-gradient(to top, var(--first-color), var(--second-color)); 
+    height: 55px;
+    justify-content: flex-end space-around;
+    align-items: center;
+    & > div {
+        display: flex;
+        margin-right: auto;
+        color: white;
+    }
+
+    & > a {
+        margin-right: 20px;
+    }
+}
+
 header nav {
     display: flex;
-    width: 100%;
-    height: 55px;
-    background-color: #FF0B55;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px
-}
-
-header nav div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-header nav div h1 {
-    color: #F5F5F5;
-}
-
-header nav div a img {
-    height: 30px;
-    width: 140px;
-}
+    justify-content: flex-end;
+    font-family: var(--font-header);
+    align-self: flex-end;
+    ul {
+        display: flex;
+        justify-content: space-around;
+        list-style: none;
+        gap:15px;
+        padding : 0px 20px;
+        a{  
+            display: flex;
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 600;
+        }
+    }
 
 
-header nav ul {
-    display: flex;
-    list-style: none;
-    gap: 20px;
-    padding: 0;
-    margin: 0;
-}
-
-header nav ul li a {
-    color: white;
-    text-decoration: none;
-    font-size: 22px;
-}
-
-
-ul{
-    display: flex;
-    justify-content: space-between;
-    color:white;
 }
 
 main{
@@ -102,7 +109,6 @@ main{
 }
 
 div.main-container{
-    padding: 20px;
     min-height: 500px;
     background-color: white;
     border-radius: 43px;
@@ -111,15 +117,96 @@ div.main-container{
     flex-wrap: wrap;
     justify-content: space-between;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+
+    h2{
+        color: var(--second-color);
+    }
+
+    & > article{
+        margin: 20px 0 20px 20px;
+        display:flex;
+        flex-direction: column;
+        align-items: center;
+        width: 36%;
+        min-width: 300px;
+
+        & > .voice {
+            margin-top: 20px;
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            label{
+                display: flex;
+                align-items: center;
+                width: 60%;
+                color: var(--second-color);
+                font-family: var(--font-body);
+                font-weight: 600;
+                justify-content: space-between;
+            }
+            label > .voice-progress{
+                width: 100px;
+                height: 2px;
+                background-color:var(--second-color);
+            }
+            input{
+                display: none;
+            }
+            .player{
+                height: 20px;
+            }
+            .pause{
+                cursor: pointer;
+                display: none;
+            }
+            .play{
+                cursor:pointer;
+            }
+
+            input:checked + .player > .pause{
+                display: inline;
+            }
+
+            input:checked + .player > .play{
+                display: none;
+            }
+        }
+    }
+    & > section{
+        margin: 20px;
+        display: grid;
+        grid-template-areas: "ln h3" "ln div";
+        grid-template-columns: 30px auto;
+        grid-template-rows: 30px;
+        width: 52%;
+   
+    }
+
+    & > section label{
+        display: flex;
+        gap: 10px;
+    }
+
+    & > section article{
+        margin: 20px 0px 50px;
+    }
+
+    & > section > div:first-of-type {
+        grid-area: ln;
+    }
+
+    & > section > h3 {
+        grid-area: h3;
+    }
+
+    & > section > div:last-of-type {
+        grid-area: div;
+    }
+
+
 }
 
-div.main-container > article{
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    width: 36%;
-    min-width: 300px;
-}
+
 
 div.profile-head{
     margin: 0px;
@@ -129,16 +216,13 @@ div.profile-head{
 }
 
 
-div.main-container h2{
-    color: #CF0F47;
-}
 
 div.avatar{
     margin: 20px 0px;
     width: 130px;
     height: 130px;
     border-radius: 50%;
-    border: 3px solid #CF0F47;
+    border: 3px solid var(--second-color);
     justify-content: center;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
 }
@@ -152,7 +236,7 @@ div.avatar > img{
 
 .name{
     margin: 0px;
-    font-family: "Roboto Condensed";
+    font-family: var(--font-body);
     font-weight: 600;
     font-size: 24px;
 }
@@ -169,7 +253,7 @@ div.avatar > img{
 .border-red{
     height: 50px;
     width: 20%;
-    border:2px solid #CF0F47;
+    border:2px solid var(--second-color);
     border-radius: 7px;
 }
 
@@ -177,21 +261,15 @@ div.avatar > img{
 
 .user-image-container{
     display: flex;
-    height: 100%;
     width: 100%;
     justify-content: space-around;
 }
 
 
 .redline{
-    width: 1px;
+    width: 0.2%;
     height: 500px;
-    background-color: #CF0F47;
-}
-
-div.main-container > section{
-    width: 58%;
-    padding-left: 20px;
+    background-color: var(--second-color);
 }
 
 article.subscription{
@@ -202,29 +280,45 @@ article.subscription{
     border-radius: 41px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     min-width: 300px;
-}
+    & > h4{
+        margin: 10px 60px;
+        font-size: 20px;
+        text-align: center;
+        padding: 5px 0px;
+        background-color: var(--first-color);
+        border-radius: 14px;
+        color:white;
+    }
 
-article.subscription > h4{
-    margin: 10px 60px;
-    font-size: 20px;
-    text-align: center;
-    padding: 5px 0px;
-    background-color: #FF0B55;
-    border: 2px solid #CF0F47;
-    border-radius: 14px;
-    color:white;
-    
-}
+    & > div{
+        display: flex;
+        justify-content: space-between;
+    }
 
-article.subscription > div{
-    display: flex;
-    justify-content: space-between;
-}
+    & > div h4{
+        font-size: 16px;
+        font-weight: 400;
+        margin: 10px 0px;
+    }
 
-article.subscription > div h4{
-    font-size: 16px;
-    font-weight: 400;
-    margin: 10px 0px;
+    & > div:last-of-type{
+        margin-top: 10px;
+        display: flex;
+        justify-content:right;
+    }
+
+    button:last-of-type{
+        cursor: pointer;
+        color:white;
+        font-family: var(--font-header);
+        font-size: 18px;
+        font-weight: bold;
+        background-color:var(--first-color);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+        padding: 10px;
+        border-radius: 5px;
+        border:none;
+    }
 }
 
 .description p{
@@ -241,29 +335,11 @@ article.subscription > div h4{
 
 .plus p{
     margin: 0;
-    color:#CF0F47;
+    color:var(--second-color);
     font-family:'Nerko One';
     font-size: 32px;
     font-weight: 400;
     line-height: 25px;
-}
-
-article.subscription > div:last-of-type{
-    display: flex;
-    justify-content:right;
-}
-
-article.subscription button:last-of-type{
-    cursor: pointer;
-    color:white;
-    font-family: 'Yanone Kaffeesatz';
-    font-size: 18px;
-    font-weight: bold;
-    background-color:#FF0B55;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
-    padding: 10px;
-    border-radius: 5px;
-    border:none;
 }
 
 .blackline{
@@ -271,37 +347,6 @@ article.subscription button:last-of-type{
     width: 1px;
     background-color: black;
 }
-
-
-
-header > div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-nav {
-  display: flex;
-  margin-left: auto;
-}
-
-
-nav ul {
-  display: flex;
-  list-style: none;
-  gap: 20px;
-  padding: 0;
-  margin: 0;
-}
-div>h1{
-    color:white;
-    font-family: "Yanone Kaffeesatz";
-}
-nav {
-  font-family: 'Yanone Kaffeesatz';
-  font-size: 20px;
-}
-
 /*grid-template-areas: "as mn" "ft ft";
 grid-area: as;
 yanz huwirah flex
@@ -325,3 +370,8 @@ orientation: landscape; utsan deer hewtuuleh uyd.
 open props > huwisagchuudiig belneer ashiglaj bolno
 huwisagch, box model, animation, transition, layout ashigluulna
  */
+
+
+/*preparedHTML +=
+beldej baigaad neg udaa pad hiih ni performance deer
+Dialogue tagaar ooriigoo oor huwilbaraar zurna, ali eswel ooriigoo oor helbereer zurdag 1 component baina*/
