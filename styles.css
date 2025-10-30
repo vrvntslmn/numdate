@@ -53,17 +53,12 @@ body{
     background-color: #F5F5F5;
 }
 
-main{
-    margin: 0px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
+
 
 header{
     display: flex;
     width: calc(100%-8px);
-    background: linear-gradient(to top, var(--first-color), var(--second-color)); 
+    background: linear-gradient(to top, #EE0067, #BC2265);
     height: 55px;
     justify-content: flex-end space-around;
     align-items: center;
@@ -72,7 +67,6 @@ header{
         margin-right: auto;
         color: white;
     }
-
     & > a {
         margin-right: 20px;
     }
@@ -80,6 +74,7 @@ header{
 
 header nav {
     display: flex;
+
     justify-content: flex-end;
     font-family: var(--font-header);
     align-self: flex-end;
@@ -88,7 +83,7 @@ header nav {
         justify-content: space-around;
         list-style: none;
         gap:15px;
-        padding : 0px 20px;
+        padding : 15px 20px;
         a{  
             display: flex;
             color: white;
@@ -97,9 +92,24 @@ header nav {
             font-weight: 600;
         }
     }
-
-
 }
+
+header nav div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header nav div h1 {
+    color: #F5F5F5;
+}
+
+header nav div a img {
+    height: 30px;
+    width: 140px;
+}
+
+
 
 main{
     display: flex;
@@ -347,6 +357,37 @@ article.subscription{
     width: 1px;
     background-color: black;
 }
+
+
+header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+nav {
+  display: flex;
+  margin-left: auto;
+}
+
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+div>h1{
+    color:white;
+    font-family: "Yanone Kaffeesatz";
+}
+nav {
+  font-family: 'Yanone Kaffeesatz';
+  font-size: 20px;
+}
+
+
 /*grid-template-areas: "as mn" "ft ft";
 grid-area: as;
 yanz huwirah flex
