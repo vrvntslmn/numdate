@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="stylesfilterZodiac.css">
+    <link rel="stylesheet" href="home.css">
 </head>
 
 <body>
@@ -59,9 +59,9 @@
                 <h1>NUMDATE</h1>
             </div>
             <ul>
-                <li><a href="#home">Home</a></li>
+                <li><a href="filterZodiac.html">Home</a></li>
                 <li><a href="#dateidea">Date idea</a></li>
-                <li><a href="#messages">Messages</a></li>
+                <li><a href="messenger.html">Messages</a></li>
                 <li>
                     <a href="#profile">
                         <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -504,16 +504,41 @@
                         </button>
                     </div>
                 </div>
-                <a href=""><button>
+                <div class="dropdown">
+                    <button class="dropbtn">
                         <h1>Хобби</h1>
-                    </button></a>
-
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M7 10l5 5 5-5H7z" />
+                        </svg>
+                    </button>
+                    <div class="dropdown-content">
+                        <button>
+                            <h2>Урлаг</h2>
+                        </button>
+                        <button>
+                            <h2>Спорт</h2>
+                        </button>
+                        <button>
+                            <h2>Хөгжим</h2>
+                        </button>
+                        <button>
+                            <h2>Компьютер</h2>
+                        </button>
+                        <button>
+                            <h2>Аялал</h2>
+                        </button>
+                        <button>
+                            <h2>Ном</h2>
+                        </button>
+                    </div>
+                </div>
                 <a href=""><button class="filter">
                         <h3>Шүүх</h3>
                     </button></a>
             </section>
         </div>
     </main>
+    <script src="scripts.js"></script>
 </body>
 
 </html>

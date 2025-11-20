@@ -8,7 +8,7 @@ header nav {
     display: flex;
     width: 100%;
     height: 55px;
-    background-color: #FF0B55;
+    background: linear-gradient(to top, #EE0067, #BC2265);
     justify-content: space-between;
     align-items: center;
     gap: 20px
@@ -29,7 +29,6 @@ header nav div a img {
     width: 140px;
 }
 
-
 header nav ul {
     display: flex;
     list-style: none;
@@ -43,7 +42,6 @@ header nav ul li a {
     text-decoration: none;
     font-size: 22px;
 }
-
 
 main>div {
     display: flex;
@@ -104,15 +102,14 @@ main>div {
     font-size: 18px;
 }
 
-.buttons {
+.swipe .buttons {
     gap: 20px;
     margin-top: -25px;
-    position: absolute;
+    position: relative;
     display: flex;
     justify-content: center;
     gap: 20px;
     z-index: 4;
-    left: 12%;
 }
 
 .buttons .other_button {
@@ -143,7 +140,6 @@ main>div {
     transition: transform 0.2s;
     margin-top: -10px;
 }
-
 
 .buttons button:hover {
     transform: scale(1.1);
@@ -241,6 +237,7 @@ main>div {
 
 .catogeries>div>div button h2 {
     font-size: 15px;
+    margin: 0;
 }
 
 .catogeries>div>div button.active {
@@ -278,6 +275,12 @@ main>div {
     transform: translateY(-2px);
 }
 
+.dropbtn>div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .dropdown-content {
     display: none;
     justify-content: space-around;
@@ -290,10 +293,9 @@ main>div {
     color: #f50057;
 }
 
-.dropdown:hover .dropdown-content {
+.dropdown.open .dropdown-content {
     display: flex;
 }
-
 
 .dropdown-content button {
     width: 110px;
@@ -313,10 +315,24 @@ main>div {
     transition: background 0.3s, transform 0.2s;
 }
 
+.dropdown-content button h2 {
+    margin: 0;
+}
+
 .dropdown-content button:hover {
+    background: #ffe0e9;
+    color: #f50057;
+    transform: translateY(-2px);
+}
+
+.dropdown-content button.selected {
     background: #f50057;
     color: #fff;
-    transform: translateY(-2px);
+    border-color: #f50057;
+}
+
+.dropdown-content button.selected svg {
+    fill: white;
 }
 
 .catogeries a button,
@@ -348,12 +364,31 @@ main>div {
     transition: background 0.3s, transform 0.2s;
 }
 
+.dropdown-content-school button h2 {
+    margin: 0;
+}
+
 .dropdown-content-school button:hover {
-    background: #f50057;
-    color: #fff;
+    background: #ffe0e9;
+    color: #f50057;
     transform: translateY(-2px);
 }
 
-.dropdown:hover .dropdown-content-school {
+.dropdown-content-school button.selected {
+    background: #f50057;
+    color: #fff;
+    border-color: #f50057;
+}
+
+.dropdown.open .dropdown-content-school {
     display: flex;
+}
+
+.selected-count {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-left: 8px;
 }
