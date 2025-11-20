@@ -130,6 +130,8 @@ div.main-container{
         width: 36%;
         min-width: 300px;
 
+        .edit-button{cursor: pointer;}
+
         & > .voice {
             margin-top: 20px;
             display: flex;
@@ -267,7 +269,7 @@ div.avatar > img{
 
 
 .redline{
-    width: 0.2%;
+    width: 6%;
     height: 500px;
     background-color: var(--second-color);
 }
