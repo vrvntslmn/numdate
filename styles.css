@@ -75,6 +75,7 @@ header{
 header nav {
     display: flex;
 
+
     justify-content: flex-end;
     font-family: var(--font-header);
     align-self: flex-end;
@@ -92,6 +93,14 @@ header nav {
             font-weight: 600;
         }
     }
+
+    width: 100%;
+    height: 55px;
+background: linear-gradient(to top, #EE0067, #BC2265);
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px
+
 }
 
 header nav div {
@@ -357,8 +366,6 @@ article.subscription{
     width: 1px;
     background-color: black;
 }
-
-
 header > div {
   display: flex;
   align-items: center;
