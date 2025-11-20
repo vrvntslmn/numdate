@@ -47,13 +47,22 @@ main>div {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 25%;
-    margin-top: 40px;
+    gap: 200px;
+    margin-top: 0;
+}
+
+
+
+main {
+    min-height: calc(100vh - 55px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .profile {
     width: 350px;
-    height: 620px;
+    height: 580px;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -148,9 +157,11 @@ main>div {
 .catogeries {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     width: 380px;
     align-items: stretch;
+    max-height: 600px;
+    overflow-y: auto;
 }
 
 .catogeries a {
@@ -189,34 +200,44 @@ main>div {
     margin: 0;
 }
 
-.catogeries .filter {
-    width: 40%;
-    height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    border: none;
+.filter {
+    display: block;
+    width: fit-content;
+
+    margin: 24px auto 0;
+
+
+    padding: 10px 40px;
+    border-radius: 999px;
+    border: 2px solid #f50057;
+    background-color: #ffffff;
     color: #f50057;
-    border-color: #f50057;
-    padding: 20px 30px;
-    border-radius: 6px;
+
+    font-family: 'Yanone Kaffeesatz', sans-serif;
     font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+
     cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s, color 0.2s,
+        transform 0.15s, box-shadow 0.15s;
 }
 
-.catogeries .filter:hover {
-    background-color: #ff4081;
+.filter:hover {
+    background-color: #f50057;
+    color: #ffffff;
     transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(245, 0, 87, 0.35);
 }
 
-.catogeries .filter h3 {
-    font-size: 20px;
-    font-weight: 500;
-    margin: 0;
+.filter:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(245, 0, 87, 0.25);
 }
+
 
 .catogeries>div>div button {
     display: flex;

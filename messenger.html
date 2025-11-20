@@ -4,39 +4,30 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Navbar with Inline SVG Logo</title>
+    <title>NUMdate – Messages</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="stylesMessenger.css">
 </head>
 
-<body style="margin: 0; background-color: #F5F5F5; font-family: 'Yanone Kaffeesatz', sans-serif;">
+<body>
     <header>
-        <nav style="
-        background-color: #EE0067; 
-        padding: 12px 40px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    ">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <a href="#home" style="text-decoration: none;">
-                    <img src="logo.png" alt="Logo" style="height: 40px; width: 140px;">
-                </a>
+        <nav>
+            <div>
+                <svg width="112" height="70" viewBox="0 0 112 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                </svg>
+                <h1>NUMDATE</h1>
             </div>
-            <ul style="
-            list-style: none; 
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            align-items: center;
-            gap: 25px;
-        ">
-                <li><a href="filterZodiac.html" style="color: white; text-decoration: none; font-size: 22px;">Home</a>
-                </li>
-                <li><a href="#dateidea" style="color: white; text-decoration: none; font-size: 22px;">Date idea</a></li>
-                <li><a href="messenger.html" style="color: white; text-decoration: none; font-size: 22px;">Messages</a>
-                </li>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="#dateidea">Date idea</a></li>
+                <li><a href="messenger.html">Messages</a></li>
                 <li>
-                    <a href="#profile" aria-label="Profile">
+                    <a href="#profile">
+                        <!-- bell icon чинь -->
                         <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z"
@@ -47,237 +38,173 @@
             </ul>
         </nav>
     </header>
-    <main style="display: flex;">
-        <section class="people">
-            <div style="display: flex;">
-                <article>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <h1>Jennie</h1>
-                </article>
-                <article>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <h1>Jennie</h1>
-                </article>
-                <article>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <h1>Jennie</h1>
-                </article>
-                <article>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <h1>Jennie</h1>
-                </article>
-            </div>
-            <div>
-                <article style="display: flex;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="text">
-                        <h1>Match bolson hun</h1>
-                        <p>Message sent</p>
+    <main>
+        <div class="chat-app">
+            <aside class="sidebar">
+                <div class="stories-header">
+                    <div class="stories-scroll">
+                        <div class="story-profile">
+                            <div class="story-avatar"></div>
+                            <div class="story-name"></div>
+                        </div>
+                        <div class="story-profile">
+                            <div class="story-avatar"></div>
+                            <div class="story-name"></div>
+                        </div>
+                        <div class="story-profile">
+                            <div class="story-avatar"></div>
+                            <div class="story-name"></div>
+                        </div>
+                        <div class="story-profile">
+                            <div class="story-avatar"></div>
+                            <div class="story-name"></div>
+                        </div>
+                        <div class="story-profile">
+                            <div class="story-avatar"></div>
+                            <div class="story-name"></div>
+                        </div>
                     </div>
-                </article>
-                <article style="display: flex;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="text">
-                        <h1>Match bolson hun</h1>
-                        <p>Message sent</p>
-                    </div>
-                </article>
-                <article style="display: flex;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="text">
-                        <h1>Match bolson hun</h1>
-                        <p>Message sent</p>
-                    </div>
-                </article>
-                <article style="display: flex;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="text">
-                        <h1>Match bolson hun</h1>
-                        <p>Message sent</p>
-                    </div>
-                </article>
-            </div>
-        </section>
+                </div>
 
-        <section class="chat">
-            <div class="chathead">
-                <article style="display: flex;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="70px" height="70px" viewBox="0 0 24 24" fill="none">
-                        <path opacity="0.4"
-                            d="M12.1207 12.78C12.0507 12.77 11.9607 12.77 11.8807 12.78C10.1207 12.72 8.7207 11.28 8.7207 9.50998C8.7207 7.69998 10.1807 6.22998 12.0007 6.22998C13.8107 6.22998 15.2807 7.69998 15.2807 9.50998C15.2707 11.28 13.8807 12.72 12.1207 12.78Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path opacity="0.34"
-                            d="M18.7398 19.3801C16.9598 21.0101 14.5998 22.0001 11.9998 22.0001C9.39977 22.0001 7.03977 21.0101 5.25977 19.3801C5.35977 18.4401 5.95977 17.5201 7.02977 16.8001C9.76977 14.9801 14.2498 14.9801 16.9698 16.8001C18.0398 17.5201 18.6398 18.4401 18.7398 19.3801Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        <path
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="text">
-                        <h1>Match bolson hun</h1>
-                        <p>Active 3 min ago</p>
+                <div class="conversation-list">
+                    <div class="conversation-item is-active">
+                        <div class="conversation-avatar"></div>
+                        <div class="conversation-text">
+                            <div class="conversation-name">Тэмүүжин</div>
+                            <div class="conversation-snippet"></div>
+                        </div>
+                        <div class="conversation-status"></div>
                     </div>
-                </article>
-            </div>
-            <div class="chatmain">
-                <div>
-                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Praesentium voluptate placeat vero
-                        repudiandae, dolor quis laborum. Quam, similique. Odit, facilis?</p>
+
+                    <div class="conversation-item">
+                        <div class="conversation-avatar"></div>
+                        <div class="conversation-text">
+                            <div class="conversation-name">Jennie Kim</div>
+                            <div class="conversation-snippet"></div>
+                        </div>
+                        <div class="conversation-status"></div>
+                    </div>
+
+                    <div class="conversation-item">
+                        <div class="conversation-avatar"></div>
+                        <div class="conversation-text">
+                            <div class="conversation-name">Анударь</div>
+                            <div class="conversation-snippet"></div>
+                        </div>
+                        <div class="conversation-status"></div>
+                    </div>
+
+                    <div class="conversation-item">
+                        <div class="conversation-avatar"></div>
+                        <div class="conversation-text">
+                            <div class="conversation-name">Үүрээ</div>
+                            <div class="conversation-snippet"></div>
+                        </div>
+                        <div class="conversation-status"></div>
+                    </div>
                 </div>
-                <div>
-                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Praesentium voluptate placeat vero
-                        repudiandae, dolor quis laborum. Quam, similique. Odit, facilis?</p>
+            </aside>
+            <section class="chat-panel">
+                <header class="chat-header">
+                    <button class="back-btn" aria-label="Back">‹</button>
+
+                    <div class="chat-user-avatar">
+                        <span><img src="img/image.jpeg" alt=""></span>
+                    </div>
+
+                    <div class="chat-user-info">
+                        <div class="chat-user-name">Тэмүүжин</div>
+                        <div class="chat-user-status">
+                            <span class="status-dot"></span>
+                            <span>Active now</span>
+                        </div>
+                    </div>
+                </header>
+                <div class="chat-body">
+                    <div class="message-row incoming">
+                        <div class="message-bubble large"></div>
+                    </div>
+
+                    <div class="message-row outgoing">
+                        <div class="message-bubble medium"></div>
+                    </div>
+
+                    <div class="message-row outgoing">
+                        <div class="message-bubble small"></div>
+                    </div>
                 </div>
-                <div>
-                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Praesentium voluptate placeat vero
-                        repudiandae, dolor quis laborum. Quam, similique. Odit, facilis?</p>
-                </div>
-                <div>
-                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Praesentium voluptate placeat vero
-                        repudiandae, dolor quis laborum. Quam, similique. Odit, facilis?</p>
-                </div>
-            </div>
-            <div class="chattyping" style="display: flex;">
-                <div>
-                    <a href="">
-                        <button>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24"
-                                fill="none">
+                <footer class="chat-footer">
+                    <div class="attachments-bar">
+                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="30px"
+                                height="30px" viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M12 14.2857C13.4229 14.2857 14.5714 13.1371 14.5714 11.7143V6.57143C14.5714 5.14857 13.4229 4 12 4C10.5771 4 9.42857 5.14857 9.42857 6.57143V11.7143C9.42857 13.1371 10.5771 14.2857 12 14.2857Z"
                                     fill="#000000" />
                                 <path
                                     d="M16.5429 11.7143H18C18 14.6371 15.6686 17.0543 12.8571 17.4743V20.2857H11.1429V17.4743C8.33143 17.0543 6 14.6371 6 11.7143H7.45714C7.45714 14.2857 9.63429 16.0857 12 16.0857C14.3657 16.0857 16.5429 14.2857 16.5429 11.7143Z"
                                     fill="#000000" />
-                            </svg>
-                        </button>
-                    </a>
-                    <a href="">
-                        <button>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24"
+                            </svg></button>
+                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20px"
+                                height="20px" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M18 8C18 9.10457 17.1046 10 16 10C14.8954 10 14 9.10457 14 8C14 6.89543 14.8954 6 16 6C17.1046 6 18 6.89543 18 8Z"
+                                    fill="#1C274C" />
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M11.9426 1.25H12.0574C14.3658 1.24999 16.1748 1.24998 17.5863 1.43975C19.031 1.63399 20.1711 2.03933 21.0659 2.93414C21.9607 3.82895 22.366 4.96897 22.5603 6.41371C22.75 7.82519 22.75 9.63423 22.75 11.9426V12.0309C22.75 13.9397 22.75 15.5023 22.6463 16.7745C22.5422 18.0531 22.3287 19.1214 21.8509 20.0087C21.6401 20.4001 21.3812 20.7506 21.0659 21.0659C20.1711 21.9607 19.031 22.366 17.5863 22.5603C16.1748 22.75 14.3658 22.75 12.0574 22.75H11.9426C9.63423 22.75 7.82519 22.75 6.41371 22.5603C4.96897 22.366 3.82895 21.9607 2.93414 21.0659C2.14086 20.2726 1.7312 19.2852 1.51335 18.0604C1.29935 16.8573 1.2602 15.3603 1.25207 13.5015C1.25 13.0287 1.25 12.5286 1.25 12.001V11.9426C1.24999 9.63424 1.24998 7.82519 1.43975 6.41371C1.63399 4.96897 2.03933 3.82895 2.93414 2.93414C3.82895 2.03933 4.96897 1.63399 6.41371 1.43975C7.82519 1.24998 9.63424 1.24999 11.9426 1.25ZM6.61358 2.92637C5.33517 3.09825 4.56445 3.42514 3.9948 3.9948C3.42514 4.56445 3.09825 5.33517 2.92637 6.61358C2.75159 7.91356 2.75 9.62178 2.75 12C2.75 12.2905 2.75 12.5715 2.75034 12.8435L3.75148 11.9675C4.66275 11.1702 6.03617 11.2159 6.89238 12.0721L11.1821 16.3618C11.8693 17.0491 12.9511 17.1428 13.7463 16.5839L14.0445 16.3744C15.1887 15.5702 16.7368 15.6634 17.7764 16.599L20.6068 19.1463C20.8917 18.548 21.0609 17.7618 21.1513 16.6527C21.2494 15.4482 21.25 13.9459 21.25 12C21.25 9.62178 21.2484 7.91356 21.0736 6.61358C20.9018 5.33517 20.5749 4.56445 20.0052 3.9948C19.4355 3.42514 18.6648 3.09825 17.3864 2.92637C16.0864 2.75159 14.3782 2.75 12 2.75C9.62178 2.75 7.91356 2.75159 6.61358 2.92637Z"
+                                    fill="#1C274C" />
+                            </svg></button>
+                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20px"
+                                height="20px" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 16C9.85038 16.6303 10.8846 17 12 17C13.1154 17 14.1496 16.6303 15 16"
+                                    stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
+                                <ellipse cx="15" cy="10.5" rx="1" ry="1.5" fill="#1C274C" />
+                                <ellipse cx="9" cy="10.5" rx="1" ry="1.5" fill="#1C274C" />
+                                <path
+                                    d="M15 22H12C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8M15 22C18.866 22 22 18.866 22 15M15 22C15 20.1387 15 19.2081 15.2447 18.4549C15.7393 16.9327 16.9327 15.7393 18.4549 15.2447C19.2081 15 20.1387 15 22 15M22 12V15"
+                                    stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
+                            </svg></button>
+                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg"
+                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" width="20px" height="20px"
+                                viewBox="0 0 32 32" version="1.1">
+
+                                <title>plus</title>
+                                <desc>Created with Sketch Beta.</desc>
+                                <defs>
+
+                                </defs>
+                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"
+                                    sketch:type="MSPage">
+                                    <g id="Icon-Set-Filled" sketch:type="MSLayerGroup"
+                                        transform="translate(-362.000000, -1037.000000)" fill="#000000">
+                                        <path
+                                            d="M390,1049 L382,1049 L382,1041 C382,1038.79 380.209,1037 378,1037 C375.791,1037 374,1038.79 374,1041 L374,1049 L366,1049 C363.791,1049 362,1050.79 362,1053 C362,1055.21 363.791,1057 366,1057 L374,1057 L374,1065 C374,1067.21 375.791,1069 378,1069 C380.209,1069 382,1067.21 382,1065 L382,1057 L390,1057 C392.209,1057 394,1055.21 394,1053 C394,1050.79 392.209,1049 390,1049"
+                                            id="plus" sketch:type="MSShapeGroup">
+
+                                        </path>
+                                    </g>
+                                </g>
+                            </svg></button>
+                    </div>
+
+                    <form class="message-form">
+                        <input type="text" class="message-input" placeholder="type message" autocomplete="off" />
+                        <button type="submit" class="send-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 -0.5 25 25"
                                 fill="none">
-                                <path
-                                    d="M12 14.2857C13.4229 14.2857 14.5714 13.1371 14.5714 11.7143V6.57143C14.5714 5.14857 13.4229 4 12 4C10.5771 4 9.42857 5.14857 9.42857 6.57143V11.7143C9.42857 13.1371 10.5771 14.2857 12 14.2857Z"
-                                    fill="#000000" />
-                                <path
-                                    d="M16.5429 11.7143H18C18 14.6371 15.6686 17.0543 12.8571 17.4743V20.2857H11.1429V17.4743C8.33143 17.0543 6 14.6371 6 11.7143H7.45714C7.45714 14.2857 9.63429 16.0857 12 16.0857C14.3657 16.0857 16.5429 14.2857 16.5429 11.7143Z"
-                                    fill="#000000" />
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M18.455 9.8834L7.063 4.1434C6.76535 3.96928 6.40109 3.95274 6.08888 4.09916C5.77667 4.24558 5.55647 4.53621 5.5 4.8764C5.5039 4.98942 5.53114 5.10041 5.58 5.2024L7.749 10.4424C7.85786 10.7903 7.91711 11.1519 7.925 11.5164C7.91714 11.8809 7.85789 12.2425 7.749 12.5904L5.58 17.8304C5.53114 17.9324 5.5039 18.0434 5.5 18.1564C5.55687 18.4961 5.77703 18.7862 6.0889 18.9323C6.40078 19.0785 6.76456 19.062 7.062 18.8884L18.455 13.1484C19.0903 12.8533 19.4967 12.2164 19.4967 11.5159C19.4967 10.8154 19.0903 10.1785 18.455 9.8834V9.8834Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                         </button>
-                    </a>
-                    <a href="">
-                        <button>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24"
-                                fill="none">
-                                <path
-                                    d="M12 14.2857C13.4229 14.2857 14.5714 13.1371 14.5714 11.7143V6.57143C14.5714 5.14857 13.4229 4 12 4C10.5771 4 9.42857 5.14857 9.42857 6.57143V11.7143C9.42857 13.1371 10.5771 14.2857 12 14.2857Z"
-                                    fill="#000000" />
-                                <path
-                                    d="M16.5429 11.7143H18C18 14.6371 15.6686 17.0543 12.8571 17.4743V20.2857H11.1429V17.4743C8.33143 17.0543 6 14.6371 6 11.7143H7.45714C7.45714 14.2857 9.63429 16.0857 12 16.0857C14.3657 16.0857 16.5429 14.2857 16.5429 11.7143Z"
-                                    fill="#000000" />
-                            </svg>
-                        </button>
-                    </a>
-                    <a href="">
-                        <button>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24"
-                                fill="none">
-                                <path
-                                    d="M12 14.2857C13.4229 14.2857 14.5714 13.1371 14.5714 11.7143V6.57143C14.5714 5.14857 13.4229 4 12 4C10.5771 4 9.42857 5.14857 9.42857 6.57143V11.7143C9.42857 13.1371 10.5771 14.2857 12 14.2857Z"
-                                    fill="#000000" />
-                                <path
-                                    d="M16.5429 11.7143H18C18 14.6371 15.6686 17.0543 12.8571 17.4743V20.2857H11.1429V17.4743C8.33143 17.0543 6 14.6371 6 11.7143H7.45714C7.45714 14.2857 9.63429 16.0857 12 16.0857C14.3657 16.0857 16.5429 14.2857 16.5429 11.7143Z"
-                                    fill="#000000" />
-                            </svg>
-                        </button>
-                    </a>
-                </div>
-                <div>
-                    <p>type message...</p>
-                </div>
-            </div>
-        </section>
+                    </form>
+                </footer>
+            </section>
+        </div>
     </main>
+
+    <script src="messenger.js" defer></script>
 </body>
 
 </html>
