@@ -17,7 +17,8 @@ header{
     background: linear-gradient(to top, #EE0067, #BC2265);
     justify-content: space-between;
     align-items: center;
-    gap: 20px
+    gap: 20px;
+    z-index: 1;
 }
 ul{
     display: flex;
@@ -34,7 +35,7 @@ main{
 
 div.main-container{
     padding: 10px;
-    height: 550px;
+    height: fit-content;
     background-color: white;
     border-radius: 43px;
     min-width: 900px;
@@ -80,6 +81,7 @@ header > div {
 nav {
   display: flex;
   margin-left: auto;
+
 }
 
 
@@ -214,6 +216,7 @@ div.OtherAvatar{
 }
 .start-chatting-btn{
     margin-top: 20px;
+    margin-bottom: 20px;
     padding: 10px 20px;
     background: linear-gradient(to top, #EE0067, #BC2265);
     height: 50px;
@@ -225,3 +228,40 @@ div.OtherAvatar{
     width: 150px;
 
 }
+.start-chatting-btn:hover{
+    box-shadow: 0 0 15px rgba(238, 0, 103, 0.7);
+     transform: translateY(-2px); 
+}
+.falling-hearts {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;   /* click-д саад болохгүй */
+        overflow: hidden;
+        z-index: -1;          /* бүхний ДЭЭР */
+    }
+
+    /* нэг ширхэг зүрх */
+    .falling-hearts .heart {
+        position: absolute;
+        top: -40px;             /* дэлгэцийн дээдээс эхэлнэ */
+        font-size: 28px;
+        color: #EE0067;
+        opacity: 0.9;
+
+        /* хоёр animation нэг дор */
+        animation:
+          heart-fall 8s linear infinite,
+          heart-sway 3s ease-in-out infinite alternate;
+    }
+
+    /* доошоо унах хөдөлгөөн – top-оор */
+    @keyframes heart-fall {
+        0%   { top: -10vh; }
+        100% { top: 110vh; }
+    }
+
+    /* баруун-зүүн савлаж, жаахан эргэнэ */
+    @keyframes heart-sway {
+        0%   { transform: translateX(-15px) rotate(-15deg); }
+        100% { transform: translateX(15px) rotate(15deg); }
+    }
