@@ -15,13 +15,25 @@ main{
 
 header{
     display: flex;
-    width: 100%;
-    height: 65px;
+    width: calc(100%-8px);
     background: linear-gradient(to top, #EE0067, #BC2265);
-    justify-content: space-between;
+    height: 55px;
     align-items: center;
-    gap: 20px;
-    z-index: 1;
+    & svg.logo{
+        margin: 10px;
+        margin-right: 0px;
+    }
+
+    & > div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: auto;
+        color: white;
+    }
+    & > a {
+        margin-right: 20px;
+    }
 }
 ul{
     display: flex;
