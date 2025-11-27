@@ -383,6 +383,73 @@
       </div>
     </section>
   </main>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // ----- NAV LINK-үүд -----
+    const navLinks = document.querySelectorAll("header nav a");
+
+    navLinks.forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        const href = link.getAttribute("href");
+
+        // Хэрвээ href нь #section бол зөөлөн scroll хийнэ
+        if (href && href.startsWith("#")) {
+          const target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+
+        // active классыг солих
+        navLinks.forEach(function (l) {
+          l.classList.remove("active");
+        });
+        link.classList.add("active");
+      });
+    });
+
+    // ----- DATE CARD сонгох логик -----
+    const buttons = document.querySelectorAll(".date-card button");
+    const chooser = document.querySelector(".date-chooser");
+
+    // Сонгосон газар харагдуулах жижиг текст
+    let infoEl = null;
+    if (chooser) {
+      infoEl = document.createElement("div");
+      infoEl.id = "chosen-message";
+      infoEl.style.marginTop = "16px";
+      infoEl.style.fontSize = "14px";
+      infoEl.style.color = "#555";
+      chooser.appendChild(infoEl);
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const card = btn.closest(".date-card");
+        const titleEl = card ? card.querySelector("h3") : null;
+        const title = titleEl ? titleEl.textContent.trim() : "this place";
+
+        // Бусад товчны текстийг reset хийе
+        buttons.forEach(function (b) {
+          if (b !== btn) {
+            b.textContent = "Choose this place";
+          }
+        });
+
+        // Энэ товчийг "Chosen ✓" болгоно
+        btn.textContent = "Chosen ✓";
+
+        // Дээрээс нь сонгосон газрыг текстээр харуулах
+        if (infoEl) {
+          infoEl.textContent = "You chose: " + title;
+        } else {
+          alert("You chose: " + title);
+        }
+      });
+    });
+  });
+</script>
 
 
 </body>
