@@ -26,158 +26,222 @@ const profiles = [
     }
 ];
 
-let currentProfileIndex = 0;
-const profileElement = document.querySelector('.profile');
-const profileImage = document.querySelector('.profile img');
-const profileName = document.querySelector('.profile h1');
-const profileAge = document.querySelector('.profile p');
+class ProfileSwipe {
+    constructor() {
+        this.currentProfileIndex = 0;
+        this.profileElement = document.querySelector('.profile');
+        this.profileImage = document.querySelector('.profile img');
+        this.profileName = document.querySelector('.profile h1');
+        this.profileAge = document.querySelector('.profile p');
+        this.refreshButton = document.querySelector('.buttons button:nth-child(1)');
+        this.heartButton = document.querySelector('.buttons button:nth-child(2)');
+        this.closeButton = document.querySelector('.buttons button:nth-child(3)');
 
-
-const refreshButton = document.querySelector('.buttons button:nth-child(1)');
-const heartButton = document.querySelector('.buttons button:nth-child(2)');
-const closeButton = document.querySelector('.buttons button:nth-child(3)');
-
-
-function updateProfile() {
-    if (currentProfileIndex >= profiles.length) {
-        currentProfileIndex = 0;
+        this.init();
     }
 
-    const currentProfile = profiles[currentProfileIndex];
-
-    profileElement.style.opacity = '0';
-
-    setTimeout(() => {
-        profileImage.src = currentProfile.image;
-        profileName.textContent = currentProfile.name;
-        profileAge.textContent = currentProfile.age;
-
-        profileElement.style.opacity = '1';
-    }, 300);
-}
-
-profileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-
-refreshButton.addEventListener('click', () => {
-    refreshButton.style.transform = 'rotate(360deg)';
-    setTimeout(() => {
-        refreshButton.style.transform = 'rotate(0deg)';
-    }, 300);
-
-    updateProfile();
-});
-
-
-heartButton.addEventListener('click', () => {
-
-    heartButton.style.transform = 'scale(1.2)';
-    profileElement.style.transform = 'translateX(100px) rotate(10deg)';
-
-    setTimeout(() => {
-        heartButton.style.transform = 'scale(1)';
-        profileElement.style.transform = 'translateX(0) rotate(0)';
-
-        currentProfileIndex++;
-        updateProfile();
-
-        console.log('Liked:', profiles[currentProfileIndex - 1].name);
-    }, 300);
-});
-closeButton.addEventListener('click', () => {
-    closeButton.style.transform = 'rotate(90deg)';
-    profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
-
-    setTimeout(() => {
-        closeButton.style.transform = 'rotate(0deg)';
-        profileElement.style.transform = 'translateX(0) rotate(0)';
-
-        currentProfileIndex++;
-        updateProfile();
-
-        console.log('Passed:', profiles[currentProfileIndex - 1].name);
-    }, 300);
-});
-
-
-refreshButton.style.transition = 'transform 0.3s ease';
-heartButton.style.transition = 'transform 0.3s ease';
-closeButton.style.transition = 'transform 0.3s ease';
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') {
-        closeButton.click();
-    } else if (e.key === 'ArrowRight') {
-        heartButton.click();
-    } else if (e.key === ' ') {
-        e.preventDefault();
-        refreshButton.click();
-    }
-});
-
-let touchStartX = 0;
-let touchEndX = 0;
-
-profileElement.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-});
-
-profileElement.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-});
-
-function handleSwipe() {
-    const swipeThreshold = 50;
-
-    if (touchEndX < touchStartX - swipeThreshold) {
-        closeButton.click();
+    init() {
+        this.setupTransitions();
+        this.attachEventListeners();
+        this.setupKeyboardControls();
+        this.setupTouchControls();
     }
 
-    if (touchEndX > touchStartX + swipeThreshold) {
-        heartButton.click();
+    setupTransitions() {
+        this.profileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        this.refreshButton.style.transition = 'transform 0.3s ease';
+        this.heartButton.style.transition = 'transform 0.3s ease';
+        this.closeButton.style.transition = 'transform 0.3s ease';
     }
-}
-document.addEventListener('DOMContentLoaded', function () {
-    const dropdowns = document.querySelectorAll('.dropdown');
 
-    dropdowns.forEach(dropdown => {
-        const dropbtn = dropdown.querySelector('.dropbtn');
-        const content = dropdown.querySelector('.dropdown-content, .dropdown-content-school');
-        const buttons = content.querySelectorAll('button');
-        const countSpan = dropdown.querySelector('.selected-count');
+    updateProfile() {
+        if (this.currentProfileIndex >= profiles.length) {
+            this.currentProfileIndex = 0;
+        }
 
-        dropbtn.addEventListener('click', function (e) {
-            e.stopPropagation();
+        const currentProfile = profiles[this.currentProfileIndex];
+        this.profileElement.style.opacity = '0';
 
-            dropdowns.forEach(otherDropdown => {
-                if (otherDropdown !== dropdown) {
-                    otherDropdown.classList.remove('open');
-                }
-            });
+        setTimeout(() => {
+            this.profileImage.src = currentProfile.image;
+            this.profileName.textContent = currentProfile.name;
+            this.profileAge.textContent = currentProfile.age;
+            this.profileElement.style.opacity = '1';
+        }, 300);
+    }
 
-            dropdown.classList.toggle('open');
+    refresh() {
+        this.refreshButton.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+            this.refreshButton.style.transform = 'rotate(0deg)';
+        }, 300);
+        this.updateProfile();
+    }
+
+    like() {
+        this.heartButton.style.transform = 'scale(1.2)';
+        this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
+
+        setTimeout(() => {
+            this.heartButton.style.transform = 'scale(1)';
+            this.profileElement.style.transform = 'translateX(0) rotate(0)';
+
+            console.log('Liked:', profiles[this.currentProfileIndex].name);
+            this.currentProfileIndex++;
+            this.updateProfile();
+        }, 300);
+    }
+
+    pass() {
+        this.closeButton.style.transform = 'rotate(90deg)';
+        this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
+
+        setTimeout(() => {
+            this.closeButton.style.transform = 'rotate(0deg)';
+            this.profileElement.style.transform = 'translateX(0) rotate(0)';
+
+            console.log('Passed:', profiles[this.currentProfileIndex].name);
+            this.currentProfileIndex++;
+            this.updateProfile();
+        }, 300);
+    }
+
+    attachEventListeners() {
+        this.refreshButton.addEventListener('click', () => this.refresh());
+        this.heartButton.addEventListener('click', () => this.like());
+        this.closeButton.addEventListener('click', () => this.pass());
+    }
+
+    setupKeyboardControls() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                this.pass();
+            } else if (e.key === 'ArrowRight') {
+                this.like();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                this.refresh();
+            }
+        });
+    }
+
+    setupTouchControls() {
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        this.profileElement.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
         });
 
-        buttons.forEach(button => {
-            button.addEventListener('click', function (e) {
+        this.profileElement.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            this.handleSwipe(touchStartX, touchEndX);
+        });
+    }
+
+    handleSwipe(startX, endX) {
+        const swipeThreshold = 50;
+
+        if (endX < startX - swipeThreshold) {
+            this.pass();
+        }
+
+        if (endX > startX + swipeThreshold) {
+            this.like();
+        }
+    }
+}
+
+class DropdownFilter {
+    constructor() {
+        this.dropdowns = document.querySelectorAll('.dropdown');
+        this.init();
+    }
+
+    init() {
+        this.attachEventListeners();
+        this.setupClickOutside();
+    }
+
+    attachEventListeners() {
+        this.dropdowns.forEach(dropdown => {
+            const dropbtn = dropdown.querySelector('.dropbtn');
+            const content = dropdown.querySelector('.dropdown-content, .dropdown-content-school');
+            const buttons = content.querySelectorAll('button');
+            const countSpan = dropdown.querySelector('.selected-count');
+
+            dropbtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.classList.toggle('selected');
+                this.toggleDropdown(dropdown);
+            });
 
-                const selectedCount = content.querySelectorAll('button.selected').length;
-
-                if (selectedCount > 0) {
-                    countSpan.textContent = selectedCount;
-                    countSpan.style.display = 'inline-block';
-                } else {
-                    countSpan.style.display = 'none';
-                }
+            buttons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleSelection(button, content, countSpan);
+                });
             });
         });
-    });
+    }
 
-    document.addEventListener('click', function () {
-        dropdowns.forEach(dropdown => {
-            dropdown.classList.remove('open');
+    toggleDropdown(currentDropdown) {
+        this.dropdowns.forEach(dropdown => {
+            if (dropdown !== currentDropdown) {
+                dropdown.classList.remove('open');
+            }
         });
-    });
+
+        currentDropdown.classList.toggle('open');
+    }
+
+    toggleSelection(button, content, countSpan) {
+        button.classList.toggle('selected');
+
+        const selectedCount = content.querySelectorAll('button.selected').length;
+
+        if (selectedCount > 0) {
+            countSpan.textContent = selectedCount;
+            countSpan.style.display = 'inline-block';
+        } else {
+            countSpan.style.display = 'none';
+        }
+    }
+
+    setupClickOutside() {
+        document.addEventListener('click', () => {
+            this.dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('open');
+            });
+        });
+    }
+
+    getSelectedFilters() {
+        const filters = {};
+
+        this.dropdowns.forEach(dropdown => {
+            const dropdownTitle = dropdown.querySelector('.dropbtn h1').textContent;
+            const selectedButtons = dropdown.querySelectorAll('button.selected');
+
+            if (selectedButtons.length > 0) {
+                filters[dropdownTitle] = Array.from(selectedButtons).map(btn =>
+                    btn.querySelector('h2').textContent
+                );
+            }
+        });
+
+        return filters;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const profileSwipe = new ProfileSwipe();
+    const dropdownFilter = new DropdownFilter();
+
+    const filterButton = document.querySelector('.filter');
+    if (filterButton) {
+        filterButton.addEventListener('click', () => {
+            const selectedFilters = dropdownFilter.getSelectedFilters();
+            console.log('Selected Filters:', selectedFilters);
+        });
+    }
 });
