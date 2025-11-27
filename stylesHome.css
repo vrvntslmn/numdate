@@ -9,11 +9,17 @@ header {
     width: calc(100%-8px);
     background: linear-gradient(to top, #EE0067, #BC2265);
     height: 55px;
-    justify-content: flex-end space-around;
     align-items: center;
+
+    & svg.logo {
+        margin: 10px;
+        margin-right: 0px;
+    }
 
     &>div {
         display: flex;
+        align-items: center;
+        gap: 10px;
         margin-right: auto;
         color: white;
     }
