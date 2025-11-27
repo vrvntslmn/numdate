@@ -3,6 +3,9 @@ body{
     background-color: #F5F5F5;
 }
 
+a{text-decoration: none;}
+a:visited {color: white;}
+
 main{
     margin: 0px;
     display: flex;
@@ -161,15 +164,15 @@ div.MyAvatar, div.OtherAvatar{
     font-family: "Roboto Condensed";
     width: 50%;
     position: relative;
-    z-index: 2;                     /* зүрхнээс ДЭЭР байна */
+    z-index: 2;                     
 }
 
-/* Зүүн талын профайл – төв рүү дөхөөд буцаад явна */
+
 div.MyAvatar{
     animation: collide-left 1s ease-in-out;
 }
 
-/* Баруун талын профайл – төв рүү дөхөөд буцаад явна */
+
 div.OtherAvatar{
     animation: collide-right 1s linear;
     
@@ -177,7 +180,7 @@ div.OtherAvatar{
 
 @keyframes collide-left{
     0%   { transform: translateX(80px); }
-    100% { transform: translateX(0); }      /* анхны байрлал руугаа буцна */
+    100% { transform: translateX(0); }      
 }
 
 @keyframes collide-right{
@@ -235,32 +238,32 @@ div.OtherAvatar{
 .falling-hearts {
         position: fixed;
         inset: 0;
-        pointer-events: none;   /* click-д саад болохгүй */
+        pointer-events: none;   
         overflow: hidden;
-        z-index: -1;          /* бүхний ДЭЭР */
+        z-index: -1;         
     }
 
     /* нэг ширхэг зүрх */
     .falling-hearts .heart {
         position: absolute;
-        top: -40px;             /* дэлгэцийн дээдээс эхэлнэ */
+        top: -40px;             
         font-size: 28px;
         color: #EE0067;
         opacity: 0.9;
 
-        /* хоёр animation нэг дор */
+       
         animation:
           heart-fall 8s linear infinite,
           heart-sway 3s ease-in-out infinite alternate;
     }
 
-    /* доошоо унах хөдөлгөөн – top-оор */
+
     @keyframes heart-fall {
         0%   { top: -10vh; }
         100% { top: 110vh; }
     }
 
-    /* баруун-зүүн савлаж, жаахан эргэнэ */
+   
     @keyframes heart-sway {
         0%   { transform: translateX(-15px) rotate(-15deg); }
         100% { transform: translateX(15px) rotate(15deg); }
