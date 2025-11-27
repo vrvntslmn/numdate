@@ -214,7 +214,14 @@ main {
     align-items: stretch;
     max-height: 600px;
     overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+
+.catogeries::-webkit-scrollbar {
+    display: none;
+}
+
 
 .catogeries a {
     text-decoration: none;
