@@ -48,7 +48,7 @@ main>div {
     flex-wrap: wrap;
     justify-content: center;
     gap: 200px;
-    margin-top: 0;
+    margin-top: 10px;
 }
 
 
@@ -101,14 +101,39 @@ main {
 }
 
 .profile h1 {
-    bottom: 40px;
+    bottom: 80px;
     font-size: 22px;
     font-weight: 600;
 }
 
 .profile p {
-    bottom: 16px;
+    bottom: 60px;
     font-size: 18px;
+}
+
+.profile .see-more-btn {
+    position: absolute;
+    bottom: 64px;
+    right: 16px;
+    background: rgba(245, 0, 87, 0.9);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 3;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.profile .see-more-btn:hover {
+    background: rgba(245, 0, 87, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 0, 87, 0.4);
 }
 
 .swipe .buttons {
