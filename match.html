@@ -15,10 +15,55 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Bubbles&display=swap" rel="stylesheet">
-    <script type="module" src="nm-mini-profile.js"></script>
-    <audio id="heartBeat" name="heartBeat" src="./heartBeat.mp3">
-    </audio>
-    </head>
+    <script type="module" src="nm-mini-profile.js">
+    </script>
+    <script>
+window.addEventListener('load', function () {
+  const container = document.querySelector('.falling-hearts');
+  const heartChars = ['❤'];
+
+  function createBurst() {
+    const HEARTS_PER_BURST = 200;   // нэг асгаралтанд хэдэн зүрх байх вэ
+    for (let i = 0; i < HEARTS_PER_BURST; i++) {
+      const heart = document.createElement('span');
+      heart.classList.add('heart');
+
+      // санамсаргүй emoji
+      heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+
+      // дэлгэцийн өргөн дагуу санамсаргүй байрлал
+      heart.style.left = Math.random() * 100 + 'vw';
+
+      // 2.5–3.5 секундийн хооронд унах хугацаа
+      const fallDuration = 4.5 + Math.random();
+      heart.style.animationDuration = fallDuration + 's, 1.8s';
+
+      // бага delay – бүгд яг нэгэн зэрэг биш, бөөнөөрөө шахуу
+      const delay = Math.random() * 5;
+      heart.style.animationDelay = delay + 's, 0s';
+
+      container.appendChild(heart);
+
+      // доошоо унаж дууссаны дараа DOM-оос устгана
+      setTimeout(() => {
+        heart.remove();
+      }, (fallDuration + delay) * 1000);
+    }
+  }
+
+  // 🔥 Хуудас ачаалахад ЗӨВХӨН НЭГ удаа асгарна
+  createBurst();
+});
+</script>
+
+
+     <audio
+    id="heartBeat"
+    src="./uulen.wav"
+    autoplay
+  ></audio> 
+   <div class="falling-hearts"></div>   
+</head>
 <body>
     <header>
         <div>
@@ -91,8 +136,10 @@
          <div class="congrats">
           <p>Та 2 бие биедээ таалагдлаа. ( ˶˘ ³˘)♡</p>
           <p> Амжилт хүсье (˶˃ ᵕ ˂˶)</p>
+          <button class="start-chatting-btn" onclick="location.href='chat.html'">Чатлах</button>
          </div>
-         <button class="start-chatting-btn" onclick="location.href='chat.html'">Чатлах</button>
+         
+         
    </main>
     
 </body>
