@@ -1,7 +1,6 @@
 import './com-home.js';
 import './com-dateidea.js';
 import './com-messenger.js';
-import './scripts.js';
 import './com-route.js';
 import './com-routes.js';
 import './com-router.js';
@@ -171,7 +170,7 @@ class App extends HTMLElement{
         </nav>
     </header>
     <div id="content">
-        <com-home>
+        <com-home></com-home>
     </div>
     <com-router>
         <com-routes>
