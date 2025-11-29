@@ -7,7 +7,7 @@ class Routes extends HTMLElement{
         this.querySelectorAll('com-route').forEach(r => {
             const path = r.getAttribute('path');
             const content = r.getAttribute('content');
-            this.parentElement.urlBurtguul({path, content});
+            this.parentElement.urlBurtguuleh({path, content});
         });
     }
 

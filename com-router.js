@@ -11,6 +11,7 @@ class Route extends HTMLElement{
             switch(hash){
                 case '#/':
                     content.innerHTML = '<com-home></com-home>';
+                    break;
                 case '#messenger':
                     content.innerHTML = '<com-messenger></com-messenger>';
                     break;
@@ -23,7 +24,7 @@ class Route extends HTMLElement{
         });
     }
 
-    urlBurgtuuleh(url){
+    urlBurtguuleh(url){
         this.routes.set(url.path, url.content);
     }
 }
