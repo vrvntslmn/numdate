@@ -361,6 +361,12 @@ article.subscription{
     width: 1px;
     background-color: black;
 }
+button{   
+    border: none;              
+    background: none;          
+    cursor: pointer; 
+    margin-left: auto;
+}
 
 /*grid-template-areas: "as mn" "ft ft";
 grid-area: as;

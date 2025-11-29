@@ -5,12 +5,481 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>NUMdate – Messages</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap"
         rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
 
-    <link rel="stylesheet" href="stylesMessenger.css">
+        body {
+            margin: 0;
+            background-color: #F5F5F5;
+            font-family: 'Yanone Kaffeesatz', sans-serif;
+        }
+
+        header {
+            display: flex;
+            width: calc(100%-8px);
+            background: linear-gradient(to top, #EE0067, #BC2265);
+            height: 55px;
+            align-items: center;
+
+            & svg.logo {
+                margin: 10px;
+                margin-right: 0px;
+            }
+
+            &>div {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-right: auto;
+                color: white;
+            }
+
+            &>a {
+                margin-right: 20px;
+            }
+        }
+
+        header nav {
+            display: flex;
+
+
+            justify-content: flex-end;
+            font-family: var(--font-header);
+            align-self: flex-end;
+
+            ul {
+                display: flex;
+                justify-content: space-around;
+                list-style: none;
+                gap: 15px;
+                padding: 15px 20px;
+
+                a {
+                    display: flex;
+                    color: white;
+                    text-decoration: none;
+                    font-size: 20px;
+                    font-weight: 600;
+                }
+            }
+
+            width: 100%;
+            height: 55px;
+            background: linear-gradient(to top, #EE0067, #BC2265);
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px
+        }
+
+        header nav div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header nav div h1 {
+            color: #F5F5F5;
+        }
+
+        header nav div a img {
+            height: 30px;
+            width: 140px;
+        }
+
+        main {
+            padding: 0;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .chat-app {
+            width: 100%;
+            height: calc(100vh - 55px);
+            background: #FFFFFF;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 350px;
+            background: #FFFFFF;
+            border-right: 1px solid #DBDBDB;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Stories */
+        .stories-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #EFEFEF;
+        }
+
+        .stories-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+        }
+
+        .stories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .story-profile {
+            min-width: 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .story-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            overflow: hidden;
+        }
+
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .story-name {
+            margin-top: 6px;
+            width: 48px;
+            height: 4px;
+            border-radius: 2px;
+            background: #DBDBDB;
+        }
+
+        /* Conversations */
+        .conversation-list {
+            padding: 8px 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .conversation-list::-webkit-scrollbar {
+            width: 0;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .conversation-item:hover {
+            background: #FAFAFA;
+        }
+
+        .conversation-item.is-active {
+            background: #EFEFEF;
+        }
+
+        .conversation-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin-right: 12px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .conversation-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .conversation-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 4px;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        .conversation-snippet {
+            font-size: 13px;
+            color: #8E8E8E;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #44B700;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        /* CHAT PANEL */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #FFFFFF;
+        }
+
+        .chat-header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #DBDBDB;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            margin-right: 12px;
+            background: transparent;
+            color: #262626;
+            font-size: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #FAFAFA;
+        }
+
+        .chat-user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            overflow: hidden;
+        }
+
+        .chat-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-user-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        .chat-user-status {
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #8E8E8E;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #44B700;
+        }
+
+        /* Messages */
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-body::-webkit-scrollbar-thumb {
+            background: #DBDBDB;
+            border-radius: 3px;
+        }
+
+        .message-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .message-row.incoming {
+            justify-content: flex-start;
+        }
+
+        .message-row.outgoing {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .message-bubble {
+            max-width: 60%;
+            min-height: 36px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 18px;
+            word-wrap: break-word;
+        }
+
+        .message-row.incoming .message-bubble {
+            background: #EFEFEF;
+            color: #262626;
+        }
+
+        .message-row.outgoing .message-bubble {
+            background: #EE0067;
+            color: #FFFFFF;
+        }
+
+        /* FOOTER */
+        .chat-footer {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #FFFFFF;
+            border-top: 1px solid #EFEFEF;
+        }
+
+        .attachments-bar {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: #FAFAFA;
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .icon-btn svg path {
+            fill: #262626;
+            stroke: #262626;
+        }
+
+        .message-form {
+            display: flex;
+            flex: 1;
+            gap: 8px;
+        }
+
+        .message-input {
+            flex: 1;
+            border-radius: 22px;
+            border: 1px solid #DBDBDB;
+            padding: 10px 16px;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Roboto Condensed', sans-serif;
+            transition: border 0.2s ease;
+            background: #FAFAFA;
+        }
+
+        .message-input:focus {
+            border-color: #A8A8A8;
+            background: #FFFFFF;
+        }
+
+        .message-input::placeholder {
+            color: #8E8E8E;
+        }
+
+        .send-btn {
+            min-width: 60px;
+            height: 36px;
+            border-radius: 18px;
+            border: none;
+            background: transparent;
+            color: #EE0067;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Roboto Condensed', sans-serif;
+            transition: opacity 0.2s ease;
+        }
+
+        .send-btn:hover {
+            opacity: 0.7;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 960px) {
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -55,10 +524,9 @@
                 <li><a href="messenger.html">Messages</a></li>
                 <li>
                     <a href="#profile">
-                        <!-- bell icon чинь -->
                         <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
-                                d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z"
+                                d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666Z"
                                 fill="white" />
                         </svg>
                     </a>
@@ -72,74 +540,91 @@
                 <div class="stories-header">
                     <div class="stories-scroll">
                         <div class="story-profile">
-                            <div class="story-avatar"></div>
+                            <div class="story-avatar">
+                                <img src="img/profile2.jpg" alt="Story">
+                            </div>
                             <div class="story-name"></div>
                         </div>
                         <div class="story-profile">
-                            <div class="story-avatar"></div>
+                            <div class="story-avatar">
+                                <img src="img/profile3.jpg" alt="Story">
+                            </div>
                             <div class="story-name"></div>
                         </div>
                         <div class="story-profile">
-                            <div class="story-avatar"></div>
+                            <div class="story-avatar">
+                                <img src="img/profile4.jpg" alt="Story">
+                            </div>
                             <div class="story-name"></div>
                         </div>
                         <div class="story-profile">
-                            <div class="story-avatar"></div>
+                            <div class="story-avatar">
+                                <img src="img/profile5.jpg" alt="Story">
+                            </div>
                             <div class="story-name"></div>
                         </div>
                         <div class="story-profile">
-                            <div class="story-avatar"></div>
+                            <div class="story-avatar">
+                                <img src="img/image.jpeg" alt="Story">
+                            </div>
                             <div class="story-name"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="conversation-list">
-                    <div class="conversation-item is-active">
-                        <div class="conversation-avatar"></div>
+                    <div class="conversation-item is-active" data-user="Тэмүүжин" data-avatar="img/profile2.jpg">
+                        <div class="conversation-avatar">
+                            <img src="img/profile2.jpg" alt="Тэмүүжин">
+                        </div>
                         <div class="conversation-text">
                             <div class="conversation-name">Тэмүүжин</div>
-                            <div class="conversation-snippet"></div>
+                            <div class="conversation-snippet">Сайн уу, яаж байна?</div>
                         </div>
                         <div class="conversation-status"></div>
                     </div>
 
-                    <div class="conversation-item">
-                        <div class="conversation-avatar"></div>
+                    <div class="conversation-item" data-user="Jennie Kim" data-avatar="img/profile3.jpg">
+                        <div class="conversation-avatar">
+                            <img src="img/profile3.jpg" alt="Jennie Kim">
+                        </div>
                         <div class="conversation-text">
                             <div class="conversation-name">Jennie Kim</div>
-                            <div class="conversation-snippet"></div>
+                            <div class="conversation-snippet">See you tomorrow!</div>
                         </div>
                         <div class="conversation-status"></div>
                     </div>
 
-                    <div class="conversation-item">
-                        <div class="conversation-avatar"></div>
+                    <div class="conversation-item" data-user="Анударь" data-avatar="img/profile4.jpg">
+                        <div class="conversation-avatar">
+                            <img src="img/profile4.jpg" alt="Анударь">
+                        </div>
                         <div class="conversation-text">
                             <div class="conversation-name">Анударь</div>
-                            <div class="conversation-snippet"></div>
+                            <div class="conversation-snippet">Маргааш уулзъя</div>
                         </div>
                         <div class="conversation-status"></div>
                     </div>
 
-                    <div class="conversation-item">
-                        <div class="conversation-avatar"></div>
+                    <div class="conversation-item" data-user="Үүрээ" data-avatar="img/profile5.jpg">
+                        <div class="conversation-avatar">
+                            <img src="img/profile5.jpg" alt="Үүрээ">
+                        </div>
                         <div class="conversation-text">
                             <div class="conversation-name">Үүрээ</div>
-                            <div class="conversation-snippet"></div>
+                            <div class="conversation-snippet">Баярлалаа!</div>
                         </div>
                         <div class="conversation-status"></div>
                     </div>
                 </div>
             </aside>
+
             <section class="chat-panel">
                 <header class="chat-header">
                     <button class="back-btn" aria-label="Back">‹</button>
-
                     <div class="chat-user-avatar">
-                        <span><img src="img/image.jpeg" alt=""></span>
+                        <img src="img/profile2.jpg" alt="User" id="headerAvatar">
                     </div>
-
                     <div class="chat-user-info">
                         <div class="chat-user-name">Тэмүүжин</div>
                         <div class="chat-user-status">
@@ -148,80 +633,129 @@
                         </div>
                     </div>
                 </header>
-                <div class="chat-body">
+
+                <div class="chat-body" id="chatBody">
+                    <div class="message-row incoming">
+                        <div class="message-avatar">
+                            <img src="img/profile2.jpg" alt="User" class="incoming-avatar">
+                        </div>
+                        <div class="message-bubble">Сайн уу! Яаж байна?</div>
+                    </div>
+                    <div class="message-row outgoing">
+                        <div class="message-bubble">Сайн байна! Чи яаж байна?</div>
+                    </div>
+                    <div class="message-row incoming">
+                        <div class="message-avatar">
+                            <img src="img/profile3.jpg" alt="User" class="incoming-avatar">
+                        </div>
+                        <div class="message-bubble">Би ч бас сайн. Маргааш уулзах уу?</div>
+                    </div>
                 </div>
+
                 <footer class="chat-footer">
                     <div class="attachments-bar">
-                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="30px"
-                                height="30px" viewBox="0 0 24 24" fill="none">
-                                <path
-                                    d="M12 14.2857C13.4229 14.2857 14.5714 13.1371 14.5714 11.7143V6.57143C14.5714 5.14857 13.4229 4 12 4C10.5771 4 9.42857 5.14857 9.42857 6.57143V11.7143C9.42857 13.1371 10.5771 14.2857 12 14.2857Z"
-                                    fill="#000000" />
-                                <path
-                                    d="M16.5429 11.7143H18C18 14.6371 15.6686 17.0543 12.8571 17.4743V20.2857H11.1429V17.4743C8.33143 17.0543 6 14.6371 6 11.7143H7.45714C7.45714 14.2857 9.63429 16.0857 12 16.0857C14.3657 16.0857 16.5429 14.2857 16.5429 11.7143Z"
-                                    fill="#000000" />
-                            </svg></button>
-                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20px"
-                                height="20px" viewBox="0 0 24 24" fill="none">
+                        <button type="button" class="icon-btn" title="Photo/Video">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M18 8C18 9.10457 17.1046 10 16 10C14.8954 10 14 9.10457 14 8C14 6.89543 14.8954 6 16 6C17.1046 6 18 6.89543 18 8Z"
-                                    fill="#1C274C" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M11.9426 1.25H12.0574C14.3658 1.24999 16.1748 1.24998 17.5863 1.43975C19.031 1.63399 20.1711 2.03933 21.0659 2.93414C21.9607 3.82895 22.366 4.96897 22.5603 6.41371C22.75 7.82519 22.75 9.63423 22.75 11.9426V12.0309C22.75 13.9397 22.75 15.5023 22.6463 16.7745C22.5422 18.0531 22.3287 19.1214 21.8509 20.0087C21.6401 20.4001 21.3812 20.7506 21.0659 21.0659C20.1711 21.9607 19.031 22.366 17.5863 22.5603C16.1748 22.75 14.3658 22.75 12.0574 22.75H11.9426C9.63423 22.75 7.82519 22.75 6.41371 22.5603C4.96897 22.366 3.82895 21.9607 2.93414 21.0659C2.14086 20.2726 1.7312 19.2852 1.51335 18.0604C1.29935 16.8573 1.2602 15.3603 1.25207 13.5015C1.25 13.0287 1.25 12.5286 1.25 12.001V11.9426C1.24999 9.63424 1.24998 7.82519 1.43975 6.41371C1.63399 4.96897 2.03933 3.82895 2.93414 2.93414C3.82895 2.03933 4.96897 1.63399 6.41371 1.43975C7.82519 1.24998 9.63424 1.24999 11.9426 1.25ZM6.61358 2.92637C5.33517 3.09825 4.56445 3.42514 3.9948 3.9948C3.42514 4.56445 3.09825 5.33517 2.92637 6.61358C2.75159 7.91356 2.75 9.62178 2.75 12C2.75 12.2905 2.75 12.5715 2.75034 12.8435L3.75148 11.9675C4.66275 11.1702 6.03617 11.2159 6.89238 12.0721L11.1821 16.3618C11.8693 17.0491 12.9511 17.1428 13.7463 16.5839L14.0445 16.3744C15.1887 15.5702 16.7368 15.6634 17.7764 16.599L20.6068 19.1463C20.8917 18.548 21.0609 17.7618 21.1513 16.6527C21.2494 15.4482 21.25 13.9459 21.25 12C21.25 9.62178 21.2484 7.91356 21.0736 6.61358C20.9018 5.33517 20.5749 4.56445 20.0052 3.9948C19.4355 3.42514 18.6648 3.09825 17.3864 2.92637C16.0864 2.75159 14.3782 2.75 12 2.75C9.62178 2.75 7.91356 2.75159 6.61358 2.92637Z"
-                                    fill="#1C274C" />
-                            </svg></button>
-                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20px"
-                                height="20px" viewBox="0 0 24 24" fill="none">
-                                <path d="M9 16C9.85038 16.6303 10.8846 17 12 17C13.1154 17 14.1496 16.6303 15 16"
-                                    stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
-                                <ellipse cx="15" cy="10.5" rx="1" ry="1.5" fill="#1C274C" />
-                                <ellipse cx="9" cy="10.5" rx="1" ry="1.5" fill="#1C274C" />
+                                    fill="#262626" />
                                 <path
-                                    d="M15 22H12C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8M15 22C18.866 22 22 18.866 22 15M15 22C15 20.1387 15 19.2081 15.2447 18.4549C15.7393 16.9327 16.9327 15.7393 18.4549 15.2447C19.2081 15 20.1387 15 22 15M22 12V15"
-                                    stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
-                            </svg></button>
-                        <button type="button" class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg"
-                                xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" width="20px" height="20px"
-                                viewBox="0 0 32 32" version="1.1">
-
-                                <title>plus</title>
-                                <desc>Created with Sketch Beta.</desc>
-                                <defs>
-
-                                </defs>
-                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"
-                                    sketch:type="MSPage">
-                                    <g id="Icon-Set-Filled" sketch:type="MSLayerGroup"
-                                        transform="translate(-362.000000, -1037.000000)" fill="#000000">
-                                        <path
-                                            d="M390,1049 L382,1049 L382,1041 C382,1038.79 380.209,1037 378,1037 C375.791,1037 374,1038.79 374,1041 L374,1049 L366,1049 C363.791,1049 362,1050.79 362,1053 C362,1055.21 363.791,1057 366,1057 L374,1057 L374,1065 C374,1067.21 375.791,1069 378,1069 C380.209,1069 382,1067.21 382,1065 L382,1057 L390,1057 C392.209,1057 394,1055.21 394,1053 C394,1050.79 392.209,1049 390,1049"
-                                            id="plus" sketch:type="MSShapeGroup">
-
-                                        </path>
-                                    </g>
-                                </g>
-                            </svg></button>
-                    </div>
-
-                    <form class="message-form">
-                        <input type="text" class="message-input" placeholder="type message" autocomplete="off" />
-                        <button type="submit" class="send-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 -0.5 25 25"
-                                fill="none">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M18.455 9.8834L7.063 4.1434C6.76535 3.96928 6.40109 3.95274 6.08888 4.09916C5.77667 4.24558 5.55647 4.53621 5.5 4.8764C5.5039 4.98942 5.53114 5.10041 5.58 5.2024L7.749 10.4424C7.85786 10.7903 7.91711 11.1519 7.925 11.5164C7.91714 11.8809 7.85789 12.2425 7.749 12.5904L5.58 17.8304C5.53114 17.9324 5.5039 18.0434 5.5 18.1564C5.55687 18.4961 5.77703 18.7862 6.0889 18.9323C6.40078 19.0785 6.76456 19.062 7.062 18.8884L18.455 13.1484C19.0903 12.8533 19.4967 12.2164 19.4967 11.5159C19.4967 10.8154 19.0903 10.1785 18.455 9.8834V9.8834Z"
-                                    stroke="#000000" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                                    d="M2.75 12C2.75 9.62 2.75 7.91 2.93 6.61C3.10 5.34 3.43 4.56 4 4C4.56 3.43 5.34 3.10 6.61 2.93C7.91 2.75 9.62 2.75 12 2.75C14.38 2.75 16.09 2.75 17.39 2.93C18.66 3.10 19.44 3.43 20 4C20.56 4.56 20.90 5.34 21.07 6.61C21.25 7.91 21.25 9.62 21.25 12C21.25 14.38 21.25 16.09 21.07 17.39C20.90 18.66 20.56 19.44 20 20C19.44 20.56 18.66 20.90 17.39 21.07C16.09 21.25 14.38 21.25 12 21.25C9.62 21.25 7.91 21.25 6.61 21.07C5.34 20.90 4.56 20.56 4 20C3.43 19.44 3.10 18.66 2.93 17.39C2.75 16.09 2.75 14.38 2.75 12Z"
+                                    stroke="#262626" stroke-width="1.5" />
                             </svg>
                         </button>
+                        <button type="button" class="icon-btn" title="Emoji">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="#262626" stroke-width="1.5" />
+                                <path d="M9 16C9.85 16.63 10.88 17 12 17C13.12 17 14.15 16.63 15 16" stroke="#262626"
+                                    stroke-width="1.5" stroke-linecap="round" />
+                                <circle cx="15" cy="10" r="1" fill="#262626" />
+                                <circle cx="9" cy="10" r="1" fill="#262626" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form class="message-form" id="messageForm">
+                        <input type="text" class="message-input" id="messageInput" placeholder="Message..."
+                            autocomplete="off" />
+                        <button type="submit" class="send-btn">Send</button>
                     </form>
                 </footer>
             </section>
         </div>
     </main>
 
-    <script src="messenger.js" defer></script>
+    <script>
+        // Current user avatar
+        let currentUserAvatar = 'https://i.pravatar.cc/150?img=12';
+
+        // Message sending functionality
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const chatBody = document.getElementById('chatBody');
+
+        messageForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = messageInput.value.trim();
+            if (text) {
+                const messageRow = document.createElement('div');
+                messageRow.className = 'message-row outgoing';
+                messageRow.innerHTML = `<div class="message-bubble">${escapeHtml(text)}</div>`;
+                chatBody.appendChild(messageRow);
+                messageInput.value = '';
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        });
+
+        // HTML escape function
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Conversation switching functionality
+        const conversationItems = document.querySelectorAll('.conversation-item');
+        const chatUserName = document.querySelector('.chat-user-name');
+        const headerAvatar = document.getElementById('headerAvatar');
+
+        conversationItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active class from all items
+                conversationItems.forEach(i => i.classList.remove('is-active'));
+                // Add active class to clicked item
+                item.classList.add('is-active');
+
+                // Update chat header with selected user
+                const userName = item.dataset.user;
+                const userAvatar = item.dataset.avatar;
+                chatUserName.textContent = userName;
+                headerAvatar.src = userAvatar;
+                currentUserAvatar = userAvatar;
+
+                // Clear chat body and add welcome message
+                chatBody.innerHTML = `
+                    <div class="message-row incoming">
+                        <div class="message-avatar">
+                            <img src="${userAvatar}" alt="${userName}" class="incoming-avatar">
+                        </div>
+                        <div class="message-bubble">Сайн уу!</div>
+                    </div>
+                `;
+
+                // Update all incoming avatars
+                updateIncomingAvatars();
+            });
+        });
+
+        // Function to update incoming message avatars
+        function updateIncomingAvatars() {
+            const incomingAvatars = document.querySelectorAll('.incoming-avatar');
+            incomingAvatars.forEach(avatar => {
+                avatar.src = currentUserAvatar;
+            });
+        }
+    </script>
 </body>
 
 </html>

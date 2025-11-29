@@ -211,11 +211,11 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #f50057;
+    /* background-color: #f50057; */
     border: none;
-    color: white;
+    /* color: white; */
     padding: 20px 30px;
-    border-radius: 6px;
+    border-radius: 10px;
     font-size: 20px;
     cursor: pointer;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
@@ -234,7 +234,7 @@ main {
 }
 
 .catogeries button:hover h2 {
-    color: #F5F5F5;
+    color: #f50057;
     margin: 0;
 }
 
