@@ -52,12 +52,18 @@ div.main-container{
     padding: 10px;
     height: fit-content;
     background-color: white;
-    border-radius: 16px;
-    min-width: 900px;
-    max-width: 1200px;
+    border-radius: 20px;
+
+    width: 100%;     
+    max-width: 900px;   
+
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
     margin-top: 30px;
+    margin-left: auto;   
+    margin-right: auto;
+    box-sizing: border-box; 
 }
+
 
 div.main-container div.close-btn{
     width: 100%;
@@ -210,7 +216,7 @@ div.OtherAvatar{
     border-radius: 50%;
     background: none;
     opacity: 0;
-    z-index: 1; /* профайлын АРД */
+    z-index: 1; 
 
     
     animation:
@@ -218,13 +224,13 @@ div.OtherAvatar{
       heart-pulse 1.5s ease-in-out 1.2s infinite alternate;
 }
 
-/* эхэнд жижиг бүдгэрсэн зүрх → том тод болно */
+
 @keyframes heart-appear{
     from { opacity: 0; transform: translate(-50%, -50%) scale(1); }
     to   { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
 }
 
-/* дараа нь зүрх тогтмол “бамбалзана” */
+
 @keyframes heart-pulse{
     0%   { transform: translate(-50%, -50%) scale(1.3); }
     100% { transform: translate(-50%, -50%) scale(1); }
@@ -243,6 +249,7 @@ div.OtherAvatar{
     width: 150px;
 
 }
+
 .start-chatting-btn:hover{
     box-shadow: 0 0 15px rgba(238, 0, 103, 0.7);
      transform: translateY(-2px); 
