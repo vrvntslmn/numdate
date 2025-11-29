@@ -104,6 +104,7 @@ class App extends HTMLElement{
                         list-style: none;
                         gap:15px;
                         padding : 15px 20px;
+                        margin-left: auto;
                         a{  
                             display: flex;
                             color: white;
