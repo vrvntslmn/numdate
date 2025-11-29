@@ -4,47 +4,39 @@ body {
     font-family: 'Yanone Kaffeesatz', sans-serif;
 }
 
-header {
+header{
     display: flex;
     width: calc(100%-8px);
     background: linear-gradient(to top, #EE0067, #BC2265);
     height: 55px;
     align-items: center;
-
-    & svg.logo {
+    & svg.logo{
         margin: 10px;
         margin-right: 0px;
     }
 
-    &>div {
+    & > div {
         display: flex;
         align-items: center;
         gap: 10px;
         margin-right: auto;
         color: white;
     }
-
-    &>a {
+    & > a {
         margin-right: 20px;
     }
 }
 
 header nav {
     display: flex;
-
-
-    justify-content: flex-end;
     font-family: var(--font-header);
-    align-self: flex-end;
-
     ul {
         display: flex;
         justify-content: space-around;
         list-style: none;
-        gap: 15px;
-        padding: 15px 20px;
-
-        a {
+        gap:15px;
+        padding : 15px 20px;
+        a{  
             display: flex;
             color: white;
             text-decoration: none;
@@ -52,28 +44,9 @@ header nav {
             font-weight: 600;
         }
     }
-
-    width: 100%;
     height: 55px;
-    background: linear-gradient(to top, #EE0067, #BC2265);
-    justify-content: space-between;
     align-items: center;
-    gap: 20px
-}
-
-header nav div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-header nav div h1 {
-    color: #F5F5F5;
-}
-
-header nav div a img {
-    height: 30px;
-    width: 140px;
+    gap: 20px;
 }
 
 main>div {
