@@ -23,7 +23,7 @@ window.addEventListener('load', function () {
   const heartChars = ['❤'];
 
   function createBurst() {
-    const HEARTS_PER_BURST = 200;   
+    const HEARTS_PER_BURST = 80;   
     for (let i = 0; i < HEARTS_PER_BURST; i++) {
       const heart = document.createElement('span');
       heart.classList.add('heart');
@@ -43,7 +43,7 @@ window.addEventListener('load', function () {
 
       container.appendChild(heart);
 
-      // доошоо унаж дууссаны дараа DOM-оос устгана
+      
       setTimeout(() => {
         heart.remove();
       }, (fallDuration + delay) * 1000);
