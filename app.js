@@ -14,6 +14,52 @@ class App extends HTMLElement{
 
     connectedCallback(){
         this.innerHTML = `
+        <style>
+                header{
+                display: flex;
+                width: calc(100%-8px);
+                background: linear-gradient(to top, #EE0067, #BC2265);
+                height: 55px;
+                align-items: center;
+                & svg.logo{
+                    margin: 10px;
+                    margin-right: 0px;
+                }
+
+                & > div {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-right: auto;
+                    color: white;
+                }
+                & > a {
+                    margin-right: 20px;
+                }
+            }
+
+            header nav {
+                display: flex;
+                font-family: var(--font-header);
+                ul {
+                    display: flex;
+                    justify-content: space-around;
+                    list-style: none;
+                    gap:15px;
+                    padding : 15px 20px;
+                    a{  
+                        display: flex;
+                        color: white;
+                        text-decoration: none;
+                        font-size: 20px;
+                        font-weight: 600;
+                    }
+                }
+                height: 55px;
+                align-items: center;
+                gap: 20px;
+            }
+        </style>
         <header>
         <nav>
             <div>
@@ -65,6 +111,416 @@ class App extends HTMLElement{
             </ul>
         </nav>
     </header>
+    <style>
+    body {
+        margin: 0;
+        background-color: #F5F5F5;
+        font-family: 'Yanone Kaffeesatz', sans-serif;
+    }
+
+    main>div {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 200px;
+        margin-top: 10px;
+    }
+
+
+
+    main {
+        min-height: calc(100vh - 55px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile {
+        width: 350px;
+        height: 580px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        position: relative;
+        background: #000;
+    }
+
+    .profile img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+    }
+
+    .profile::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 45%;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+        z-index: 2;
+    }
+
+    .profile h1,
+    .profile p {
+        position: absolute;
+        left: 16px;
+        color: #fff;
+        margin: 0;
+        z-index: 3;
+    }
+
+    .profile h1 {
+        bottom: 80px;
+        font-size: 22px;
+        font-weight: 600;
+    }
+
+    .profile p {
+        bottom: 60px;
+        font-size: 18px;
+    }
+
+    .profile .see-more-btn {
+        position: absolute;
+        bottom: 64px;
+        right: 16px;
+        background: rgba(245, 0, 87, 0.9);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 3;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .profile .see-more-btn:hover {
+        background: rgba(245, 0, 87, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 0, 87, 0.4);
+    }
+
+    .swipe .buttons {
+        gap: 20px;
+        margin-top: -25px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        z-index: 4;
+    }
+
+    .buttons .other_button {
+        background-color: #f50057;
+        border: none;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .buttons .heart_button {
+        background-color: #f50057;
+        border: none;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: transform 0.2s;
+        margin-top: -10px;
+    }
+
+    .buttons button:hover {
+        transform: scale(1.1);
+    }
+
+    .catogeries {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 380px;
+        align-items: stretch;
+        max-height: 600px;
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .catogeries::-webkit-scrollbar {
+        display: none;
+    }
+
+
+    .catogeries a {
+        text-decoration: none;
+    }
+
+    .catogeries button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        /* background-color: #f50057; */
+        border: none;
+        /* color: white; */
+        padding: 20px 30px;
+        border-radius: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .catogeries button:hover {
+        background-color: #ff4081;
+        transform: translateY(-2px);
+    }
+
+    .catogeries button h1 {
+        font-size: 20px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .catogeries button:hover h2 {
+        color: #f50057;
+        margin: 0;
+    }
+
+    .filter {
+        display: block;
+        width: fit-content;
+
+        margin: 24px auto 0;
+
+
+        padding: 10px 40px;
+        border-radius: 999px;
+        border: 2px solid #f50057;
+        background-color: #ffffff;
+        color: #f50057;
+
+        font-family: 'Yanone Kaffeesatz', sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-decoration: none;
+
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        transition: background 0.2s, color 0.2s,
+            transform 0.15s, box-shadow 0.15s;
+    }
+
+    .filter:hover {
+        background-color: #f50057;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(245, 0, 87, 0.35);
+    }
+
+    .filter:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 10px rgba(245, 0, 87, 0.25);
+    }
+
+
+    .catogeries>div>div button {
+        display: flex;
+        align-items: start;
+        height: 50px;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 2px solid #f27a91;
+        background: #fff;
+        color: #d93b5f;
+        padding: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .catogeries>div>div button h2 {
+        font-size: 15px;
+        margin: 0;
+    }
+
+    .catogeries>div>div button.active {
+        background: #d93b5f;
+        color: #fff;
+        border-color: #d93b5f;
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(217, 59, 95, 0.18);
+    }
+
+    .dropdown {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dropbtn {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f50057;
+        color: white;
+        border: none;
+        padding: 20px 30px;
+        border-radius: 6px;
+        cursor: pointer;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        font-size: 20px;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .dropbtn:hover {
+        background-color: #ff4081;
+        transform: translateY(-2px);
+    }
+
+    .dropbtn>div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .dropdown-content .button svg {
+        color: #f50057;
+    }
+
+    .dropdown.open .dropdown-content {
+        display: flex;
+    }
+
+    .dropdown-content button {
+        width: 110px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 8px;
+        border: 2px solid #f27a91;
+        background: #fff;
+        color: #f50057;
+        font-size: 14px;
+        padding: 5px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .dropdown-content button h2 {
+        margin: 0;
+    }
+
+    .dropdown-content button:hover {
+        background: #ffe0e9;
+        color: #f50057;
+        transform: translateY(-2px);
+    }
+
+    .dropdown-content button.selected {
+        background: #f50057;
+        color: #fff;
+        border-color: #f50057;
+    }
+
+    .dropdown-content button.selected svg {
+        fill: white;
+    }
+
+    .catogeries a button,
+    .catogeries .filter {
+        width: 100%;
+    }
+
+    .dropdown-content-school {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .dropdown-content-school button {
+        width: 100%;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 2px solid #f27a91;
+        background: #fff;
+        color: #f50057;
+        font-size: 14px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .dropdown-content-school button h2 {
+        margin: 0;
+    }
+
+    .dropdown-content-school button:hover {
+        background: #ffe0e9;
+        color: #f50057;
+        transform: translateY(-2px);
+    }
+
+    .dropdown-content-school button.selected {
+        background: #f50057;
+        color: #fff;
+        border-color: #f50057;
+    }
+
+    .dropdown.open .dropdown-content-school {
+        display: flex;
+    }
+
+    .selected-count {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.3);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 14px;
+        margin-left: 8px;
+    }
+    </style>
     <div id="content">
             <main>
                 <div>
