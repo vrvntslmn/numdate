@@ -474,3 +474,5 @@ class Home extends HTMLElement{
         `;
     }
 };
+
+window.customElements.define('com-home', Home);

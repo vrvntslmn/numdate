@@ -50,7 +50,7 @@ class App extends HTMLElement{
                 <h1>NUMDATE</h1>
             </div>
             <ul>
-                <li><a href="/">Home</a></li>
+                <li><a href="#/">Home</a></li>
                 <li><a href="#dateidea">Date idea</a></li>
                 <li><a href="#messenger">Messages</a></li>
                 <li>

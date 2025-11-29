@@ -9,6 +9,8 @@ class Route extends HTMLElement{
             const hash = window.location.hash;
             const content = document.getElementById('content');
             switch(hash){
+                case '#/':
+                    content.innerHTML = '<com-home></com-home>';
                 case '#messenger':
                     content.innerHTML = '<com-messenger></com-messenger>';
                     break;
