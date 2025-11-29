@@ -195,6 +195,7 @@ main {
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    font-family: 'Yanone Kaffeesatz', sans-serif;
 }
 
 .catogeries::-webkit-scrollbar {
@@ -211,19 +212,21 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* background-color: #f50057; */
-    border: none;
-    /* color: white; */
+    background-color: #ffffff;
+    border: 2px solid #f50057;
+    font-family: 'Yanone Kaffeesatz', sans-serif;
+    color: #f50057;
     padding: 20px 30px;
     border-radius: 10px;
     font-size: 20px;
     cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
     transition: background 0.3s, transform 0.2s;
 }
 
 .catogeries button:hover {
-    background-color: #ff4081;
+    background-color: #f50057;
+    color: #F5F5F5;
     transform: translateY(-2px);
 }
 
