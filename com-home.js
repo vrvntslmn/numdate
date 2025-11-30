@@ -203,11 +203,12 @@ class Home extends HTMLElement {
             border-radius: 10px;
             font-size: 20px;
             cursor: pointer;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 3px 6px #ffd8e5ff;
             transition: background 0.3s, transform 0.2s;
+            text-transform: uppercase;
         }
         .catogeries button:hover {
-            background-color: #ff4081;
+            background-color: #ffd8e5ff;
             transform: translateY(-2px);
         }
 
@@ -225,15 +226,12 @@ class Home extends HTMLElement {
         .filter {
             display: block;
             width: fit-content;
-
             margin: 24px auto 0;
-
-
             padding: 10px 40px;
             border-radius: 999px;
             border: 2px solid #f50057;
-            background-color: #ffffff;
-            color: #f50057;
+            background-color: #f50057;
+            color: #ffffff;
 
             font-family: 'Yanone Kaffeesatz', sans-serif;
             font-size: 20px;
