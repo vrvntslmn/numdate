@@ -1,9 +1,9 @@
-class Home extends HTMLElement{
-    constructor(){
+class Home extends HTMLElement {
+    constructor() {
         super();
     }
 
-    connectedCallback(){
+    connectedCallback() {
         this.innerHTML = `
     <style>
         main>div {
@@ -178,7 +178,6 @@ class Home extends HTMLElement{
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
             transition: background 0.3s, transform 0.2s;
         }
-
         .catogeries button:hover {
             background-color: #ff4081;
             transform: translateY(-2px);
@@ -305,8 +304,8 @@ class Home extends HTMLElement{
             margin-top: 12px;
         }
 
-        .dropdown-content .button svg {
-            color: #f50057;
+        .dropdown-content button svg {
+            fill: #f50057;
         }
 
         .dropdown.open .dropdown-content {
@@ -337,16 +336,20 @@ class Home extends HTMLElement{
 
         .dropdown-content button:hover {
             background: #ffe0e9;
-            color: #f50057;
+            // color: #f50057;
             transform: translateY(-2px);
         }
 
         .dropdown-content button.selected {
             background: #f50057;
-            color: #fff;
+            color: #ffffff;
             border-color: #f50057;
         }
-
+        .dropdown-content button.selected:hover {
+            background: #f50057;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
         .dropdown-content button.selected svg {
             fill: white;
         }
@@ -1120,7 +1123,7 @@ class Home extends HTMLElement{
                 console.log('Selected Filters:', selectedFilters);
             });
         }
-}
+    }
 };
 
 window.customElements.define('com-home', Home);
