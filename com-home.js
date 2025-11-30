@@ -14,8 +14,6 @@ class Home extends HTMLElement {
             margin-top: 10px;
         }
 
-
-
         main {
             min-height: calc(100vh - 55px);
             display: flex;
@@ -61,6 +59,7 @@ class Home extends HTMLElement {
             color: #fff;
             margin: 0;
             z-index: 3;
+            font-family: 'Yanone Kaffeesatz', sans-serif;
         }
 
         .profile h1 {
@@ -76,27 +75,29 @@ class Home extends HTMLElement {
 
         .profile .see-more-btn {
             position: absolute;
-            bottom: 64px;
-            right: 16px;
-            background: rgba(245, 0, 87, 0.9);
-            color: white;
+            bottom: 64px;         
+            right: 2px;
+            transform: translateX(-50%);
+            background: transparent;
             border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
+            box-shadow: none;
+            padding: 0;
+            border-radius: 0;
+            color: #ffffff;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             cursor: pointer;
-            z-index: 3;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             text-decoration: none;
-            display: inline-block;
+            z-index: 3;
+            font-family: 'Yanone Kaffeesatz', sans-serif;
+            text-transform: uppercase;
         }
-
-        .profile .see-more-btn:hover {
-            background: rgba(245, 0, 87, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 0, 87, 0.4);
+        .profile .see-more-btn::after {
+            content: "▾";   /* эсвэл "⌄" гэх мэт өөр сум ашиглаж болно */
+            font-size: 0.9em;
         }
 
         .swipe .buttons {
@@ -110,7 +111,7 @@ class Home extends HTMLElement {
         }
 
         .buttons .other_button {
-            background-color: #f50057;
+            background-color: #ffffff;
             border: none;
             width: 60px;
             height: 60px;
@@ -118,10 +119,37 @@ class Home extends HTMLElement {
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px #d97c9dff;
             cursor: pointer;
             transition: transform 0.2s;
         }
+
+        .buttons .other_button svg path,
+        .buttons .other_button svg polyline {
+            stroke: #f50057;
+            fill: none; /* эсвэл fill: #f50057; гэж өгч болно, хэрвээ дүүрэн сум хүсвэл */
+        }
+
+        .buttons .other_button_x {
+            background-color: #ffffff;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px #d97c9dff;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .buttons .other_button_x svg path,
+        .buttons .other_button_x svg polyline {
+            stroke: #f50057;
+            fill: #f50057; /* эсвэл fill: #f50057; гэж өгч болно, хэрвээ дүүрэн сум хүсвэл */
+        }
+
 
         .buttons .heart_button {
             background-color: #f50057;
@@ -274,19 +302,23 @@ class Home extends HTMLElement {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #f50057;
-            color: white;
+            background-color: #ffffff;
+            color: #f50057;
             border: none;
             padding: 20px 30px;
             border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            border: 2px solid #f50057;
+            box-shadow: 0 3px 6px #f50057;
             font-size: 20px;
             transition: background 0.3s, transform 0.2s;
         }
+        .dropbtn h1{
+            color: #f50057;
+        }
 
         .dropbtn:hover {
-            background-color: #ff4081;
+            background-color: #ffd3e1ff;
             transform: translateY(-2px);
         }
 
@@ -419,24 +451,13 @@ class Home extends HTMLElement {
                     <div>
                         <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div>
                     </div>
-                    <h1>Jennie Kim</h1>
-                    <p>28, ISTP</p>
+                    <h1>Jennie Kim, 28</h1>
+                    <p>Программ хангамж</p>
                     <a href="othersProfile.html" class="see-more-btn">See more</a>
                 </div>
                 <div class="buttons">
                     <button class="other_button">
-                        <svg class="button_icon" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
-                            viewBox="0 0 64 64" stroke-width="6.4" stroke="white" fill="none">
-                            <g id="SVGRepo_bgCarrier" stroke-width="0" />
-                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
-                            <g id="SVGRepo_iconCarrier">
-                                <path d="M54.89,26.73A23.52,23.52,0,0,1,15.6,49" stroke-linecap="round" />
-                                <path d="M9,37.17a23.75,23.75,0,0,1-.53-5A23.51,23.51,0,0,1,48.3,15.2"
-                                    stroke-linecap="round" />
-                                <polyline points="37.73 16.24 48.62 15.44 47.77 5.24" stroke-linecap="round" />
-                                <polyline points="25.91 47.76 15.03 48.56 15.88 58.76" stroke-linecap="round" />
-                            </g>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 64 64" stroke-width="8" stroke="#000000" fill="none"><path d="M54.89,26.73A23.52,23.52,0,0,1,15.6,49" stroke-linecap="round"/><path d="M9,37.17a23.75,23.75,0,0,1-.53-5A23.51,23.51,0,0,1,48.3,15.2" stroke-linecap="round"/><polyline points="37.73 16.24 48.62 15.44 47.77 5.24" stroke-linecap="round"/><polyline points="25.91 47.76 15.03 48.56 15.88 58.76" stroke-linecap="round"/></svg>
                     </button>
                     <button class="heart_button">
                         <svg class="button_icon" xmlns="http://www.w3.org/2000/svg" width="40px" height="40px"
@@ -445,7 +466,7 @@ class Home extends HTMLElement {
                                 d="M20.808,11.079C19.829,16.132,12,20.5,12,20.5s-7.829-4.368-8.808-9.421C2.227,6.1,5.066,3.5,8,3.5a4.444,4.444,0,0,1,4,2,4.444,4.444,0,0,1,4-2C18.934,3.5,21.773,6.1,20.808,11.079Z" />
                         </svg>
                     </button>
-                    <button class="other_button">
+                    <button class="other_button_x">
                         <svg class="button_icon" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
                             viewBox="0 0 32 32" stroke="white" fill="white">
                             <path
