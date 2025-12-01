@@ -1,358 +1,601 @@
-class DateIdea extends HTMLElement{
-    constructor(){
-        super();
-    }
+class DateIdea extends HTMLElement {
+  constructor() {
+    super();
+  }
 
-    connectedCallback(){
-        this.innerHTML = `
-                  <style>
-                    :root {
-                    --first-color: #FF0B55;
-                    --second-color: #CF0F47;
-                    --font-header: "Yanone Kaffeesatz", sans-serif;
-                    --font-body: "Roboto Condensed", sans-serif;
-                    }
+  connectedCallback() {
+    this.render();
+    this.initCardSelection();
+  }
 
-                    /* --------- COMMON TYPOGRAPHY --------- */
-                    html,
-                    body {
-                    width: 100%;
-                    }
-
-                    body {
-                    margin: 0;
-                    background-color: #F5F5F5;
-                    font-family: var(--font-body);
-                    }
-
-                    h1 {
-                    color: #F5F5F5;
-                    font-family: var(--font-header);
-                    margin: 0;
-                    }
-
-                    h2 {
-                    font-family: var(--font-header);
-                    font-weight: 400;
-                    font-size: 36px;
-                    margin: 0;
-                    color: var(--second-color);
-                    }
-
-                    h3 {
-                    margin: 0;
-                    font-family: var(--font-header);
-                    font-size: 36px;
-                    }
-
-                    h4 {
-                    font-family: var(--font-header);
-                    font-size: 24px;
-                    margin: 0;
-                    }
-
-                    p {
-                    font-family: var(--font-body);
-                    font-weight: 400;
-                    margin: 0;
-                    }
-
-                    /* --------- EDIT ICON BUTTON (хэрэгтэй бол) --------- */
-                    .edit-button {
-                    width: 32px;
-                    height: 32px;
-                    border: none;
-                    background: no-repeat center;
-                    background-size: contain;
-                    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 32'><path fill-rule='evenodd' clip-rule='evenodd' d='M19.4782 0.947093L17.4437 3.19506L26.1083 12.7688L28.1428 10.5209C29.2857 9.25806 29.2857 7.21068 28.1428 5.94789L23.6169 0.947092C22.474 -0.315698 20.621 -0.315697 19.4782 0.947093ZM4.02359 18.2305C3.72599 18.5593 3.91974 19.1223 4.33989 19.1496L4.98994 19.1918C5.36024 19.2158 5.65567 19.5422 5.67741 19.9514L5.79611 22.1845C5.80336 22.3209 5.90184 22.4297 6.02527 22.4377L8.04638 22.5689C8.41668 22.5929 8.71211 22.9193 8.73386 23.3285L8.85256 25.5617C8.85981 25.698 8.95828 25.8069 9.08172 25.8149L11.1028 25.946C11.4731 25.97 11.7686 26.2965 11.7903 26.7056L11.8269 27.394C11.8516 27.8582 12.3611 28.0723 12.6587 27.7434L23.7762 15.4595C23.9667 15.2491 23.9667 14.9078 23.7762 14.6974L15.8436 5.93251C15.6531 5.72205 15.3443 5.72205 15.1538 5.93251L4.02359 18.2305ZM0.716566 22.1597C0.327776 22.1345 -3.77004e-05 22.4761 3.25206e-09 22.9064L0.000735568 31.2514C0.000772011 31.6644 0.303771 31.9991 0.67755 31.9992L8.23013 32C8.61959 32 8.92875 31.6378 8.90591 31.2083L8.80063 29.2276C8.78051 28.849 8.50719 28.547 8.1646 28.5248L6.29474 28.4035C6.18055 28.3961 6.08944 28.2954 6.08273 28.1692L5.97291 26.1032C5.95279 25.7246 5.67947 25.4226 5.33688 25.4004L3.46703 25.2791C3.35283 25.2717 3.26172 25.171 3.25502 25.0448L3.1452 22.9788C3.12508 22.6002 2.85176 22.2982 2.50917 22.276L0.716566 22.1597Z' fill='%23CF0F47'/></svg>");
-                    cursor: pointer;
-                    }
-
-                    /* --------- HEADER (NUMDATE header-ийг нэгтгэв) ---------- */
-                    header{
-                        display: flex;
-                        width: calc(100%-8px);
-                        background: linear-gradient(to top, #EE0067, #BC2265);
-                        height: 55px;
-                        align-items: center;
-                        & svg.logo{
-                            margin: 10px;
-                            margin-right: 0px;
-                        }
-
-                        & > div {
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                            margin-right: auto;
-                            color: white;
-                        }
-                        & > a {
-                            margin-right: 20px;
-                        }
-                    }
-
-                    header nav {
-                        display: flex;
-                        font-family: var(--font-header);
-                        ul {
-                            display: flex;
-                            justify-content: space-around;
-                            list-style: none;
-                            gap:15px;
-                            padding : 15px 20px;
-                            a{  
-                                display: flex;
-                                color: white;
-                                text-decoration: none;
-                                font-size: 20px;
-                                font-weight: 600;
-                            }
-                        }
-                        height: 55px;
-                        align-items: center;
-                        gap: 20px;
-                    }
-
-                    /* --------- DATE IDEA SECTION ---------- */
-
-                    main.date-layout {
-                    padding: 40px 24px;
-                    display: flex;
-                    justify-content: center;
-                    }
-
-                    .date-chooser {
-                    max-width: 960px;
-                    width: 100%;
-                    background: #ffffff;
-                    border-radius: 32px;
-                    padding: 24px 28px 32px;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-                    box-sizing: border-box;
-                    }
-
-                    .date-chooser h2 {
-                    margin-bottom: 4px;
-                    }
-
-                    .date-chooser p.date-intro {
-                    margin-top: 4px;
-                    font-size: 14px;
-                    color: rgba(0, 0, 0, 0.7);
-                    }
-
-                    .date-card-grid {
-                    margin-top: 24px;
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                    gap: 20px;
-                    }
-
-                    .date-card {
-                    background: #fff;
-                    border-radius: 24px;
-                    border: 1px solid #e3e3e3;
-                    padding: 14px 14px 16px;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-                    box-sizing: border-box;
-                    }
-
-                    .date-card-image {
-                    height: 160px;
-                    border-radius: 18px;
-                    background-size: cover;
-                    background-position: center;
-                    margin-bottom: 10px;
-                    }
-
-                    .date-card h3 {
-                    font-size: 24px;
-                    color: var(--second-color);
-                    margin-bottom: 4px;
-                    }
-
-                    .date-card .meta {
-                    font-size: 12px;
-                    color: #777;
-                    margin-bottom: 6px;
-                    }
-
-                    .date-card p {
-                    font-size: 13px;
-                    color: #444;
-                    }
-
-                    .date-tags {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 6px;
-                    margin-top: 8px;
-                    }
-
-                    .date-tag {
-                    font-size: 11px;
-                    padding: 3px 8px;
-                    border-radius: 999px;
-                    background: #ffe3ef;
-                    color: var(--second-color);
-                    }
-
-                    .date-card button {
-                    margin-top: 10px;
-                    width: 100%;
-                    padding: 8px 0;
-                    border-radius: 999px;
-                    border: none;
-                    cursor: pointer;
-                    font-family: var(--font-header);
-                    font-size: 18px;
-                    font-weight: 600;
-                    color: #fff;
-                    background: linear-gradient(to top, var(--first-color), var(--second-color));
-                    }
-
-                    /* Жижигхэн placeholder хэсгүүд */
-                    #messages,
-                    #profile {
-                    padding: 40px 24px;
-                    font-size: 18px;
-                    }
-                </style>
-              <main id="home" class="date-layout">
-                <section class="date-chooser" id="dateidea">
-                <h2>Where do you want to go?</h2>
-                <p class="date-intro">
-                    Pick a vibe for your next date – cozy coffee, fresh air or something a bit artsy.
-                </p>
-
-                <div class="date-card-grid">
-                    <!-- Card 1 -->
-                    <article class="date-card">
-                    <div class="date-card-image"
-                        style="background-image:url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80');">
-                        <!-- Хэрэв нэг хавтас дотор байгаа зураг ашиглах бол:
-                            style="background-image:url('coffee.jpg');" гэх мэтээр сольж бичнэ -->
-                    </div>
-                    <h3>Rooftop coffee</h3>
-                    <div class="meta">Budget: $$ · Evening · City</div>
-                    <p>
-                        Watch the sunset together on a rooftop café, share a warm drink and talk about everything.
-                    </p>
-                    <div class="date-tags">
-                        <span class="date-tag">chill</span>
-                        <span class="date-tag">city view</span>
-                        <span class="date-tag">talking</span>
-                    </div>
-                    <button>Choose this place</button>
-                    </article>
-
-                    <!-- Card 2 -->
-                    <article class="date-card">
-                    <div class="date-card-image"
-                        style="background-image:url('https://images.unsplash.com/photo-1523755231516-e43fd2e8dca5?auto=format&fit=crop&w=800&q=80');">
-                    </div>
-                    <h3>Park picnic</h3>
-                    <div class="meta">Budget: $ · Afternoon · Outdoor</div>
-                    <p>
-                        Grab a blanket, some snacks and music. Lie in the grass, play games and people-watch together.
-                    </p>
-                    <div class="date-tags">
-                        <span class="date-tag">outdoor</span>
-                        <span class="date-tag">low budget</span>
-                        <span class="date-tag">daytime</span>
-                    </div>
-                    <button>Choose this place</button>
-                    </article>
-
-                    <!-- Card 3 -->
-                    <article class="date-card">
-                    <div class="date-card-image"
-                        style="background-image:url('https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=800&q=80');">
-                    </div>
-                    <h3>Art museum night</h3>
-                    <div class="meta">Budget: $$ · Evening · Indoor</div>
-                    <p>
-                        Walk slowly through an art gallery or museum, share your favourite pieces and learn about each other’s
-                        taste.
-                    </p>
-                    <div class="date-tags">
-                        <span class="date-tag">artsy</span>
-                        <span class="date-tag">indoor</span>
-                        <span class="date-tag">quiet</span>
-                    </div>
-                    <button>Choose this place</button>
-                    </article>
-                </div>
-                </section>
-            </main>
-        `;
-        this.addEventListener("DOMContentLoaded", function () {
-        // ----- NAV LINK-үүд -----
-        const navLinks = this.querySelectorAll("header nav a");
-
-        navLinks.forEach(function (link) {
-        link.addEventListener("click", function (e) {
-            const href = link.getAttribute("href");
-
-            // Хэрвээ href нь #section бол зөөлөн scroll хийнэ
-            if (href && href.startsWith("#")) {
-            const target = this.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-            }
-
-            // active классыг солих
-            navLinks.forEach(function (l) {
-            l.classList.remove("active");
-            });
-            link.classList.add("active");
-        });
-        });
-
-        // ----- DATE CARD сонгох логик -----
-        const buttons = this.querySelectorAll(".date-card button");
-        const chooser = this.querySelector(".date-chooser");
-
-        // Сонгосон газар харагдуулах жижиг текст
-        let infoEl = null;
-        if (chooser) {
-        infoEl = this.createElement("div");
-        infoEl.id = "chosen-message";
-        infoEl.style.marginTop = "16px";
-        infoEl.style.fontSize = "14px";
-        infoEl.style.color = "#555";
-        chooser.appendChild(infoEl);
+  render() {
+    this.innerHTML = `
+      <style>
+        :root {
+          --first-color: #FF0B55;
+          --second-color: #CF0F47;
+          --font-header: "Yanone Kaffeesatz", sans-serif;
+          --font-body: "Roboto Condensed", sans-serif;
         }
 
-        buttons.forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            const card = btn.closest(".date-card");
-            const titleEl = card ? card.querySelector("h3") : null;
-            const title = titleEl ? titleEl.textContent.trim() : "this place";
+        html, body {
+          width: 100%;
+        }
 
-            // Бусад товчны текстийг reset хийе
-            buttons.forEach(function (b) {
-            if (b !== btn) {
-                b.textContent = "Choose this place";
-            }
-            });
+        body {
+          margin: 0;
+          background-color: #F5F5F5;
+          font-family: var(--font-body);
+        }
 
-            // Энэ товчийг "Chosen ✓" болгоно
-            btn.textContent = "Chosen ✓";
+        h2 {
+          font-family: var(--font-header);
+          font-weight: 400;
+          font-size: 28px;
+          margin: 0;
+          color: #333;
+        }
 
-            // Дээрээс нь сонгосон газрыг текстээр харуулах
-            if (infoEl) {
-            infoEl.textContent = "You chose: " + title;
-            } else {
-            alert("You chose: " + title);
-            }
+        p {
+          font-family: var(--font-body);
+          margin: 0;
+        }
+
+        /* --------- MAIN LAYOUT ---------- */
+
+        main.date-layout {
+          padding: 32px 24px;
+          display: flex;
+          justify-content: center;
+          background: #f8fafc;
+        }
+
+        .date-chooser {
+          max-width: 1120px;
+          width: 100%;
+          background: #ffffff;
+          border-radius: 28px;
+          padding: 24px 28px 32px;
+          box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+          box-sizing: border-box;
+        }
+
+        /* --------- TOP STRIP + TOP CARDS ---------- */
+        .top-strip {
+          font-family: var(--font-header);
+          font-size: 20px;
+          font-weight: 500;
+          margin-bottom: 12px;
+          color: #1e293b;
+        }
+       
+
+        .top-cards-row {
+          display: flex;
+          gap: 16px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .top-card {
+          min-width: 150px;
+          max-width: 160px;
+          border-radius: 18px;
+          border: 1px solid #cbd5e1;
+          overflow: hidden;
+          background: #fff;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+        }
+
+        .top-card:hover {
+          box-shadow: 0 8px 20px rgba(148, 163, 184, 0.4);
+          transform: translateY(-2px);
+        }
+
+        .top-card__image {
+          height: 78px;
+          background: #dde5f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 28px;
+          color: #64748b;
+        }
+
+        .top-card__content {
+          padding: 10px 12px 12px;
+        }
+
+        .top-card__title {
+          height: 8px;
+          border-radius: 4px;
+          background: #e2e8f0;
+          margin-bottom: 6px;
+        }
+
+        .top-card__subtitle {
+          height: 6px;
+          border-radius: 4px;
+          background: #e2e8f0;
+          width: 70%;
+        }
+
+        .top-card--selected {
+          border-color: var(--second-color);
+          box-shadow: 0 0 0 2px rgba(207, 15, 71, 0.25);
+        }
+
+        /* --------- SECTION TITLE ---------- */
+
+        .layout-title {
+          margin-top: 24px;
+          margin-bottom: 6px;
+        }
+
+        .layout-subtitle {
+          font-size: 13px;
+          color: #64748b;
+          margin-bottom: 20px;
+        }
+
+        /* --------- CATEGORY ROWS ---------- */
+
+        .category-section {
+          margin-top: 16px;
+        }
+
+        .category-row {
+          display: grid;
+          grid-template-columns: auto 1fr;
+          column-gap: 18px;
+          align-items: flex-start;
+          margin-bottom: 28px;
+        }
+
+        .category-badge {
+          width: 64px;
+          height: 64px;
+          border-radius: 24px;
+          border: 2px solid #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transform: rotate(45deg);
+          box-sizing: border-box;
+        }
+
+        .category-badge span {
+          transform: rotate(-45deg);
+          font-size: 24px;
+        }
+
+        .category-text {
+          margin-bottom: 10px;
+        }
+
+        .category-text h3 {
+          font-family: var(--font-header);
+          font-size: 22px;
+          color: #1f2933;
+          margin: 0 0 4px;
+        }
+
+        .category-text p {
+          font-size: 13px;
+          color: #94a3b8;
+        }
+
+        .category-cards {
+          grid-column: 2 / 3;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 14px;
+          margin-top: 10px;
+        }
+
+        .date-card {
+          border-radius: 20px;
+          border: 1px solid #cbd5e1;
+          height: 96px;
+          background: #fff;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 10px 14px;
+          transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+        }
+
+        .date-card:hover {
+          box-shadow: 0 8px 16px rgba(148, 163, 184, 0.35);
+          transform: translateY(-2px);
+        }
+
+        .date-card__title {
+          font-family: var(--font-header);
+          font-size: 17px;
+          margin-bottom: 4px;
+          color: #111827;
+        }
+
+        .date-card__meta {
+          font-size: 11px;
+          color: #6b7280;
+          margin-bottom: 4px;
+        }
+
+        .date-card__tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+
+        .date-card__tag {
+          font-size: 10px;
+          padding: 2px 6px;
+          border-radius: 999px;
+          background: #eef2ff;
+          color: #4f46e5;
+        }
+
+        .date-card--selected {
+          border-color: var(--second-color);
+          box-shadow: 0 0 0 2px rgba(207, 15, 71, 0.25);
+        }
+
+        /* --------- CHOSEN MESSAGE ---------- */
+
+        #chosen-message {
+          margin-top: 18px;
+          font-size: 14px;
+          color: #475569;
+          padding: 10px 12px;
+          border-radius: 999px;
+          background: #f9f5ff;
+          display: none;
+          align-items: center;
+          gap: 8px;
+        }
+
+        #chosen-message::before {
+          content: "💘";
+        }
+
+        @media (max-width: 720px) {
+          .category-row {
+            grid-template-columns: 1fr;
+          }
+          .category-cards {
+            grid-column: 1 / -1;
+          }
+        }
+      </style>
+
+      <main class="date-layout">
+        <section class="date-chooser" id="dateidea">
+
+          <!-- TOP STRIP + QUICK IDEAS -->
+          <div class="top-strip">
+          Top 10 date idea </div>
+          <div class="top-cards-row">
+            <div class="top-card" data-title="Add custom idea">
+              <div class="top-card__image">+</div>
+              <div class="top-card__content">
+                <div class="top-card__title"></div>
+                <div class="top-card__subtitle"></div>
+              </div>
+            </div>
+            <div class="top-card top-card" data-title="Add custom idea">
+              <div class="top-card__image">+</div>
+              <div class="top-card__content">
+                <div class="top-card__title"></div>
+                <div class="top-card__subtitle"></div>
+              </div>
+            </div>
+            <div class="top-card" data-title="Rooftop coffee">
+              <div class="top-card__image"></div>
+              <div class="top-card__content">
+                <div class="top-card__title"></div>
+                <div class="top-card__subtitle"></div>
+              </div>
+            </div>
+            <div class="top-card" data-title="Park picnic">
+              <div class="top-card__image"></div>
+              <div class="top-card__content">
+                <div class="top-card__title"></div>
+                <div class="top-card__subtitle"></div>
+              </div>
+            </div>
+            <div class="top-card" data-title="Art museum night">
+              <div class="top-card__image"></div>
+              <div class="top-card__content">
+                <div class="top-card__title"></div>
+                <div class="top-card__subtitle"></div>
+              </div>
+            </div>
+            <div class="top-card" data-title="Stargazing drive">
+              <div class="top-card__image"></div>
+              <div class="top-card__content">
+                <div class="top-card__title"></div>
+                <div class="top-card__subtitle"></div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="layout-title">Date ideas</h2>
+          <p class="layout-subtitle">Pick a vibe: coffee, outdoor chill, adventure, or a romantic dinner.</p>
+
+          <div class="category-section">
+            <!-- COFFEE -->
+            <div class="category-row">
+              <div class="category-badge">
+                <span>☕</span>
+              </div>
+              <div class="category-text">
+                <h3>Coffee &amp; cozy</h3>
+                <p>Quick, relaxed dates for easy conversations.</p>
+              </div>
+
+              <div class="category-cards">
+                <article class="date-card" data-title="Rooftop coffee">
+                  <div class="date-card__title">Rooftop coffee</div>
+                  <div class="date-card__meta">$$ · Evening · City</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">chill</span>
+                    <span class="date-card__tag">city view</span>
+                    <span class="date-card__tag">coffee</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Bookstore & latte">
+                  <div class="date-card__title">Bookstore &amp; latte</div>
+                  <div class="date-card__meta">$ · Afternoon · Indoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">cozy</span>
+                    <span class="date-card__tag">introvert</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Window seat café">
+                  <div class="date-card__title">Window seat café</div>
+                  <div class="date-card__meta">$ · Anytime · City</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">people-watch</span>
+                    <span class="date-card__tag">talking</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Dessert & coffee flight">
+                  <div class="date-card__title">Dessert &amp; coffee flight</div>
+                  <div class="date-card__meta">$$ · Evening · Indoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">sweet</span>
+                    <span class="date-card__tag">coffee</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Sunrise takeaway coffee">
+                  <div class="date-card__title">Sunrise takeaway coffee</div>
+                  <div class="date-card__meta">$ · Morning · Outdoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">early birds</span>
+                    <span class="date-card__tag">view</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <!-- EXTREME / SPORT -->
+            <div class="category-row">
+              <div class="category-badge">
+                <span>🤸</span>
+              </div>
+              <div class="category-text">
+                <h3>Extreme &amp; sporty</h3>
+                <p>For couples who love adrenaline and trying bold new things.</p>
+              </div>
+
+              <div class="category-cards">
+                <article class="date-card" data-title="Indoor climbing">
+                  <div class="date-card__title">Indoor climbing</div>
+                  <div class="date-card__meta">$$ · Afternoon · Indoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">sporty</span>
+                    <span class="date-card__tag">teamwork</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Go-kart race">
+                  <div class="date-card__title">Go-kart race</div>
+                  <div class="date-card__meta">$$ · Day · Track</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">competitive</span>
+                    <span class="date-card__tag">fun</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Paintball squad date">
+                  <div class="date-card__title">Paintball squad date</div>
+                  <div class="date-card__meta">$$$ · Afternoon · Outdoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">group</span>
+                    <span class="date-card__tag">action</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Short hike & viewpoint">
+                  <div class="date-card__title">Short hike &amp; viewpoint</div>
+                  <div class="date-card__meta">$ · Morning · Outdoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">nature</span>
+                    <span class="date-card__tag">active</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Trampoline park">
+                  <div class="date-card__title">Trampoline park</div>
+                  <div class="date-card__meta">$$ · Indoor · Fun</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">playful</span>
+                    <span class="date-card__tag">energy</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <!-- RESTAURANT -->
+            <div class="category-row">
+              <div class="category-badge">
+                <span>🍽️</span>
+              </div>
+              <div class="category-text">
+                <h3>Restaurants &amp; food</h3>
+                <p>Perfect for anniversaries, birthdays, or a special night.</p>
+              </div>
+
+              <div class="category-cards">
+                <article class="date-card" data-title="Candlelight dinner">
+                  <div class="date-card__title">Candlelight dinner</div>
+                  <div class="date-card__meta">$$$ · Evening · Indoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">romantic</span>
+                    <span class="date-card__tag">classic</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Street food crawl">
+                  <div class="date-card__title">Street food crawl</div>
+                  <div class="date-card__meta">$$ · Night · Outdoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">casual</span>
+                    <span class="date-card__tag">foodie</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Cooking class for two">
+                  <div class="date-card__title">Cooking class for two</div>
+                  <div class="date-card__meta">$$ · Evening · Indoor</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">hands-on</span>
+                    <span class="date-card__tag">teamwork</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Tasting menu night">
+                  <div class="date-card__title">Tasting menu night</div>
+                  <div class="date-card__meta">$$$ · Evening · Restaurant</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">fancy</span>
+                    <span class="date-card__tag">special</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Brunch date">
+                  <div class="date-card__title">Lazy brunch date</div>
+                  <div class="date-card__meta">$$ · Morning · Café</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">chill</span>
+                    <span class="date-card__tag">weekend</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <!-- FLOWERS / EXTRA -->
+            <div class="category-row">
+              <div class="category-badge">
+                <span>🌸</span>
+              </div>
+              <div class="category-text">
+                <h3>Flowers &amp; little extras</h3>
+                <p>Add something sweet on top of your date plan.</p>
+              </div>
+
+              <div class="category-cards">
+                <article class="date-card" data-title="Bouquet before the date">
+                  <div class="date-card__title">Bouquet before the date</div>
+                  <div class="date-card__meta">$$ · Delivery / Pickup</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">romantic</span>
+                    <span class="date-card__tag">surprise</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Table flowers at restaurant">
+                  <div class="date-card__title">Flowers on the table</div>
+                  <div class="date-card__meta">$$ · Restaurant add-on</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">wow effect</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Mini flower & note">
+                  <div class="date-card__title">Mini flower &amp; note</div>
+                  <div class="date-card__meta">$ · Simple gift</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">thoughtful</span>
+                    <span class="date-card__tag">cute</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="After-date flowers">
+                  <div class="date-card__title">After-date bouquet</div>
+                  <div class="date-card__meta">$$ · Next-day delivery</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">follow-up</span>
+                  </div>
+                </article>
+
+                <article class="date-card" data-title="Matching flower bracelets">
+                  <div class="date-card__title">Flower bracelets</div>
+                  <div class="date-card__meta">$$ · DIY / Shop</div>
+                  <div class="date-card__tags">
+                    <span class="date-card__tag">cute</span>
+                    <span class="date-card__tag">photo-friendly</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div id="chosen-message"></div>
+        </section>
+      </main>
+    `;
+  }
+
+  initCardSelection() {
+    const allCards = this.querySelectorAll(".date-card, .top-card");
+    const infoEl = this.querySelector("#chosen-message");
+    if (!allCards.length || !infoEl) return;
+
+    infoEl.style.display = "none";
+
+    allCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const title =
+          card.getAttribute("data-title") ||
+          card.querySelector(".date-card__title")?.textContent?.trim() ||
+          "this idea";
+
+        // reset
+        allCards.forEach((c) => {
+          c.classList.remove("date-card--selected", "top-card--selected");
         });
-        });
+
+        if (card.classList.contains("top-card")) {
+          card.classList.add("top-card--selected");
+        } else {
+          card.classList.add("date-card--selected");
+        }
+
+        infoEl.textContent = "You chose: " + title;
+        infoEl.style.display = "inline-flex";
+      });
     });
-    }
-};
+  }
+}
 
-window.customElements.define('com-dateidea', DateIdea);
+window.customElements.define("com-dateidea", DateIdea);
