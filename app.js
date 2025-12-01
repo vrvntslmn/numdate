@@ -6,12 +6,12 @@ import './com-routes.js';
 import './com-router.js';
 
 
-class App extends HTMLElement{
-    constructor(){
+class App extends HTMLElement {
+    constructor() {
         super();
     }
 
-    connectedCallback(){
+    connectedCallback() {
         this.innerHTML = `
             <style>
                 :root{
@@ -180,7 +180,7 @@ class App extends HTMLElement{
         </com-routes>
     </com-router>
         `;
-    
+
     }
 
 }
