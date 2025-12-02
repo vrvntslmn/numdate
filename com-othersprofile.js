@@ -2,84 +2,361 @@ class OthersProfile extends HTMLElement {
   constructor() {
     super();
     this._rendered = false;
+    this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
     if (this._rendered) return;
     this._rendered = true;
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          font-family: "Roboto Condensed", system-ui, -apple-system,
+            BlinkMacSystemFont, "Segoe UI", sans-serif;
+          color: #111;
+        }
 
-    this.innerHTML = `
-      <header>
-        <div>
-          <svg class="logo" width="54" height="34" viewBox="0 0 54 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-            <path d="M50.136 22.8237H54.0002V25.2515H47.8684V24.7739H47.8606L47.8743 15.7222L45.4895 16.7349L44.7004 13.9741L49.8528 11.9985V12.0103L50.2317 11.8354L50.136 22.8237Z" fill="white"/>
-            <path d="M4.30957 12.1104L4.29199 12.0615L9.91406 14.0518L8.06445 16.5996L6.1123 15.708L6.13867 24.917H6.13184V25.252H0V22.8232H3.93652L3.84082 11.9033L4.30957 12.1104Z" fill="white"/>
-            <path d="M14.0569 10.7131L12.3108 13.5393L10.0598 12.5657L10.0989 26.1028L7.51392 26.1125L7.37329 8.4436L7.38989 8.45239L7.38208 8.43481L14.0569 10.7131Z" fill="white"/>
-            <path d="M46.5684 26.1333L44.0576 26.1255L44.0938 12.1401L41.1895 13.0864L40.5225 10.0347L45.8271 8.58154L45.8418 8.62939L46.7275 8.27588L46.5684 26.1333Z" fill="white"/>
-            <path d="M28.8005 1.61523L28.7937 1.62109L33.2908 6.07324L31.4402 7.90527L26.9431 3.45312L22.4968 7.85645L20.8669 6.24219L25.3123 1.83789L25.3093 1.83496L27.1599 0.00292969L27.1628 0.00585938L27.1697 0L28.8005 1.61523Z" fill="white"/>
-            <path d="M42.6882 26.8562L39.5046 26.8386L39.4851 9.05444L27.3943 12.9421L27.3796 12.8962L27.3611 12.9587L14.7527 9.09937L14.7244 26.6433L11.4558 26.6628L11.3464 4.71362L12.5916 5.18042L12.6072 5.12964L27.3972 9.65698L41.6052 5.09058L41.6277 5.16187L42.8074 4.70288L42.6882 26.8562Z" fill="white"/>
-            <path d="M30.9601 14.4175C35.6415 13.9417 37.8321 18.1152 37.3641 21.1851C36.6873 25.6243 28.9405 29.861 27.4134 31.3232C25.935 30.0066 17.0865 25.2019 16.7024 20.1194C16.4966 17.3964 18.3845 14.3232 22.0179 14.3232C26.2356 14.5844 27.0213 17.359 27.0213 17.359C27.0213 17.359 27.2234 15.156 30.9601 14.4175Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M0 26.1072C0 26.1072 22.709 32.609 27.2508 30.9759C31.7926 29.3428 31.7926 31.2481 27.2508 33.1533C22.709 35.0585 0.613143 33.1533 0.613143 33.1533L0 26.1072Z" fill="white"/>
-            <path d="M53.3433 26.1072C53.3433 26.1072 32.1558 32.609 27.7956 30.9759C23.4355 29.3428 23.4355 31.2481 27.7956 33.1533C32.1558 35.0585 53.3433 33.1533 53.3433 33.1533V26.1072Z" fill="white"/>
-          </svg>
-          <h1>NUMDATE</h1>
-        </div>
-        <nav>
-          <ul>
-            <li><a href="home.html">Home</a></li>
-            <li><a href="#dateidea">Date idea</a></li>
-            <li><a href="messenger.html">Messages</a></li>
-          </ul>
-        </nav>
-        <a href="#profile" aria-label="Миний профайл руу очих">
-          <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z"
-              fill="white" />
-          </svg>
-        </a>
-      </header>
+        /* --- PAGE LAYOUT: 2 CARD, НЭГ МӨРӨНД --- */
+        .wrapper {
+          max-width: 1160px;
+          margin: 36px auto 40px;
+          padding: 0 24px;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 100px;
+          align-items: flex-start;
+        }
 
-      <main>
-        <svg class="bckground" width="1448" height="771" viewBox="0 0 1448 771" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g opacity="0.15" filter="url(#filter0_f_550_2649)">
-            <path d="M1340.98 516.181H1444V570.681H1280.49V559.958H1280.28L1280.66 356.841L1217.06 379.549L1196 317.584L1333.41 273.266V273.531L1343.51 269.586L1340.98 516.181Z" fill="#F88DAD"/>
-            <path d="M118.944 275.799L118.456 274.663L268.385 319.334L219.043 376.516L167.003 356.513L167.669 563.161H167.506V570.682H4V516.182H108.942L106.437 271.131L118.944 275.799Z" fill="#F88DAD"/>
-            <path d="M378.858 244.409L332.294 307.845L272.273 285.995L273.308 589.781L204.394 589.994L200.62 193.489L201.095 193.692L200.859 193.288L378.858 244.409Z" fill="#F88DAD"/>
-            <path d="M1245.77 590.471L1178.81 590.289L1179.84 276.45L1102.39 297.678L1084.59 229.18L1226.07 196.583L1226.48 197.67L1250.08 189.731L1245.77 590.471Z" fill="#F88DAD"/>
-            <path d="M772.021 40.2354L771.847 40.3789L891.757 140.3L842.421 181.412L722.511 81.4912L603.926 180.311L560.441 144.075L679.027 45.2559L678.931 45.1758L728.268 4.06445L728.363 4.14355L728.537 4L772.021 40.2354Z" fill="#F88DAD"/>
-            <path d="M1142.53 606.682L1057.63 606.27L1056.98 207.199L734.521 294.435L734.135 293.418L733.631 294.818L397.469 208.223L396.809 601.931L309.654 602.341L306.568 109.772L339.787 120.272L340.203 119.121L734.626 220.723L1113.47 118.232L1114.08 119.836L1145.54 109.533L1142.53 606.682Z" fill="#F88DAD"/>
-            <path d="M269.029 570.277L161.148 686.208L119.599 659.36L203.629 570.682L269.029 570.277Z" fill="#F88DAD"/>
-            <path d="M829.607 327.547C954.445 316.869 1012.86 410.527 1000.38 479.418C982.334 579.041 775.753 674.115 735.03 706.931C695.605 677.385 459.645 569.562 449.401 455.505C443.912 394.395 494.258 325.431 591.149 325.431C703.621 331.291 724.573 393.556 724.573 393.556C724.573 393.556 729.963 344.119 829.607 327.547Z" stroke="#F88DAD" stroke-width="70" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M4 589.876C4 589.876 609.577 735.785 730.692 699.136C851.807 662.487 851.807 705.244 730.692 747.999C609.577 790.754 20.3506 747.999 20.3506 747.999L4 589.876Z" fill="#F88DAD"/>
-            <path d="M1426.49 589.876C1426.49 589.876 861.489 735.785 745.218 699.136C628.947 662.487 628.947 705.244 745.218 747.999C861.489 790.754 1426.49 747.999 1426.49 747.999V589.876Z" fill="#F88DAD"/>
-          </g>
-          <defs>
-            <filter id="filter0_f_550_2649" x="0" y="0" width="1448" height="771.001" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-              <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-              <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-              <feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur_550_2649"/>
-            </filter>
-          </defs>
-        </svg>
+        /* PROFILE CARD – арай жижгэвтэр */
+        .profile-card {
+          flex: 0 0 56%;
+          background: #ffffff;
+          border-radius: 36px;
+          box-shadow: 0 80px 40px rgba(0, 0, 0, 0.08);
+          padding: 18px 24px 20px;
+          display: grid;
+          grid-template-columns: minmax(0, 1.05fr) 1px minmax(0, 1fr);
+          column-gap: 26px;
+          min-height: 500px;
+          position: relative; /* cancel товчийг байрлуулахын тулд */
+        }
 
-        <div class="main-container">
-          <article id="profile">
-            <div class="profile-head">
-              <h2>My profile</h2>
-              <a class="edit-button" href="https://www.youtube.com" aria-label="Профайл засах"></a>
-            </div>
+        /* SUBSCRIPTION CARD */
+        .subscription {
+          flex: 0 0 24%;
+          background: #ffffff;
+          border-radius: 26px;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
+          padding: 18px 22px 16px;
+        }
 
+        /* дэлгэц багасах үед доошоо бууна */
+        @media (max-width: 1040px) {
+          .wrapper {
+            flex-direction: column;
+            flex-wrap: nowrap;
+          }
+
+          .profile-card,
+          .subscription {
+            flex: 0 0 auto;
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 960px) {
+          .profile-card {
+            grid-template-columns: 1fr;
+            row-gap: 20px;
+            padding: 18px 16px 20px;
+          }
+
+          .divider {
+            display: none;
+          }
+        }
+
+        /* BACK / CANCEL BUTTON – баруун дээд буланд */
+        .cancal-btn {
+          position: absolute;
+          top: 12px;
+          right: 16px;
+        }
+
+        .cancel-btn {
+          border: none;
+          background: transparent;
+          padding: 0;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .cancel-btn svg {
+          display: block;
+        }
+
+        /* LEFT SIDE – center alignment */
+        .profile-left {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 12px;
+        }
+
+        .avatar {
+          width: 96px;
+          height: 96px;
+          border-radius: 999px;
+          overflow: hidden;
+          border: 4px solid #f1025f;
+        }
+
+        .avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .name {
+          margin-top: 6px;
+          margin-bottom: 10px;
+          font-size: 21px;
+          font-weight: 600;
+        }
+
+        .bio {
+          margin-top: -20px;
+          max-width: 320px;
+          font-size: 13px;
+          line-height: 1.4;
+          color: #444;
+        }
+
+        .photo-row {
+          display: flex;
+          gap: 6px;
+        }
+
+        .photo-row img {
+          width: 60px;
+          height: 60px;
+          border-radius: 10px;
+          object-fit: cover;
+          border: 2px solid #f1025f;
+        }
+
+        /* VOICE LINE – PLAY + LINE + TIME */
+        .voice {
+          margin-top: 4px;
+          width: 100%;
+        }
+
+        .voice label {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          justify-content: center;
+        }
+
+        .voice input {
+          display: none;
+        }
+
+        .player {
+          width: 16px;
+          height: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .player .pause {
+          display: none;
+        }
+
+        .voice input:checked + .player .play {
+          display: none;
+        }
+        .voice input:checked + .player .pause {
+          display: block;
+        }
+
+        .timeline {
+          flex: 0 1 140px;
+          height: 2px;
+          border-radius: 999px;
+          background: #f9c3d7;
+          position: relative;
+        }
+        .timeline::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 55%;
+          top: 0;
+          bottom: 0;
+          background: #cf0f47;
+        }
+
+        .time {
+          font-size: 12px;
+          color: #cf0f47;
+          font-weight: 600;
+        }
+
+        /* MIDDLE VERTICAL LINE */
+        .divider {
+          background: #cf0f47;
+          border-radius: 999px;
+        }
+
+        /* RIGHT SIDE – Мэдээлэл */
+        .profile-right {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .info-title {
+          font-family: "Yanone Kaffeesatz", system-ui;
+          font-size: 24px;
+          font-weight: 700;
+        }
+
+        .info-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .info-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 15px;
+          font-weight: 600;
+        }
+
+        .info-item svg {
+          width: 22px;
+          height: 22px;
+        }
+
+        /* SUBSCRIPTION CARD – FONT-ууд */
+        .sub-header {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 10px;
+        }
+
+        .sub-header span {
+          font-family: "Nerko One", system-ui;
+          font-size: 16px;
+          background: #ff1f7a;
+          color: #fff;
+          padding: 4px 18px;
+          border-radius: 999px;
+        }
+
+        .sub-header span strong {
+          font-weight: 700;
+        }
+
+        .sub-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 12px;
+          line-height: 1.35;
+        }
+
+        .sub-table thead th {
+          font-weight: 600;
+          padding-bottom: 4px;
+        }
+
+        .sub-table tbody td {
+          padding: 2px 0;
+        }
+
+        .sub-col-feature {
+          text-align: left;
+        }
+        .sub-col-free,
+        .sub-col-premium {
+          text-align: center;
+          width: 60px;
+        }
+
+        .sub-minus {
+          color: #555;
+          font-weight: 500;
+        }
+        .sub-plus {
+          color: #ff1f7a;
+          font-weight: 700;
+        }
+
+        .sub-footer {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 10px;
+        }
+
+        .sub-btn {
+          border: none;
+          outline: none;
+          padding: 6px 18px;
+          border-radius: 999px;
+          background: #ff1f7a;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 8px 18px rgba(255, 31, 122, 0.35);
+        }
+        .sub-btn:hover {
+          filter: brightness(1.05);
+        }
+      </style>
+
+      <div class="wrapper">
+        <!-- BIG PROFILE CARD -->
+        <section class="profile-card">
+          <!-- BACK BUTTON -->
+          <div class="cancal-btn">
+            <button class="cancel-btn">
+              <svg width="42px" height="42px" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M5.29289 5.29289C5.68342 4.90237 6.31658 4.90237 6.70711 5.29289L12 10.5858L17.2929 5.29289C17.6834 4.90237 18.3166 4.90237 18.7071 5.29289C19.0976 5.68342 19.0976 6.31658 18.7071 6.70711L13.4142 12L18.7071 17.2929C19.0976 17.6834 19.0976 18.3166 18.7071 18.7071C18.3166 19.0976 17.6834 19.0976 17.2929 18.7071L12 13.4142L6.70711 18.7071C6.31658 19.0976 5.68342 19.0976 5.29289 18.7071C4.90237 18.3166 4.90237 17.6834 5.29289 17.2929L10.5858 12L5.29289 6.70711C4.90237 6.31658 4.90237 5.68342 5.29289 5.29289Z"
+                  fill="#CF0F47"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="profile-left">
             <div class="avatar">
-              <img src="./img/Image.jpg" alt="Батцэцэгийн профайл зураг">
+              <img src="./img/image.jpeg" alt="profile">
             </div>
-            <p class="name">Батцэцэг, <span>20</span></p>
-            <p class="bio">Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулдаг ялагдашгүй нэгдэл юм.</p>
-            <div class="user-image-container">
-              <img class="border-red" src="./img/image.jpeg" alt="Батцэцэгийн зураг 1">
-              <img class="border-red" src="./img/image.jpeg" alt="Батцэцэгийн зураг 2">
-              <img class="border-red" src="./img/image.jpeg" alt="Батцэцэгийн зураг 3">
-              <img class="border-red" src="./img/image.jpeg" alt="Батцэцэгийн зураг 4">
+            <p class="name">Батцэцэг, <span>19</span></p>
+            <p class="bio">
+              Амьдрал бол аялал.
+            </p>
+
+            <div class="photo-row">
+              <img src="./Pastry.jpg" alt="user photo">
+              <img src="./picnic.jpeg" alt="user photo">
+              <img src="./img/image.jpeg" alt="user photo">
+              <img src="./terrarium.png" alt="user photo">
             </div>
 
             <div class="voice">
@@ -88,7 +365,7 @@ class OthersProfile extends HTMLElement {
                 <span class="player">
                   <svg width="15" height="20" viewBox="0 0 16 20" fill="none"
                     xmlns="http://www.w3.org/2000/svg" class="play">
-                    <path d="M15.2083 9.68894L-3.52182e-05 0.000121889L0.314103 19.8541L15.2083 9.68894Z"
+                    <path d="M15.2083 9.68894L-3.5e-05 0.000121889L0.314103 19.8541L15.2083 9.68894Z"
                       fill="#CF0F47" />
                   </svg>
                   <svg width="15" height="20" viewBox="0 0 15 20" fill="none"
@@ -97,126 +374,129 @@ class OthersProfile extends HTMLElement {
                     <rect x="10" width="5" height="20" fill="#CF0F47" />
                   </svg>
                 </span>
-                <div class="voice-progress"></div>
-                <span>0:03</span>
+                <div class="timeline"></div>
+                <span class="time">0.03</span>
               </label>
-
               <audio></audio>
             </div>
-          </article>
+          </div>
 
-          <section>
-            <div class="redline"></div>
-            <h3>Мэдээлэл</h3>
-            <div>
-              <article>
-                <label>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M16 6L19 3M19 3L22 6M19 3V9M16 21V19.8C16 18.1198 16 17.2798 15.673 16.638C15.3854 16.0735 14.9265 15.6146 14.362 15.327C13.7202 15 12.8802 15 11.2 15H6.8C5.11984 15 4.27976 15 3.63803 15.327C3.07354 15.6146 2.6146 16.0735 2.32698 16.638C2 17.2798 2 18.1198 2 19.8V21M12.5 7.5C12.5 9.433 10.933 11 9 11C7.067 11 5.5 9.433 5.5 7.5C5.5 5.567 7.067 4 9 4C10.933 4 12.5 5.567 12.5 7.5Z"
-                      stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <h4>Удам</h4>
-                </label>
-                <p></p>
-              </article>
+          <div class="divider"></div>
 
-              <article>
-                <label>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M15.5455 9.92543C15.9195 9.26103 16.2313 8.66151 16.4236 8.20521C17.3573 5.98947 16.434 3.44077 14.1769 2.40112C11.9199 1.36148 9.65341 2.4395 8.65871 4.52093C6.75657 3.2157 4.21918 3.40739 2.81989 5.44424C1.42059 7.48108 1.85975 10.142 3.77629 11.594C4.6461 12.253 6.36636 13.2242 7.98596 14.0884M16.2972 11.7499C15.8751 9.482 13.9454 7.82334 11.5156 8.27415C9.08592 8.72497 7.51488 10.9171 7.84335 13.299C8.10725 15.2127 9.56392 19.7027 10.1264 21.394C10.2032 21.6248 10.2415 21.7402 10.3175 21.8206C10.3837 21.8907 10.4717 21.9416 10.5655 21.9638C10.6732 21.9894 10.7923 21.9649 11.0306 21.916C12.7765 21.5575 17.3933 20.574 19.1826 19.8457C21.4096 18.9392 22.5589 16.4841 21.6981 14.153C20.8372 11.8219 18.4723 10.9815 16.2972 11.7499Z"
-                      stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <h4>Харилцаа</h4>
-                </label>
-                <p></p>
-              </article>
+          <div class="profile-right">
+            <h3 class="info-title">Мэдээлэл</h3>
+            <ul class="info-list">
+              <li class="info-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M16 6L19 3M19 3L22 6M19 3V9M16 21V19.8C16 18.1198 16 17.2798 15.673 16.638C15.3854 16.0735 14.9265 15.6146 14.362 15.327C13.7202 15 12.8802 15 11.2 15H6.8C5.11984 15 4.27976 15 3.63803 15.327C3.07354 15.6146 2.6146 16.0735 2.32698 16.638C2 17.2798 2 18.1198 2 19.8V21M12.5 7.5C12.5 9.433 10.933 11 9 11C7.067 11 5.5 9.433 5.5 7.5C5.5 5.567 7.067 4 9 4C10.933 4 12.5 5.567 12.5 7.5Z"
+                    stroke="black" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+                <span>Удам</span>
+              </li>
 
-              <article>
-                <label>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M22 12H20M19.071 19.0711L17.6567 17.6569M4 12H2M6.34292 6.34317L4.92871 4.92896M12 4V2M17.6567 6.34317L19.071 4.92896M12 22V20M4.92871 19.0711L6.34292 17.6569M12 7L13.545 10.13L17 10.635L14.5 13.07L15.09 16.51L12 14.885L8.91 16.51L9.5 13.07L7 10.635L10.455 10.13L12 7Z"
-                      stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <h4>Миний тухай</h4>
-                </label>
-                <p></p>
-              </article>
+              <li class="info-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M15.5455 9.92543C15.9195 9.26103 16.2313 8.66151 16.4236 8.20521C17.3573 5.98947 16.434 3.44077 14.1769 2.40112C11.9199 1.36148 9.65341 2.4395 8.65871 4.52093C6.75657 3.2157 4.21918 3.40739 2.81989 5.44424C1.42059 7.48108 1.85975 10.142 3.77629 11.594C4.6461 12.253 6.36636 13.2242 7.98596 14.0884M16.2972 11.7499C15.8751 9.482 13.9454 7.82334 11.5156 8.27415C9.08592 8.72497 7.51488 10.9171 7.84335 13.299C8.10725 15.2127 9.56392 19.7027 10.1264 21.394C10.2032 21.6248 10.2415 21.7402 10.3175 21.8206C10.3837 21.8907 10.4717 21.9416 10.5655 21.9638C10.6732 21.9894 10.7923 21.9649 11.0306 21.916C12.7765 21.5575 17.3933 20.574 19.1826 19.8457C21.4096 18.9392 22.5589 16.4841 21.6981 14.153C20.8372 11.8219 18.4723 10.9815 16.2972 11.7499Z"
+                    stroke="black" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+                <span>Харилцаа</span>
+              </li>
 
-              <article>
-                <label>
-                  <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M14.6834 9.43925H12.0613C11.1925 9.43925 10.4881 10.1436 10.4881 11.0125C10.4881 11.8813 11.1925 12.5857 12.0613 12.5857H13.1101C13.979 12.5857 14.6834 13.29 14.6834 14.1589C14.6834 15.0278 13.979 15.7321 13.1101 15.7321H10.4881M12.5857 8.39045V9.43925M12.5857 15.7321V16.7809M18.8786 12.5857H18.8891M6.29289 12.5857H6.30338M2.09766 8.60021L2.09766 16.5712C2.09766 17.7459 2.09766 18.3333 2.32628 18.782C2.52739 19.1767 2.84828 19.4976 3.24298 19.6987C3.69168 19.9273 4.27907 19.9273 5.45384 19.9273L19.7176 19.9273C20.8924 19.9273 21.4798 19.9273 21.9285 19.6987C22.3232 19.4976 22.6441 19.1767 22.8452 18.782C23.0738 18.3333 23.0738 17.7459 23.0738 16.5712V8.60021C23.0738 7.42543 23.0738 6.83804 22.8452 6.38934C22.6441 5.99465 22.3232 5.67375 21.9285 5.47265C21.4798 5.24402 20.8924 5.24402 19.7176 5.24402L5.45385 5.24402C4.27907 5.24402 3.69168 5.24402 3.24298 5.47265C2.84828 5.67375 2.52739 5.99465 2.32628 6.38934C2.09766 6.83804 2.09766 7.42543 2.09766 8.60021ZM19.403 12.5857C19.403 12.8753 19.1682 13.1101 18.8786 13.1101C18.589 13.1101 18.3542 12.8753 18.3542 12.5857C18.3542 12.2961 18.589 12.0613 18.8786 12.0613C19.1682 12.0613 19.403 12.2961 19.403 12.5857ZM6.8173 12.5857C6.8173 12.8753 6.58251 13.1101 6.29289 13.1101C6.00327 13.1101 5.76849 12.8753 5.76849 12.5857C5.76849 12.2961 6.00327 12.0613 6.29289 12.0613C6.58251 12.0613 6.8173 12.2961 6.8173 12.5857Z"
-                      stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <h4>Ажил</h4>
-                </label>
-                <p></p>
-              </article>
+              <li class="info-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M22 12H20M19.071 19.0711L17.6567 17.6569M4 12H2M6.34292 6.34317L4.92871 4.92896M12 4V2M17.6567 6.34317L19.071 4.92896M12 22V20M4.92871 19.0711L6.34292 17.6569M12 7L13.545 10.13L17 10.635L14.5 13.07L15.09 16.51L12 14.885L8.91 16.51L9.5 13.07L7 10.635L10.455 10.13L12 7Z"
+                    stroke="black" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+                <span>Миний тухай</span>
+              </li>
 
-              <article>
-                <label>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M11.9932 5.13581C9.9938 2.7984 6.65975 2.16964 4.15469 4.31001C1.64964 6.45038 1.29697 10.029 3.2642 12.5604C4.89982 14.6651 9.84977 19.1041 11.4721 20.5408C11.6536 20.7016 11.7444 20.7819 11.8502 20.8135C11.9426 20.8411 12.0437 20.8411 12.1361 20.8135C12.2419 20.7819 12.3327 20.7016 12.5142 20.5408C14.1365 19.1041 19.0865 14.6651 20.7221 12.5604C22.6893 10.029 22.3797 6.42787 19.8316 4.31001C17.2835 2.19216 13.9925 2.7984 11.9932 5.13581Z"
-                      stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <h4>Дуртай</h4>
-                </label>
-                <p></p>
-              </article>
-            </div>
-          </section>
-        </div>
+              <li class="info-item">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M14.6834 9.43925H12.0613C11.1925 9.43925 10.4881 10.1436 10.4881 11.0125C10.4881 11.8813 11.1925 12.5857 12.0613 12.5857H13.1101C13.979 12.5857 14.6834 13.29 14.6834 14.1589C14.6834 15.0278 13.979 15.7321 13.1101 15.7321H10.4881M12.5857 8.39045V9.43925M12.5857 15.7321V16.7809M18.8786 12.5857H18.8891M6.29289 12.5857H6.30338M2.09766 8.60021L2.09766 16.5712C2.09766 17.7459 2.09766 18.3333 2.32628 18.782C2.52739 19.1767 2.84828 19.4976 3.24298 19.6987C3.69168 19.9273 4.27907 19.9273 5.45384 19.9273L19.7176 19.9273C20.8924 19.9273 21.4798 19.9273 21.9285 19.6987C22.3232 19.4976 22.6441 19.1767 22.8452 18.782C23.0738 18.3333 23.0738 17.7459 23.0738 16.5712V8.60021C23.0738 7.42543 23.0738 6.83804 22.8452 6.38934C22.6441 5.99465 22.3232 5.67375 21.9285 5.47265C21.4798 5.24402 20.8924 5.24402 19.7176 5.24402L5.45385 5.24402C4.27907 5.24402 3.69168 5.24402 3.24298 5.47265C2.84828 5.67375 2.52739 5.99465 2.32628 6.38934C2.09766 6.83804 2.09766 7.42543 2.09766 8.60021ZM19.403 12.5857C19.403 12.8753 19.1682 13.1101 18.8786 13.1101C18.589 13.1101 18.3542 12.8753 18.3542 12.5857C18.3542 12.2961 18.589 12.0613 18.8786 12.0613C19.1682 12.0613 19.403 12.2961 19.403 12.5857ZM6.8173 12.5857C6.8173 12.8753 6.58251 13.1101 6.29289 13.1101C6.00327 13.1101 5.76849 12.8753 5.76849 12.5857C5.76849 12.2961 6.00327 12.0613 6.29289 12.0613C6.58251 12.0613 6.8173 12.2961 6.8173 12.5857Z"
+                                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                <span>Ажил</span>
+              </li>
 
-        <section id="dateidea" class="dateidea-section">
-          <!-- Date idea хэсгийн контент энд орно -->
+              <li class="info-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M11.9932 5.13581C9.9938 2.7984 6.65975 2.16964 4.15469 4.31001C1.64964 6.45038 1.29697 10.029 3.2642 12.5604C4.89982 14.6651 9.84977 19.1041 11.4721 20.5408C11.6536 20.7016 11.7444 20.7819 11.8502 20.8135C11.9426 20.8411 12.0437 20.8411 12.1361 20.8135C12.2419 20.7819 12.3327 20.7016 12.5142 20.5408C14.1365 19.1041 19.0865 14.6651 20.7221 12.5604C22.6893 10.029 22.3797 6.42787 19.8316 4.31001C17.2835 2.19216 13.9925 2.7984 11.9932 5.13581Z"
+                    stroke="black" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+                <span>Дуртай</span>
+              </li>
+            </ul>
+          </div>
         </section>
 
-        <article class="subscription">
-          <h4>
-            Миний багц:<span>Free</span>
-          </h4>
-          <div>
-            <div class="description">
-              <h4>Юу байгаа вэ?</h4>
-              <p>Хэн чамайг зүрхлэсэн бэ?</p>
-              <p>Хязгааргүй алгасалт</p>
-              <p>Алгассан хүнээ буцаах</p>
-              <p>Ярих</p>
-            </div>
-            <div class="blackline"></div>
-            <div class="minus">
-              <h4>Free</h4>
-              <p>-</p>
-              <p>-</p>
-              <p>-</p>
-              <p>-</p>
-            </div>
-            <div class="blackline"></div>
-            <div class="plus">
-              <h4>Premium</h4>
-              <p>+</p>
-              <p>+</p>
-              <p>+</p>
-              <p>+</p>
-            </div>
+        <!-- SUBSCRIPTION CARD -->
+        <section class="subscription">
+          <div class="sub-header">
+            <span>Миний багц:<strong>Free</strong></span>
           </div>
-          <div>
-            <button type="button">Premium авах</button>
+
+          <table class="sub-table">
+            <thead>
+              <tr>
+                <th class="sub-col-feature">Юу байгаа вэ?</th>
+                <th class="sub-col-free">Free</th>
+                <th class="sub-col-premium">Premium</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sub-col-feature">Хэн чамайг зүрхлэсэн бэ?</td>
+                <td class="sub-col-free sub-minus">–</td>
+                <td class="sub-col-premium sub-plus">+</td>
+              </tr>
+              <tr>
+                <td class="sub-col-feature">Хязгааргүй алгасалт</td>
+                <td class="sub-col-free sub-minus">–</td>
+                <td class="sub-col-premium sub-plus">+</td>
+              </tr>
+              <tr>
+                <td class="sub-col-feature">Алгассан хүнээ буцаах</td>
+                <td class="sub-col-free sub-minus">–</td>
+                <td class="sub-col-premium sub-plus">+</td>
+              </tr>
+              <tr>
+                <td class="sub-col-feature">Ярих</td>
+                <td class="sub-col-free sub-minus">–</td>
+                <td class="sub-col-premium sub-plus">+</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="sub-footer">
+            <button type="button" class="sub-btn">Premium авах</button>
           </div>
-        </article>
-      </main>
+        </section>
+      </div>
     `;
+
+    // буцах товчны click event
+    const cancelBtn = this.shadowRoot.querySelector(".cancel-btn");
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => {
+        window.history.back();
+        
+      });
+    }
   }
 }
 
-window.customElements.define('com-othersprofile', OthersProfile);
+window.customElements.define("com-othersprofile", OthersProfile);
