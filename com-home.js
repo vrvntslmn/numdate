@@ -147,7 +147,7 @@ class Home extends HTMLElement {
         .buttons .other_button_x svg path,
         .buttons .other_button_x svg polyline {
             stroke: #f50057;
-            fill: #f50057; /* эсвэл fill: #f50057; гэж өгч болно, хэрвээ дүүрэн сум хүсвэл */
+            fill: #f50057; 
         }
 
 
@@ -443,6 +443,9 @@ class Home extends HTMLElement {
         }
     </style>
         <main>
+        <body>
+
+
         <div>
             <section class="swipe">
                 <div class="profile">
@@ -451,7 +454,8 @@ class Home extends HTMLElement {
                     </div>
                     <h1>Jennie Kim, 28</h1>
                     <p>Программ хангамж</p>
-                    <a href="othersProfile.html" class="see-more-btn">See more</a>
+                   <a href="#othersProfile" class="see-more-btn">See more</a>
+
                 </div>
                 <div class="buttons">
                     <button class="other_button">
@@ -1134,6 +1138,15 @@ class Home extends HTMLElement {
 
         const profileSwipe = new ProfileSwipe(this, profiles);
         const dropdownFilter = new DropdownFilter();
+
+
+   const seeMoreBtn = this.querySelector('.see-more-btn');
+if (seeMoreBtn) {
+  seeMoreBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.hash = '#othersProfile';
+  });
+}
 
         const filterButton = this.querySelector('.filter');
         if (filterButton) {

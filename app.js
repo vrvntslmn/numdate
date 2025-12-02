@@ -1,6 +1,7 @@
 import './com-home.js';
 import './com-dateidea.js';
 import './com-messenger.js';
+import './com-othersprofile.js';
 import './com-route.js';
 import './com-routes.js';
 import './com-router.js';
