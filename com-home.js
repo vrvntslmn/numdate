@@ -218,11 +218,6 @@ class Home extends HTMLElement {
             margin: 0;
         }
 
-        .catogeries button:hover h2 {
-            color: #f50057;
-            margin: 0;
-        }
-
         .filter {
             display: block;
             width: fit-content;
