@@ -376,8 +376,6 @@ class Home extends HTMLElement {
             border-color: #f50057;
         }
         .dropdown-content button.selected:hover {
-            background: #f50057;
-            color: #ffffff;
             transform: translateY(-2px);
         }
         .dropdown-content button.selected svg {
