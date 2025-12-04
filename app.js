@@ -178,6 +178,7 @@ class App extends HTMLElement {
             <com-route path="/" com="com-home"></com-route>
             <com-route path="dateidea" com="com-dateidea"></com-route>
             <com-route path="messenger" com="com-messenger"></com-route>
+            <com-route path="profile" com="com-profile"></com-route>
         </com-routes>
     </com-router>
         `;
