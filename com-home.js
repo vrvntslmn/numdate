@@ -784,34 +784,6 @@ class Home extends HTMLElement {
                     </div>
                     <div class="dropdown">
                         <button class="dropbtn">
-                            <h1>Relationship goals</h1>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M7 10l5 5 5-5H7z" />
-                            </svg>
-                        </button>
-                        <div class="dropdown-content">
-                            <button>
-                                <h2>Long-term</h2>
-                            </button>
-                            <button>
-                                <h2>Short-term fun</h2>
-                            </button>
-                            <button>
-                                <h2>Short-term, open to long</h2>
-                            </button>
-                            <button>
-                                <h2>Friends</h2>
-                            </button>
-                            <button>
-                                <h2>Just have fun</h2>
-                            </button>
-                            <button>
-                                <h2>Not sure</h2>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <button class="dropbtn">
                             <h1>Cалбар сургууль</h1>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M7 10l5 5 5-5H7z" />
@@ -1140,13 +1112,13 @@ class Home extends HTMLElement {
         const dropdownFilter = new DropdownFilter();
 
 
-   const seeMoreBtn = this.querySelector('.see-more-btn');
-if (seeMoreBtn) {
-  seeMoreBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.location.hash = '#othersProfile';
-  });
-}
+        const seeMoreBtn = this.querySelector('.see-more-btn');
+        if (seeMoreBtn) {
+            seeMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.hash = '#othersProfile';
+            });
+        }
 
         const filterButton = this.querySelector('.filter');
         if (filterButton) {
