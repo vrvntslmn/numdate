@@ -22,6 +22,80 @@ class Profile extends HTMLElement{
     render(){
         this.innerHTML = `
             <style>
+                :root{
+                    --first-color:#FF0B55;
+                    --second-color:#CF0F47;
+                    --textWithBack:white;
+                    --font-header: "Yanone Kaffeesatz", sans-serif;
+                    --font-body:"Roboto Condensed", sans-serif;
+                    --box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+                    --bg-white: white;
+                    --brderRad-big: 20px;
+                    --brderRad-m: 8px;
+                    --brderRad-sm: 2px;
+                    --inputBorder: #D9D9D9;
+                }
+                
+                .edit-button{
+                    width: 32px;
+                    height: 32px;
+                    border: none;
+                    background: no-repeat center;
+                    background-size: contain;
+                    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 32'><path fill-rule='evenodd' clip-rule='evenodd' d='M19.4782 0.947093L17.4437 3.19506L26.1083 12.7688L28.1428 10.5209C29.2857 9.25806 29.2857 7.21068 28.1428 5.94789L23.6169 0.947092C22.474 -0.315698 20.621 -0.315697 19.4782 0.947093ZM4.02359 18.2305C3.72599 18.5593 3.91974 19.1223 4.33989 19.1496L4.98994 19.1918C5.36024 19.2158 5.65567 19.5422 5.67741 19.9514L5.79611 22.1845C5.80336 22.3209 5.90184 22.4297 6.02527 22.4377L8.04638 22.5689C8.41668 22.5929 8.71211 22.9193 8.73386 23.3285L8.85256 25.5617C8.85981 25.698 8.95828 25.8069 9.08172 25.8149L11.1028 25.946C11.4731 25.97 11.7686 26.2965 11.7903 26.7056L11.8269 27.394C11.8516 27.8582 12.3611 28.0723 12.6587 27.7434L23.7762 15.4595C23.9667 15.2491 23.9667 14.9078 23.7762 14.6974L15.8436 5.93251C15.6531 5.72205 15.3443 5.72205 15.1538 5.93251L4.02359 18.2305ZM0.716566 22.1597C0.327776 22.1345 -3.77004e-05 22.4761 3.25206e-09 22.9064L0.000735568 31.2514C0.000772011 31.6644 0.303771 31.9991 0.67755 31.9992L8.23013 32C8.61959 32 8.92875 31.6378 8.90591 31.2083L8.80063 29.2276C8.78051 28.849 8.50719 28.547 8.1646 28.5248L6.29474 28.4035C6.18055 28.3961 6.08944 28.2954 6.08273 28.1692L5.97291 26.1032C5.95279 25.7246 5.67947 25.4226 5.33688 25.4004L3.46703 25.2791C3.35283 25.2717 3.26172 25.171 3.25502 25.0448L3.1452 22.9788C3.12508 22.6002 2.85176 22.2982 2.50917 22.276L0.716566 22.1597Z' fill='%23CF0F47'/></svg>");
+                }
+                
+                html{
+                    width: 100%;
+                }
+                
+                h1 {
+                    color: #F5F5F5;
+                    font-family:var(--font-header);
+                }
+                
+                h2{
+                    font-family:var(--font-header);
+                    font-weight: 400;
+                    font-size: 36px;
+                    margin: 0;
+                }
+                
+                h3{
+                    margin: 0px;
+                    font-family:var(--font-header);
+                    font-size: 36px;
+                }
+                
+                h4{
+                    font-family:var(--font-header);
+                    font-size: 24px;
+                    margin: 0px;
+                }
+                
+                p{
+                    font-family: var(--font-body);
+                    font-weight: 400;
+                }
+                
+                .title{
+                    margin-top: 2vh;
+                    margin-bottom: 1vh;
+                    display: flex;
+                    width: 100%;
+                    gap: 3px;
+                }
+                
+                input, textarea{
+                    border: 1px solid var(--inputBorder);
+                    border-radius: var(--brderRad-sm);
+                }
+                
+                
+                body{
+                    margin: 0px;
+                    background-color: #F5F5F5;
+                }
                 main{
                     display: flex;
                     flex-wrap: wrap;
@@ -33,7 +107,7 @@ class Profile extends HTMLElement{
                 div.main-container{
                     min-height: 500px;
                     background-color: white;
-                    border-radius: 43px;
+                    border-radius: var(--brderRad-big);
                     display: flex;
                     flex: 0 1 800px;
                     z-index: 0;
