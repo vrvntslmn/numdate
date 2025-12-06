@@ -218,11 +218,6 @@ class Home extends HTMLElement {
             margin: 0;
         }
 
-        .catogeries button:hover h2 {
-            color: #f50057;
-            margin: 0;
-        }
-
         .filter {
             display: block;
             width: fit-content;
@@ -376,8 +371,6 @@ class Home extends HTMLElement {
             border-color: #f50057;
         }
         .dropdown-content button.selected:hover {
-            background: #f50057;
-            color: #ffffff;
             transform: translateY(-2px);
         }
         .dropdown-content button.selected svg {
