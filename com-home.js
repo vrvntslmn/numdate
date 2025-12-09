@@ -218,11 +218,6 @@ class Home extends HTMLElement {
             margin: 0;
         }
 
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
         .filter {
             display: block;
             width: fit-content;
@@ -366,11 +361,7 @@ class Home extends HTMLElement {
 
         .dropdown-content button:hover {
             background: #ffe0e9;
-<<<<<<< Updated upstream
             // color: #f50057;
-=======
->>>>>>> Stashed changes
-            transform: translateY(-2px);
         }
 
         .dropdown-content button.selected {
@@ -379,15 +370,8 @@ class Home extends HTMLElement {
             border-color: #f50057;
         }
         .dropdown-content button.selected:hover {
-<<<<<<< Updated upstream
             transform: translateY(-2px);
         }
-=======
-
-            border-color: #f50057;
-        }
-
->>>>>>> Stashed changes
         .dropdown-content button.selected svg {
             fill: white;
         }

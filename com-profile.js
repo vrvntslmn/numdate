@@ -22,7 +22,6 @@ class Profile extends HTMLElement{
     render(){
         this.innerHTML = `
             <style>
-<<<<<<< Updated upstream
                 :root{
                     --first-color:#FF0B55;
                     --second-color:#CF0F47;
@@ -97,8 +96,7 @@ class Profile extends HTMLElement{
                     margin: 0px;
                     background-color: #F5F5F5;
                 }
-=======
->>>>>>> Stashed changes
+
                 main{
                     display: flex;
                     flex-wrap: wrap;
@@ -110,11 +108,7 @@ class Profile extends HTMLElement{
                 div.main-container{
                     min-height: 500px;
                     background-color: white;
-<<<<<<< Updated upstream
                     border-radius: var(--brderRad-big);
-=======
-                    border-radius: 43px;
->>>>>>> Stashed changes
                     display: flex;
                     flex: 0 1 800px;
                     z-index: 0;
