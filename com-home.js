@@ -23,7 +23,7 @@ class Home extends HTMLElement {
 
         .profile {
             width: 350px;
-            height: 580px;
+            height: 80vh;
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -176,7 +176,7 @@ class Home extends HTMLElement {
             gap: 16px;
             width: 380px;
             align-items: stretch;
-            max-height: 600px;
+            max-height: 80vh;
             overflow-y: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -218,6 +218,11 @@ class Home extends HTMLElement {
             margin: 0;
         }
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
         .filter {
             display: block;
             width: fit-content;
@@ -361,7 +366,10 @@ class Home extends HTMLElement {
 
         .dropdown-content button:hover {
             background: #ffe0e9;
+<<<<<<< Updated upstream
             // color: #f50057;
+=======
+>>>>>>> Stashed changes
             transform: translateY(-2px);
         }
 
@@ -371,8 +379,15 @@ class Home extends HTMLElement {
             border-color: #f50057;
         }
         .dropdown-content button.selected:hover {
+<<<<<<< Updated upstream
             transform: translateY(-2px);
         }
+=======
+
+            border-color: #f50057;
+        }
+
+>>>>>>> Stashed changes
         .dropdown-content button.selected svg {
             fill: white;
         }
@@ -412,7 +427,6 @@ class Home extends HTMLElement {
 
         .dropdown-content-school button:hover {
             background: #ffe0e9;
-            color: #f50057;
             transform: translateY(-2px);
         }
 

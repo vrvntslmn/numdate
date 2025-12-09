@@ -18,16 +18,10 @@ class Route extends HTMLElement{
                 case '#dateidea':
                     content.innerHTML = '<com-dateidea></com-dateidea>';
                     break;
-                case '#othersProfile':
-                    content.innerHTML = '<com-othersprofile></com-othersprofile>';
-                    break;
                 case '#profile':
-                    content.innerHTML = '<com-profile></com-profile>';
-                    break;
-                default:
-                  break;
-
-                             
+                    content.innerHTML = `<com-profile></com-profile>`;
+                default :
+                    break;                 
             }
         });
     }

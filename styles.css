@@ -1,8 +1,15 @@
 :root{
     --first-color:#FF0B55;
     --second-color:#CF0F47;
+    --textWithBack:white;
     --font-header: "Yanone Kaffeesatz", sans-serif;
     --font-body:"Roboto Condensed", sans-serif;
+    --box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+    --bg-white: white;
+    --brderRad-big: 20px;
+    --brderRad-m: 8px;
+    --brderRad-sm: 2px;
+    --inputBorder: #D9D9D9;
 }
 
 .edit-button{
@@ -45,6 +52,19 @@ h4{
 p{
     font-family: var(--font-body);
     font-weight: 400;
+}
+
+.title{
+    margin-top: 2vh;
+    margin-bottom: 1vh;
+    display: flex;
+    width: 100%;
+    gap: 3px;
+}
+
+input, textarea{
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--brderRad-sm);
 }
 
 
@@ -121,14 +141,18 @@ main{
 div.main-container{
     min-height: 500px;
     background-color: white;
-    border-radius: 43px;
+    border-radius: var(--brderRad-big);
     display: flex;
     flex: 0 1 800px;
     z-index: 0;
     flex-wrap: wrap;
     justify-content: space-between;
+<<<<<<< Updated upstream
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
     position: relative;
+=======
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+>>>>>>> Stashed changes
 
     h2{
         color: var(--second-color);
@@ -144,6 +168,32 @@ div.main-container{
         min-width: 300px;
 
         .edit-button{cursor: pointer;}
+
+        .premiumEdit{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 100%;
+            height: 130px;
+            border-radius: var(--brderRad-m);
+            border: 2px solid var(--first-color);
+            & > h2{width: 90%;}
+            & > article:first-of-type{
+                width: 50%;
+                height: max-content;
+            }
+
+            & > article:last-of-type{
+                width: 30%;
+                height: max-content;
+            }
+
+            input{
+                width: 100%;
+            }
+        }
+
+
 
         & > .user-image-container{
             display: flex;
@@ -161,48 +211,42 @@ div.main-container{
             label{
                 display: flex;
                 align-items: center;
-                width: 60%;
+                justify-content: center;
+                width: 80%;
                 color: var(--second-color);
                 font-family: var(--font-body);
                 font-weight: 600;
-                justify-content: space-between;
-            }
-            label > .voice-progress{
-                width: 100px;
-                height: 2px;
-                background-color:var(--second-color);
             }
             input{
                 display: none;
             }
             .player{
-                height: 20px;
-            }
-            .pause{
-                cursor: pointer;
-                display: none;
-            }
-            .play{
-                cursor:pointer;
-            }
-
-            input:checked + .player > .pause{
-                display: inline;
+                height: 60px;
+                background-color: var(--first-color);
+                width: 60px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 50%;
+                box-shadow: var(--box-shadow);
             }
 
-            input:checked + .player > .play{
-                display: none;
+            .item{
+                flex: 1;
+                text-align: center;
+                font:var(--font-header);
+    
             }
         }
     }
     & > section{
         margin: 20px;
+        height: 630px;
         display: grid;
         grid-template-areas: "ln h3" "ln div";
         grid-template-columns: 30px auto;
-        grid-template-rows: 30px;
+        grid-template-rows: 30px auto;
         width: 52%;
-   
     }
 
     & > section label{
@@ -212,6 +256,21 @@ div.main-container{
 
     & > section article{
         margin: 20px 0px 50px;
+        height: fit-content;
+        display: flex;
+        flex-direction: column;
+        .plus-btn{
+            align-self: center;
+            min-width: 100px;
+            width: 13vw;
+            height: 4vh;
+            background-color: var(--first-color);
+            font-size: var(--font-body);
+            font-weight: 600;
+            color:var(--textWithBack);
+            border-radius: 8px;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+        }
     }
 
     & > section > div:first-of-type {
@@ -224,9 +283,37 @@ div.main-container{
 
     & > section > div:last-of-type {
         grid-area: div;
+        overflow:scroll;
+        scrollbar-width: none;
     }
 
+    & > div{
+        height: fit-content;
+        display: flex;
+        gap: 1vw;
+        margin: 2vw;
+        justify-content: end;
+        width: 100%;
 
+        & button{
+            min-width: 130px;
+            color: var(--textWithBack);
+            border-radius: 3px;
+            font-family: var(--font-body);
+            font-size: var(--font-body);
+            font-weight: 600;
+        }
+
+        #exit{
+            border: 3px solid var(--first-color);
+            background-color: var(--bg-white);
+            color:var(--first-color);
+        }
+
+        #save{
+            background-color: var(--first-color);
+        }
+    }
 }
 
 
@@ -247,7 +334,7 @@ div.avatar{
     border-radius: 50%;
     border: 3px solid var(--second-color);
     justify-content: center;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
 }
 
 div.avatar > img{
@@ -269,6 +356,8 @@ div.avatar > img{
     font-size: 14px;
     font-weight: 400;
     color: rgba(0, 0, 0, 0.7);
+    width: 90%;
+    resize: none;
 }
 
 
@@ -283,7 +372,7 @@ div.avatar > img{
 
 .redline{
     width: 6%;
-    height: 500px;
+    height: 100%;
     background-color: var(--second-color);
 }
 
@@ -293,7 +382,7 @@ article.subscription{
     height: 250px;
     background-color: white;
     border-radius: 41px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
     min-width: 300px;
     & > h4{
         margin: 10px 60px;
@@ -329,7 +418,7 @@ article.subscription{
         font-size: 18px;
         font-weight: bold;
         background-color:var(--first-color);
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
         padding: 10px;
         border-radius: 5px;
         border:none;
@@ -366,7 +455,6 @@ button{
     border: none;              
     background: none;          
     cursor: pointer; 
-    margin-left: auto;
 }
 .main-container .cancel-btn {
     position: absolute;
@@ -378,6 +466,7 @@ button{
     cursor: pointer;
     z-index: 10; 
 }
+
 
 /*grid-template-areas: "as mn" "ft ft";
 grid-area: as;

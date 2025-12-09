@@ -22,6 +22,7 @@ class Profile extends HTMLElement{
     render(){
         this.innerHTML = `
             <style>
+<<<<<<< Updated upstream
                 :root{
                     --first-color:#FF0B55;
                     --second-color:#CF0F47;
@@ -96,6 +97,8 @@ class Profile extends HTMLElement{
                     margin: 0px;
                     background-color: #F5F5F5;
                 }
+=======
+>>>>>>> Stashed changes
                 main{
                     display: flex;
                     flex-wrap: wrap;
@@ -107,7 +110,11 @@ class Profile extends HTMLElement{
                 div.main-container{
                     min-height: 500px;
                     background-color: white;
+<<<<<<< Updated upstream
                     border-radius: var(--brderRad-big);
+=======
+                    border-radius: 43px;
+>>>>>>> Stashed changes
                     display: flex;
                     flex: 0 1 800px;
                     z-index: 0;
@@ -621,31 +628,6 @@ class Profile extends HTMLElement{
 
                             .edit-button{cursor: pointer;}
 
-                            .premiumEdit{
-                                display: flex;
-                                flex-wrap: wrap;
-                                justify-content: space-around;
-                                width: 100%;
-                                height: 130px;
-                                border-radius: var(--brderRad-m);
-                                border: 2px solid var(--first-color);
-                                & > h2{width: 90%;}
-                                & > article:first-of-type{
-                                    width: 50%;
-                                    height: max-content;
-                                }
-
-                                & > article:last-of-type{
-                                    width: 30%;
-                                    height: max-content;
-                                }
-
-                                input{
-                                    width: 100%;
-                                }
-                            }
-
-
 
                             & > .user-image-container{
                                 display: flex;
@@ -693,7 +675,7 @@ class Profile extends HTMLElement{
                         }
                         & > section{
                             margin: 20px;
-                            height: 630px;
+                            height: 470px;
                             display: grid;
                             grid-template-areas: "ln h3" "ln div";
                             grid-template-columns: 30px auto;
@@ -743,7 +725,8 @@ class Profile extends HTMLElement{
                             height: fit-content;
                             display: flex;
                             gap: 1vw;
-                            margin: 2vw;
+                            margin-bottom: 20px;
+                            margin-right: 2vw;
                             justify-content: end;
                             width: 100%;
 
@@ -921,28 +904,6 @@ class Profile extends HTMLElement{
                             <div class="avatar">
                                 <img src="./img/Image.jpg" alt="profile">
                             </div>
-                            <section class="premiumEdit">
-                                <h2>PREMIUM</h2>
-                                <article>
-                                    <div class="title">
-                                        <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.96439 11C5.32266 11 2.97339 12.2755 1.47772 14.255C1.15581 14.681 0.99486 14.894 1.00013 15.1819C1.00419 15.4043 1.14386 15.6849 1.31887 15.8222C1.54538 16 1.85928 16 2.48709 16H13.4417C14.0695 16 14.3834 16 14.6099 15.8222C14.7849 15.6849 14.9246 15.4043 14.9287 15.1819C14.9339 14.894 14.773 14.681 14.4511 14.255C12.9554 12.2755 10.6061 11 7.96439 11Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M7.96439 8.5C10.0355 8.5 11.7144 6.82107 11.7144 4.75C11.7144 2.67893 10.0355 1 7.96439 1C5.89333 1 4.21439 2.67893 4.21439 4.75C4.21439 6.82107 5.89333 8.5 7.96439 8.5Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <h4>НЭР</h3>
-                                    </div>
-                                    <input class="name" placeholder="Тэмүүжин">
-                                </article>
-                                <article>
-                                    <div class="title">  
-                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7 11L13 11M5 15L9.27171 5.60225C9.50308 5.09323 9.61876 4.83872 9.77907 4.75976C9.91837 4.69115 10.0816 4.69115 10.2209 4.75976C10.3812 4.83872 10.4969 5.09323 10.7283 5.60225L15 15M19 1V19M1 1L1 19" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>                     
-                                        <h4>НАС</h4>
-                                    </div>
-                                    <input class="name" placeholder="21">
-                                </article>
-                            </section>
                             <div class="title">
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_542_2498)">
@@ -956,7 +917,7 @@ class Profile extends HTMLElement{
                                 </svg>
                                 <h4>BIO</h4>
                             </div>
-                            <textarea maxlength="40" class="bio" rows="4" placeholder="Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулагдашгүй нэгдэл юм." ></textarea>
+                            <textarea maxlength="40" class="bio" rows="2" placeholder="Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулагдашгүй нэгдэл юм." ></textarea>
                             <div class="title">                                       
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M16.2 21H6.93137C6.32555 21 6.02265 21 5.88238 20.8802C5.76068 20.7763 5.69609 20.6203 5.70865 20.4608C5.72312 20.2769 5.93731 20.0627 6.36569 19.6343L14.8686 11.1314C15.2646 10.7354 15.4627 10.5373 15.691 10.4632C15.8918 10.3979 16.1082 10.3979 16.309 10.4632C16.5373 10.5373 16.7354 10.7354 17.1314 11.1314L21 15V16.2M16.2 21C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2M16.2 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V7.8C3 6.11984 3 5.27976 3.32698 4.63803C3.6146 4.07354 4.07354 3.6146 4.63803 3.32698C5.27976 3 6.11984 3 7.8 3H16.2C17.8802 3 18.7202 3 19.362 3.32698C19.9265 3.6146 20.3854 4.07354 20.673 4.63803C21 5.27976 21 6.11984 21 7.8V16.2M10.5 8.5C10.5 9.60457 9.60457 10.5 8.5 10.5C7.39543 10.5 6.5 9.60457 6.5 8.5C6.5 7.39543 7.39543 6.5 8.5 6.5C9.60457 6.5 10.5 7.39543 10.5 8.5Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
