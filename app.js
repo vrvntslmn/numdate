@@ -2,6 +2,7 @@ import './com-home.js';
 import './com-dateidea.js';
 import './com-messenger.js';
 import './com-profile.js';
+import './com-notif.js';
 import './com-route.js';
 import './com-routes.js';
 import './com-router.js';
@@ -18,8 +19,15 @@ class App extends HTMLElement {
                 :root{
                     --first-color:#FF0B55;
                     --second-color:#CF0F47;
+                    --textWithBack:white;
                     --font-header: "Yanone Kaffeesatz", sans-serif;
                     --font-body:"Roboto Condensed", sans-serif;
+                    --box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+                    --bg-white: white;
+                    --brderRad-big: 20px;
+                    --brderRad-m: 8px;
+                    --brderRad-sm: 2px;
+                    --inputBorder: #D9D9D9;
                 }
 
                 .edit-button{
@@ -90,9 +98,6 @@ class App extends HTMLElement {
                         margin-right: auto;
                         color: white;
                     }
-                    & > a {
-                        margin-right: 20px;
-                    }
                 }
 
                 header nav {
@@ -106,20 +111,39 @@ class App extends HTMLElement {
                         padding : 15px 20px;
                         margin-left: auto;
                         a{  
-                            display: flex;
+                            display: flex !important;
+                            gap: 5px;
+                            height: 100%;
+                            align-items: center;
                             color: white;
                             text-decoration: none;
-                            font-size: 20px;
+                            font-size: 21px;
                             font-weight: 600;
+                            line-height: 1; 
+
+   
                         }
                         
-                        #notif{
-                            display: none;
+                        .notif {
+                            cursor: pointer;
+                            input{
+                                display: none;
+                            }
                         }
                     }
                     height: 55px;
                     align-items: center;
                     gap: 20px;
+                }
+
+                com-notif{
+                    height: 90%;
+                    background-color: white;
+                    border-radius: var(--brderRad-m);
+                    box-shadow: var(--box-shadow);
+                    position: absolute;
+                    right: 0;
+                    z-index: 5;
                 }
 
         </style>
@@ -159,24 +183,47 @@ class App extends HTMLElement {
         </div>
         <nav>
             <ul>
-                <li><a href="#/">Home</a></li>
-                <li><a href="#dateidea">Date idea</a></li>
-                <li><a href="#messenger">Messages</a></li>
-                <li><a href="#profile">Profile</a></li>
                 <li>
-                    <label>
-                        <input type='checkbox' id='notif'>
+                <a href="#/">
+                    
+                    <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.00024 9.29821C1.00024 8.72385 1.00024 8.43667 1.07427 8.17221C1.13985 7.93794 1.24761 7.7176 1.39227 7.52201C1.55558 7.30121 1.78227 7.1249 2.23563 6.77228L9.01794 1.49715C9.36926 1.2239 9.54493 1.08727 9.7389 1.03476C9.91005 0.988415 10.0904 0.988415 10.2616 1.03476C10.4556 1.08727 10.6312 1.2239 10.9825 1.49715L17.7649 6.77228C18.2182 7.1249 18.4449 7.30121 18.6082 7.52201C18.7529 7.7176 18.8606 7.93794 18.9262 8.17221C19.0002 8.43667 19.0002 8.72385 19.0002 9.29821V16.5331C19.0002 17.6532 19.0002 18.2133 18.7823 18.6411C18.5905 19.0174 18.2846 19.3234 17.9082 19.5152C17.4804 19.7331 16.9203 19.7331 15.8002 19.7331H4.20024C3.08014 19.7331 2.52009 19.7331 2.09226 19.5152C1.71594 19.3234 1.40998 19.0174 1.21823 18.6411C1.00024 18.2133 1.00024 17.6532 1.00024 16.5331V9.29821Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+
+                    HOME
+                </a>
+                </li>
+                <li><a href="#dateidea">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 5V21M11 5H7.46429C6.94332 5 6.4437 4.78929 6.07533 4.41421C5.70695 4.03914 5.5 3.53043 5.5 3C5.5 2.46957 5.70695 1.96086 6.07533 1.58579C6.4437 1.21071 6.94332 1 7.46429 1C10.2143 1 11 5 11 5ZM11 5H14.5357C15.0567 5 15.5563 4.78929 15.9247 4.41421C16.293 4.03914 16.5 3.53043 16.5 3C16.5 2.46957 16.293 1.96086 15.9247 1.58579C15.5563 1.21071 15.0567 1 14.5357 1C11.7857 1 11 5 11 5ZM19 10V17.8C19 18.9201 19 19.4802 18.782 19.908C18.5903 20.2843 18.2843 20.5903 17.908 20.782C17.4802 21 16.9201 21 15.8 21L6.2 21C5.07989 21 4.51984 21 4.09202 20.782C3.71569 20.5903 3.40973 20.2843 3.21799 19.908C3 19.4802 3 18.9201 3 17.8V10M1 6.6L1 8.4C1 8.96005 1 9.24008 1.10899 9.45399C1.20487 9.64215 1.35785 9.79513 1.54601 9.89101C1.75992 10 2.03995 10 2.6 10L19.4 10C19.9601 10 20.2401 10 20.454 9.89101C20.6422 9.79513 20.7951 9.64215 20.891 9.45399C21 9.24008 21 8.96005 21 8.4V6.6C21 6.03995 21 5.75992 20.891 5.54601C20.7951 5.35785 20.6422 5.20487 20.454 5.10899C20.2401 5 19.9601 5 19.4 5L2.6 5C2.03995 5 1.75992 5 1.54601 5.10899C1.35785 5.20487 1.20487 5.35785 1.10899 5.54601C1 5.75992 1 6.03995 1 6.6Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                DATE IDEA</a></li>
+                <li><a href="#messenger">             
+                <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 5.8C1 4.11984 1 3.27976 1.32698 2.63803C1.6146 2.07354 2.07354 1.6146 2.63803 1.32698C3.27976 1 4.11984 1 5.8 1H14.2C15.8802 1 16.7202 1 17.362 1.32698C17.9265 1.6146 18.3854 2.07354 18.673 2.63803C19 3.27976 19 4.11984 19 5.8V11.2C19 12.8802 19 13.7202 18.673 14.362C18.3854 14.9265 17.9265 15.3854 17.362 15.673C16.7202 16 15.8802 16 14.2 16H7.68375C7.0597 16 6.74767 16 6.44921 16.0613C6.18443 16.1156 5.9282 16.2055 5.68749 16.3285C5.41617 16.4671 5.17252 16.662 4.68521 17.0518L2.29976 18.9602C1.88367 19.2931 1.67563 19.4595 1.50054 19.4597C1.34827 19.4599 1.20422 19.3906 1.10923 19.2716C1 19.1348 1 18.8684 1 18.3355V5.8Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                MESSAGES</a></li>
+                <li><a href="#profile">             
+                <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.35727 13C6.1872 13 3.36807 14.5306 1.57327 16.906C1.18698 17.4172 0.993832 17.6728 1.00015 18.0183C1.00503 18.2852 1.17263 18.6219 1.38264 18.7867C1.65446 19 2.03114 19 2.7845 19H15.93C16.6834 19 17.0601 19 17.3319 18.7867C17.5419 18.6219 17.7095 18.2852 17.7144 18.0183C17.7207 17.6728 17.5276 17.4172 17.1413 16.906C15.3465 14.5306 12.5273 13 9.35727 13Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.35727 10C11.8426 10 13.8573 7.98528 13.8573 5.5C13.8573 3.01472 11.8426 1 9.35727 1C6.87199 1 4.85727 3.01472 4.85727 5.5C4.85727 7.98528 6.87199 10 9.35727 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                PROFILE</a></li>
+                <li>
+                    <label class="notif">
                         <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z"
                                 fill="white" />
                         </svg>
+                        <input type='checkbox' id='notif'>
                     </label>
                 </li>
             </ul>
         </nav>
     </header>
     <div id="content">
+        <com-notif></com-notif>
         <com-home></com-home>
     </div>
     <com-router>
