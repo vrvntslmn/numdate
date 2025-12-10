@@ -222,8 +222,9 @@ class App extends HTMLElement {
             </ul>
         </nav>
     </header>
+    <com-notif></com-notif>
     <div id="content">
-        <com-notif></com-notif>
+        
         <com-home></com-home>
     </div>
     <com-router>
