@@ -13,78 +13,66 @@ class ComMessenger extends HTMLElement {
                 *::after {
                     box-sizing: border-box;
                 }
-                       header {
-                            display: flex;
-                            width: calc(100%-8px);
-                            background: linear-gradient(to top, #EE0067, #BC2265);
-                            height: 55px;
-                            align-items: center;
 
-                            & svg.logo {
-                                margin: 10px;
-                                margin-right: 0px;
-                            }
+                body {
+                    margin: 0;
+                    background-color: #F5F5F5;
+                    font-family: 'Yanone Kaffeesatz', sans-serif;
+                }
 
-                            &>div {
-                                display: flex;
-                                align-items: center;
-                                gap: 10px;
-                                margin-right: auto;
-                                color: white;
-                            }
+                header {
+                    display: flex;
+                    width: calc(100%-8px);
+                    background: linear-gradient(to top, #EE0067, #BC2265);
+                    height: 55px;
+                    align-items: center;
+                }
 
-                            &>a {
-                                margin-right: 20px;
-                            }
-                        }
+                header nav {
+                    display: flex;
+                    justify-content: flex-end;
+                    font-family: var(--font-header);
+                    align-self: flex-end;
+                    width: 100%;
+                    height: 55px;
+                    background: linear-gradient(to top, #EE0067, #BC2265);
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 20px
+                }
 
-                        header nav {
-                            display: flex;
+                header nav>div {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-right: auto;
+                    color: white;
+                }
 
+                header nav ul {
+                    display: flex;
+                    justify-content: space-around;
+                    list-style: none;
+                    gap: 15px;
+                    padding: 15px 20px;
+                }
 
-                            justify-content: flex-end;
-                            font-family: var(--font-header);
-                            align-self: flex-end;
+                header nav ul a {
+                    display: flex;
+                    color: white;
+                    text-decoration: none;
+                    font-size: 20px;
+                    font-weight: 600;
+                }
 
-                            ul {
-                                display: flex;
-                                justify-content: space-around;
-                                list-style: none;
-                                gap: 15px;
-                                padding: 15px 20px;
+                header nav div h1 {
+                    color: #F5F5F5;
+                }
 
-                                a {
-                                    display: flex;
-                                    color: white;
-                                    text-decoration: none;
-                                    font-size: 20px;
-                                    font-weight: 600;
-                                }
-                            }
-
-                            width: 100%;
-                            height: 55px;
-                            background: linear-gradient(to top, #EE0067, #BC2265);
-                            justify-content: space-between;
-                            align-items: center;
-                            gap: 20px
-                        }
-
-                        header nav div {
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                        }
-
-                        header nav div h1 {
-                            color: #F5F5F5;
-                        }
-
-                        header nav div a img {
-                            height: 30px;
-                            width: 140px;
-                        }
-                            
+                header nav div a img {
+                    height: 30px;
+                    width: 140px;
+                }
 
                 main {
                     padding: 0;
@@ -100,7 +88,6 @@ class ComMessenger extends HTMLElement {
                     overflow: hidden;
                 }
 
-                /* SIDEBAR */
                 .sidebar {
                     width: 350px;
                     background: #FFFFFF;
@@ -109,7 +96,6 @@ class ComMessenger extends HTMLElement {
                     flex-direction: column;
                 }
 
-                /* Stories */
                 .stories-header {
                     padding: 16px 20px;
                     border-bottom: 1px solid #EFEFEF;
@@ -155,7 +141,6 @@ class ComMessenger extends HTMLElement {
                     background: #DBDBDB;
                 }
 
-                /* Conversations */
                 .conversation-list {
                     padding: 8px 0;
                     overflow-y: auto;
@@ -228,7 +213,6 @@ class ComMessenger extends HTMLElement {
                     flex-shrink: 0;
                 }
 
-                /* CHAT PANEL */
                 .chat-panel {
                     flex: 1;
                     display: flex;
@@ -289,7 +273,6 @@ class ComMessenger extends HTMLElement {
                     justify-content: center;
                 }
 
-
                 .chat-user-name {
                     font-size: 16px;
                     font-weight: 600;
@@ -313,7 +296,6 @@ class ComMessenger extends HTMLElement {
                     background: #44B700;
                 }
 
-                /* Messages */
                 .chat-body {
                     flex: 1;
                     padding: 20px;
@@ -381,7 +363,6 @@ class ComMessenger extends HTMLElement {
                     color: #262626;
                 }
 
-                /* FOOTER */
                 .chat-footer {
                     padding: 16px 20px;
                     display: flex;
@@ -389,6 +370,97 @@ class ComMessenger extends HTMLElement {
                     gap: 12px;
                     background: #FFFFFF;
                     border-top: 1px solid #EFEFEF;
+                    position: relative;
+                }
+
+                .emoji-panel {
+                    position: absolute;
+                    bottom: 60px;
+                    left: 70px;
+                    background: #FFFFFF;
+                    border-radius: 18px;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+                    padding: 8px 10px;
+                    display: none;
+                    gap: 6px;
+                    flex-wrap: wrap;
+                    max-width: 260px;
+                    z-index: 5;
+                }
+
+                .emoji-panel.is-open {
+                    display: flex;
+                }
+
+                .emoji-item {
+                    border: none;
+                    background: transparent;
+                    font-size: 20px;
+                    cursor: pointer;
+                    padding: 4px;
+                }
+
+                .date-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0, 0, 0, 0.35);
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 50;
+                }
+
+                .date-overlay.is-open {
+                    display: flex;
+                }
+
+                .date-dialog {
+                    background: #FFFFFF;
+                    border-radius: 24px;
+                    padding: 24px 20px 18px;
+                    width: 320px;
+                    max-width: 90%;
+                    text-align: center;
+                    font-family: 'Roboto Condensed', sans-serif;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+                }
+
+                .date-dialog-title {
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    color: #EE0067;
+                }
+
+                .date-dialog-text {
+                    font-size: 15px;
+                    margin-bottom: 18px;
+                    color: #444;
+                }
+
+                .date-dialog-buttons {
+                    display: flex;
+                    justify-content: center;
+                    gap: 10px;
+                }
+
+                .date-dialog-buttons button {
+                    border: none;
+                    border-radius: 999px;
+                    padding: 7px 16px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    font-family: 'Roboto Condensed', sans-serif;
+                }
+
+                .date-dialog-cancel {
+                    background: #F5F5F5;
+                    color: #333;
+                }
+
+                .date-dialog-send {
+                    background: #EE0067;
+                    color: #fff;
                 }
 
                 .attachments-bar {
@@ -473,13 +545,104 @@ class ComMessenger extends HTMLElement {
                     cursor: default;
                 }
 
-                /* RESPONSIVE */
+                /* Chat header товчнууд */
+                .block-btn,
+                .report-btn {
+                    border: none;
+                    border-radius: 18px;
+                    padding: 6px 12px;
+                    cursor: pointer;
+                    font-family: 'Roboto Condensed', sans-serif;
+                    font-size: 14px;
+                    font-weight: 600;
+                    transition: background 0.2s ease;
+                }
+
+                .block-btn {
+                    background: #FF4C4C;
+                    color: #fff;
+                }
+
+                .block-btn:hover {
+                    background: #E04444;
+                }
+
+                .report-btn {
+                    background: #FFC107;
+                    color: #fff;
+                }
+
+                .report-btn:hover {
+                    background: #E0A800;
+                }
+
+                /* Блоклосон үед ногоон цэгийг далдлах */
+                .hidden-status .status-dot,
+                .hidden-status span {
+                    display: none;
+                }
+
+
                 @media (max-width: 960px) {
                     .sidebar {
                         display: none;
                     }
                 }
             </style>
+        </head>
+
+        <body>
+            <header>
+                <nav>
+                    <div>
+                        <svg class="logo" width="54" height="34" viewBox="0 0 54 34" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M50.136 22.8237H54.0002V25.2515H47.8684V24.7739H47.8606L47.8743 15.7222L45.4895 16.7349L44.7004 13.9741L49.8528 11.9985V12.0103L50.2317 11.8354L50.136 22.8237Z"
+                                fill="white" />
+                            <path
+                                d="M4.30957 12.1104L4.29199 12.0615L9.91406 14.0518L8.06445 16.5996L6.1123 15.708L6.13867 24.917H6.13184V25.252H0V22.8232H3.93652L3.84082 11.9033L4.30957 12.1104Z"
+                                fill="white" />
+                            <path
+                                d="M14.0569 10.7131L12.3108 13.5393L10.0598 12.5657L10.0989 26.1028L7.51392 26.1125L7.37329 8.4436L7.38989 8.45239L7.38208 8.43481L14.0569 10.7131Z"
+                                fill="white" />
+                            <path
+                                d="M46.5684 26.1333L44.0576 26.1255L44.0938 12.1401L41.1895 13.0864L40.5225 10.0347L45.8271 8.58154L45.8418 8.62939L46.7275 8.27588L46.5684 26.1333Z"
+                                fill="white" />
+                            <path
+                                d="M28.8005 1.61523L28.7937 1.62109L33.2908 6.07324L31.4402 7.90527L26.9431 3.45312L22.4968 7.85645L20.8669 6.24219L25.3123 1.83789L25.3093 1.83496L27.1599 0.00292969L27.1628 0.00585938L27.1697 0L28.8005 1.61523Z"
+                                fill="white" />
+                            <path
+                                d="M42.6882 26.8562L39.5046 26.8386L39.4851 9.05444L27.3943 12.9421L27.3796 12.8962L27.3611 12.9587L14.7527 9.09937L14.7244 26.6433L11.4558 26.6628L11.3464 4.71362L12.5916 5.18042L12.6072 5.12964L27.3972 9.65698L41.6052 5.09058L41.6277 5.16187L42.8074 4.70288L42.6882 26.8562Z"
+                                fill="white" />
+                            <path
+                                d="M30.9601 14.4175C35.6415 13.9417 37.8321 18.1152 37.3641 21.1851C36.6873 25.6243 28.9405 29.861 27.4134 31.3232C25.935 30.0066 17.0865 25.2019 16.7024 20.1194C16.4966 17.3964 18.3845 14.3232 22.0179 14.3232C26.2356 14.5844 27.0213 17.359 27.0213 17.359C27.0213 17.359 27.2234 15.156 30.9601 14.4175Z"
+                                stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M0 26.1072C0 26.1072 22.709 32.609 27.2508 30.9759C31.7926 29.3428 31.7926 31.2481 27.2508 33.1533C22.709 35.0585 0.613143 33.1533 0.613143 33.1533L0 26.1072Z"
+                                fill="white" />
+                            <path
+                                d="M53.3433 26.1072C53.3433 26.1072 32.1558 32.609 27.7956 30.9759C23.4355 29.3428 23.4355 31.2481 27.7956 33.1533C32.1558 35.0585 53.3433 33.1533 53.3433 33.1533V26.1072Z"
+                                fill="white" />
+                        </svg>
+                        <h1>NUMDATE</h1>
+                    </div>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="dateidea.html">Date idea</a></li>
+                        <li><a href="messenger.html">Messages</a></li>
+                        <li>
+                            <a href="#profile">
+                                <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666Z"
+                                        fill="white" />
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </header>
             <main>
                 <div class="chat-app">
                     <aside class="sidebar">
@@ -567,7 +730,6 @@ class ComMessenger extends HTMLElement {
 
                     <section class="chat-panel">
                         <header class="chat-header">
-                            <button class="back-btn" aria-label="Back">‹</button>
                             <div class="chat-user-avatar">
                                 <img src="img/profile2.jpg" alt="User" id="headerAvatar">
                             </div>
@@ -578,6 +740,12 @@ class ComMessenger extends HTMLElement {
                                     <span>Active now</span>
                                 </div>
                             </div>
+                            <!-- Chat header дотор -->
+                            <div class="chat-user-actions" style="margin-left:auto; display:flex; gap:10px;">
+                                <button class="block-btn">Block</button>
+                                <button class="report-btn">Report</button>
+                            </div>
+
                         </header>
 
                         <div class="chat-body" id="chatBody">
@@ -597,28 +765,62 @@ class ComMessenger extends HTMLElement {
                                 <div class="message-bubble">Би ч бас сайн. Маргааш уулзах уу?</div>
                             </div>
                         </div>
-
                         <footer class="chat-footer">
                             <div class="attachments-bar">
-                                <button type="button" class="icon-btn" title="Photo/Video">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+
+                                <button type="button" class="icon-btn" id="dateBtn" title="Date invite">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 24 24"
+                                        fill="none">
                                         <path
-                                            d="M18 8C18 9.10457 17.1046 10 16 10C14.8954 10 14 9.10457 14 8C14 6.89543 14.8954 6 16 6C17.1046 6 18 6.89543 18 8Z"
-                                            fill="#262626" />
-                                        <path
-                                            d="M2.75 12C2.75 9.62 2.75 7.91 2.93 6.61C3.10 5.34 3.43 4.56 4 4C4.56 3.43 5.34 3.10 6.61 2.93C7.91 2.75 9.62 2.75 12 2.75C14.38 2.75 16.09 2.75 17.39 2.93C18.66 3.10 19.44 3.43 20 4C20.56 4.56 20.90 5.34 21.07 6.61C21.25 7.91 21.25 9.62 21.25 12C21.25 14.38 21.25 16.09 21.07 17.39C20.90 18.66 20.56 19.44 20 20C19.44 20.56 18.66 20.90 17.39 21.07C16.09 21.25 14.38 21.25 12 21.25C9.62 21.25 7.91 21.25 6.61 21.07C5.34 20.90 4.56 20.56 4 20C3.43 19.44 3.10 18.66 2.93 17.39C2.75 16.09 2.75 14.38 2.75 12Z"
-                                            stroke="#262626" stroke-width="1.5" />
+                                            d="M8.96173 18.9109L9.42605 18.3219L8.96173 18.9109ZM12 5.50063L11.4596 6.02073C11.601 6.16763 11.7961 6.25063 12 6.25063C12.2039 6.25063 12.399 6.16763 12.5404 6.02073L12 5.50063ZM15.0383 18.9109L15.5026 19.4999L15.0383 18.9109ZM9.42605 18.3219C7.91039 17.1271 6.25307 15.9603 4.93829 14.4798C3.64922 13.0282 2.75 11.3345 2.75 9.1371H1.25C1.25 11.8026 2.3605 13.8361 3.81672 15.4758C5.24723 17.0866 7.07077 18.3752 8.49742 19.4999L9.42605 18.3219ZM2.75 9.1371C2.75 6.98623 3.96537 5.18252 5.62436 4.42419C7.23607 3.68748 9.40166 3.88258 11.4596 6.02073L12.5404 4.98053C10.0985 2.44352 7.26409 2.02539 5.00076 3.05996C2.78471 4.07292 1.25 6.42503 1.25 9.1371H2.75ZM8.49742 19.4999C9.00965 19.9037 9.55954 20.3343 10.1168 20.6599C10.6739 20.9854 11.3096 21.25 12 21.25V19.75C11.6904 19.75 11.3261 19.6293 10.8736 19.3648C10.4213 19.1005 9.95208 18.7366 9.42605 18.3219L8.49742 19.4999ZM15.5026 19.4999C16.9292 18.3752 18.7528 17.0866 20.1833 15.4758C21.6395 13.8361 22.75 11.8026 22.75 9.1371H21.25C21.25 11.3345 20.3508 13.0282 19.0617 14.4798C17.7469 15.9603 16.0896 17.1271 14.574 18.3219L15.5026 19.4999ZM22.75 9.1371C22.75 6.42503 21.2153 4.07292 18.9992 3.05996C16.7359 2.02539 13.9015 2.44352 11.4596 4.98053L12.5404 6.02073C14.5983 3.88258 16.7639 3.68748 18.3756 4.42419C20.0346 5.18252 21.25 6.98623 21.25 9.1371H22.75ZM14.574 18.3219C14.0479 18.7366 13.5787 19.1005 13.1264 19.3648C12.6739 19.6293 12.3096 19.75 12 19.75V21.25C12.6904 21.25 13.3261 20.9854 13.8832 20.6599C14.4405 20.3343 14.9903 19.9037 15.5026 19.4999L14.574 18.3219Z"
+                                            fill="#1C274C" />
                                     </svg>
                                 </button>
-                                <button type="button" class="icon-btn" title="Emoji">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                                        <circle cx="12" cy="12" r="10" stroke="#262626" stroke-width="1.5" />
-                                        <path d="M9 16C9.85 16.63 10.88 17 12 17C13.12 17 14.15 16.63 15 16" stroke="#262626"
-                                            stroke-width="1.5" stroke-linecap="round" />
-                                        <circle cx="15" cy="10" r="1" fill="#262626" />
-                                        <circle cx="9" cy="10" r="1" fill="#262626" />
+
+                                <button type="button" class="icon-btn" id="emojiBtn" title="Emoji">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path
+                                            d="M15.4754 9.51572C15.6898 10.3159 15.4311 11.0805 14.8977 11.2234C14.3642 11.3664 13.7579 10.8336 13.5435 10.0334C13.3291 9.23316 13.5877 8.4686 14.1212 8.32565C14.6547 8.18271 15.2609 8.71552 15.4754 9.51572Z"
+                                            fill="#1C274C" />
+                                        <path
+                                            d="M9.67994 11.0687C9.89436 11.8689 9.63571 12.6335 9.10225 12.7764C8.56878 12.9194 7.9625 12.3865 7.74809 11.5863C7.53368 10.7861 7.79232 10.0216 8.32579 9.87863C8.85925 9.73569 9.46553 10.2685 9.67994 11.0687Z"
+                                            fill="#1C274C" />
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75ZM1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C17.9371 1.25 22.75 6.06294 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12ZM17.1789 13.3409C17.467 13.6385 17.4593 14.1133 17.1617 14.4014C16.9917 14.566 16.8128 14.7246 16.6256 14.8766L16.8441 15.3216C17.3971 16.4482 16.9214 17.8094 15.787 18.3464C14.6752 18.8728 13.3468 18.4085 12.8047 17.3043L12.5315 16.7477C11.2117 16.998 9.90919 16.9561 8.73026 16.6606C8.32847 16.5599 8.0844 16.1526 8.1851 15.7508C8.2858 15.349 8.69315 15.1049 9.09494 15.2056C10.2252 15.4889 11.5232 15.4924 12.841 15.1393C14.1588 14.7862 15.2811 14.1342 16.1183 13.3237C16.4159 13.0356 16.8908 13.0433 17.1789 13.3409ZM14.0048 16.345L14.1513 16.6433C14.3319 17.0114 14.7747 17.1661 15.1452 16.9907C15.5233 16.8117 15.6818 16.358 15.4975 15.9825L15.3707 15.7241C14.9417 15.9631 14.4851 16.1716 14.0048 16.345Z"
+                                            fill="#1C274C" />
                                     </svg>
                                 </button>
+                            </div>
+
+                            <div class="emoji-panel" id="emojiPanel">
+                                <button type="button" class="emoji-item" data-emoji="😀">😀</button>
+                                <button type="button" class="emoji-item" data-emoji="😂">😂</button>
+                                <button type="button" class="emoji-item" data-emoji="🥰">🥰</button>
+                                <button type="button" class="emoji-item" data-emoji="😍">😍</button>
+                                <button type="button" class="emoji-item" data-emoji="😎">😎</button>
+                                <button type="button" class="emoji-item" data-emoji="🤭">🤭</button>
+                                <button type="button" class="emoji-item" data-emoji="🙈">🙈</button>
+                                <button type="button" class="emoji-item" data-emoji="❤️">❤️</button>
+                                <button type="button" class="emoji-item" data-emoji="✨">✨</button>
+                                <button type="button" class="emoji-item" data-emoji="🫶">🫶</button>
+                                <button type="button" class="emoji-item" data-emoji="🩷">🩷</button>
+                                <button type="button" class="emoji-item" data-emoji="💛">💛</button>
+                                <button type="button" class="emoji-item" data-emoji="💘">💘</button>
+                                <button type="button" class="emoji-item" data-emoji="🥂">🥂</button>
+                            </div>
+
+                            <div class="date-overlay" id="dateOverlay">
+                                <div class="date-dialog">
+                                    <div class="date-dialog-title">Болзоонд явах уу? 🫶</div>
+                                    <div class="date-dialog-text">
+                                        Чамтай болзоонд явах санал илгээх гэж байна. Илгээх үү?
+                                    </div>
+                                    <div class="date-dialog-buttons">
+                                        <button type="button" class="date-dialog-cancel" id="dateCancelBtn">Болих</button>
+                                        <button type="button" class="date-dialog-send" id="dateSendBtn">Илгээх</button>
+                                    </div>
+                                </div>
                             </div>
 
                             <form class="message-form" id="messageForm">
@@ -627,6 +829,7 @@ class ComMessenger extends HTMLElement {
                                 <button type="submit" class="send-btn">Send</button>
                             </form>
                         </footer>
+
                     </section>
                 </div>
             </main>

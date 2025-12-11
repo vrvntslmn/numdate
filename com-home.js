@@ -865,33 +865,18 @@ class Home extends HTMLElement {
         </div>
     </main>
         `;
-        const profiles = [
-            {
-                name: "Jennie Kim",
-                age: 28,
-                image: "img/image.jpeg"
-            },
-            {
-                name: "Сарантуяа",
-                age: 19,
-                image: "img/profile2.jpg"
-            },
-            {
-                name: "Марал",
-                age: 18,
-                image: "img/profile3.jpg"
-            },
-            {
-                name: "Хулан",
-                age: 21,
-                image: "img/profile4.jpg"
-            },
-            {
-                name: "Тэмүүжин",
-                age: 20,
-                image: "img/profile5.jpg"
-            }
-        ];
+        
+        const profiles = [];
+
+        fetch('/api/user')
+        .then(res => res.json())
+        .then(data => {
+            profiles = data;                // fill global profiles array
+            new ProfileSwipe();             // create swiper now that data exists
+        })
+        .catch(err => {
+            console.error('Failed to load profiles:', err);
+        });
 
         class ProfileSwipe {
             constructor() {
@@ -911,6 +896,7 @@ class Home extends HTMLElement {
                 this.attachEventListeners();
                 this.setupKeyboardControls();
                 this.setupTouchControls();
+                this.updateProfile();
             }
 
             setupTransitions() {
@@ -921,6 +907,8 @@ class Home extends HTMLElement {
             }
 
             updateProfile() {
+                if (!profiles.length) return; // nothing yet
+
                 if (this.currentProfileIndex >= profiles.length) {
                     this.currentProfileIndex = 0;
                 }
@@ -1099,7 +1087,6 @@ class Home extends HTMLElement {
             }
         }
 
-        const profileSwipe = new ProfileSwipe(this, profiles);
         const dropdownFilter = new DropdownFilter();
 
 
