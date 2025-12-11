@@ -172,6 +172,11 @@ class Edit extends HTMLElement{
                         input{
                             display: none;
                         }
+
+                        editPlayer{
+                            cursor: pointer !important;
+                        }
+                            
                         .player{
                             height: 60px;
                             background-color: var(--first-color);
@@ -470,16 +475,16 @@ class Edit extends HTMLElement{
                         <img class="border-red" src="./img/image.jpeg" alt="user photo">
                     </div>
                     <div class="voice">
-                        <label>
-                            <p class="item">Voice</p>
+                    <p class="item">Voice</p>
+                        <label class='editPlayer'>
                             <input type="checkbox">
-                            <span class="player">                      
+                            <div class="player">                      
                                 <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M15 9V11C15 14.866 11.866 18 8 18M1 9V11C1 14.866 4.13401 18 8 18M8 18V21M4 21H12M8 14C6.34315 14 5 12.6569 5 11V4C5 2.34315 6.34315 1 8 1C9.65685 1 11 2.34315 11 4V11C11 12.6569 9.65685 14 8 14Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                            </span>
-                            <p class="item">солих</p>
+                            </div>
                         </label>
+                    <p class="item">солих</p>
                     </div>
                 </article>
                 <section>
@@ -578,6 +583,11 @@ class Edit extends HTMLElement{
             </article>
         </main>
         `;
+
+        const player = this.querySelector('editPlayer');
+        player.addEventListener('change', ()=>{
+
+        });
     }
 }
 

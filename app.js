@@ -110,6 +110,7 @@ class App extends HTMLElement {
                         gap:15px;
                         padding : 15px 20px;
                         margin-left: auto;
+
                         a{  
                             display: flex !important;
                             gap: 5px;
@@ -122,6 +123,11 @@ class App extends HTMLElement {
                             line-height: 1; 
 
    
+                        }
+
+                        a:hover{
+                            color:#ffd8e5ff;
+                            border-radius: 2px;
                         }
                         
                         .notif {
