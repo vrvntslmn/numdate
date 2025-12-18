@@ -584,10 +584,6 @@ class Edit extends HTMLElement{
         </main>
         `;
 
-        const player = this.querySelector('editPlayer');
-        player.addEventListener('change', ()=>{
-
-        });
     }
 }
 

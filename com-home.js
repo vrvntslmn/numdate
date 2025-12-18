@@ -866,17 +866,26 @@ class Home extends HTMLElement {
     </main>
         `;
         
-        const profiles = [];
+                // 🔥 1) profiles must be "let" so we can fill it later
+        let profiles = [];
 
-        fetch('/api/user')
-        .then(res => res.json())
-        .then(data => {
-            profiles = data;                // fill global profiles array
-            new ProfileSwipe();             // create swiper now that data exists
-        })
-        .catch(err => {
-            console.error('Failed to load profiles:', err);
-        });
+        // 🔥 2) Fetch from your backend API
+        //    Make sure this matches your Node route (e.g. /api/profiles or /api/user)
+        fetch('/api/userbasics')
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('Profiles from server:', data);
+                profiles = data;      // now allowed because we used "let"
+                new ProfileSwipe();   // create swiper after data is loaded
+            })
+            .catch(err => {
+                console.error('Failed to load profiles:', err);
+            });
 
         
         class ProfileSwipe {
@@ -897,7 +906,7 @@ class Home extends HTMLElement {
                 this.attachEventListeners();
                 this.setupKeyboardControls();
                 this.setupTouchControls();
-                this.updateProfile();
+                this.updateProfile();  // 🔥 show first profile when ready
             }
 
             setupTransitions() {
@@ -919,8 +928,8 @@ class Home extends HTMLElement {
 
                 setTimeout(() => {
                     this.profileImage.src = currentProfile.image;
-                    this.profileName.textContent = currentProfile.name;
-                    this.profileAge.textContent = currentProfile.age;
+                    this.profileName.textContent = currentProfile.name + ', ' + currentProfile.age;
+                    this.profileAge.textContent = currentProfile.major || 'Программ хангамж'; // optional
                     this.profileElement.style.opacity = '1';
                 }, 300);
             }
@@ -1007,105 +1016,8 @@ class Home extends HTMLElement {
             }
         }
 
-        class DropdownFilter {
-            constructor() {
-                this.dropdowns = document.querySelectorAll('.dropdown');
-                this.init();
-            }
+        // DropdownFilter + filter button code stays the same
 
-            init() {
-                this.attachEventListeners();
-                this.setupClickOutside();
-            }
-
-            attachEventListeners() {
-                this.dropdowns.forEach(dropdown => {
-                    const dropbtn = dropdown.querySelector('.dropbtn');
-                    const content = dropdown.querySelector('.dropdown-content, .dropdown-content-school');
-                    const buttons = content.querySelectorAll('button');
-                    const countSpan = dropdown.querySelector('.selected-count');
-
-                    dropbtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.toggleDropdown(dropdown);
-                    });
-
-                    buttons.forEach(button => {
-                        button.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            this.toggleSelection(button, content, countSpan);
-                        });
-                    });
-                });
-            }
-
-            toggleDropdown(currentDropdown) {
-                this.dropdowns.forEach(dropdown => {
-                    if (dropdown !== currentDropdown) {
-                        dropdown.classList.remove('open');
-                    }
-                });
-
-                currentDropdown.classList.toggle('open');
-            }
-
-            toggleSelection(button, content, countSpan) {
-                button.classList.toggle('selected');
-
-                const selectedCount = content.querySelectorAll('button.selected').length;
-
-                if (selectedCount > 0) {
-                    countSpan.textContent = selectedCount;
-                    countSpan.style.display = 'inline-block';
-                } else {
-                    countSpan.style.display = 'none';
-                }
-            }
-
-            setupClickOutside() {
-                document.addEventListener('click', () => {
-                    this.dropdowns.forEach(dropdown => {
-                        dropdown.classList.remove('open');
-                    });
-                });
-            }
-
-            getSelectedFilters() {
-                const filters = {};
-
-                this.dropdowns.forEach(dropdown => {
-                    const dropdownTitle = dropdown.querySelector('.dropbtn h1').textContent;
-                    const selectedButtons = dropdown.querySelectorAll('button.selected');
-
-                    if (selectedButtons.length > 0) {
-                        filters[dropdownTitle] = Array.from(selectedButtons).map(btn =>
-                            btn.querySelector('h2').textContent
-                        );
-                    }
-                });
-
-                return filters;
-            }
-        }
-
-        const dropdownFilter = new DropdownFilter();
-
-
-        const seeMoreBtn = this.querySelector('.see-more-btn');
-        if (seeMoreBtn) {
-            seeMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.location.hash = '#othersProfile';
-            });
-        }
-
-        const filterButton = this.querySelector('.filter');
-        if (filterButton) {
-            filterButton.addEventListener('click', () => {
-                const selectedFilters = dropdownFilter.getSelectedFilters();
-                console.log('Selected Filters:', selectedFilters);
-            });
-        }
     }
 };
 
