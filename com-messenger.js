@@ -1,20 +1,20 @@
 class ComMessenger extends HTMLElement {
-    constructor() {
-        super();
-        this.attachShadow({ mode: "open" });
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
 
-        this.blockedUsers = new Set();
-        this.reportedUsers = new Set();
+    this.blockedUsers = new Set();
+    this.reportedUsers = new Set();
 
-        this.currentUserAvatar = "img/profile2.jpg";
-        this._rendered = false;
-    }
+    this.currentUserAvatar = "img/profile2.jpg";
+    this._rendered = false;
+  }
 
-    connectedCallback() {
-        if (this._rendered) return;
-        this._rendered = true;
+  connectedCallback() {
+    if (this._rendered) return;
+    this._rendered = true;
 
-        this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = `
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap');
@@ -28,10 +28,10 @@ class ComMessenger extends HTMLElement {
         }
 
         main { padding: 0; max-width: 1400px; margin: 0 auto; }
-
+        
         .chat-app {
           width: 100%;
-          height: calc(100vh - 55px);
+          height: calc(100vh - 110px);
           background: #FFFFFF;
           display: flex;
           overflow: hidden;
@@ -518,75 +518,75 @@ class ComMessenger extends HTMLElement {
       </main>
     `;
 
-        const $ = (sel) => this.shadowRoot.querySelector(sel);
-        const $$ = (sel) => Array.from(this.shadowRoot.querySelectorAll(sel));
+    const $ = (sel) => this.shadowRoot.querySelector(sel);
+    const $$ = (sel) => Array.from(this.shadowRoot.querySelectorAll(sel));
 
-        this.els = {
-            chatBody: $("#chatBody"),
-            chatUserName: $("#chatUserName"),
-            headerAvatar: $("#headerAvatar"),
-            headerStatus: $("#headerStatus"),
-            headerBanner: $("#headerBanner"),
-            messageForm: $("#messageForm"),
-            messageInput: $("#messageInput"),
-            sendBtn: $("#sendBtn"),
-            attachmentsBar: $("#attachmentsBar"),
-            footerBanner: $("#footerBanner"),
-            emojiBtn: $("#emojiBtn"),
-            emojiPanel: $("#emojiPanel"),
-            dateBtn: $("#dateBtn"),
-            dateOverlay: $("#dateOverlay"),
-            dateCancelBtn: $("#dateCancelBtn"),
-            dateSendBtn: $("#dateSendBtn"),
-            blockBtn: $("#blockBtn"),
-            reportBtn: $("#reportBtn"),
-            conversationItems: $$(".conversation-item"),
-            emojiItems: $$(".emoji-item"),
-        };
+    this.els = {
+      chatBody: $("#chatBody"),
+      chatUserName: $("#chatUserName"),
+      headerAvatar: $("#headerAvatar"),
+      headerStatus: $("#headerStatus"),
+      headerBanner: $("#headerBanner"),
+      messageForm: $("#messageForm"),
+      messageInput: $("#messageInput"),
+      sendBtn: $("#sendBtn"),
+      attachmentsBar: $("#attachmentsBar"),
+      footerBanner: $("#footerBanner"),
+      emojiBtn: $("#emojiBtn"),
+      emojiPanel: $("#emojiPanel"),
+      dateBtn: $("#dateBtn"),
+      dateOverlay: $("#dateOverlay"),
+      dateCancelBtn: $("#dateCancelBtn"),
+      dateSendBtn: $("#dateSendBtn"),
+      blockBtn: $("#blockBtn"),
+      reportBtn: $("#reportBtn"),
+      conversationItems: $$(".conversation-item"),
+      emojiItems: $$(".emoji-item"),
+    };
 
-        this.currentUserAvatar = this.els.headerAvatar?.getAttribute("src") || this.currentUserAvatar;
+    this.currentUserAvatar = this.els.headerAvatar?.getAttribute("src") || this.currentUserAvatar;
 
-        this.bindEvents();
+    this.bindEvents();
 
-        const active = this.getActiveConversationEl();
-        if (active) this.applyUIForUser(active.dataset.user);
-    }
+    const active = this.getActiveConversationEl();
+    if (active) this.applyUIForUser(active.dataset.user);
+  }
 
-    bindEvents() {
-        const { messageForm, messageInput, chatBody } = this.els;
+  bindEvents() {
+    const { messageForm, messageInput, chatBody } = this.els;
 
-        messageForm.addEventListener("submit", (e) => {
-            e.preventDefault();
+    messageForm.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-            const active = this.getActiveConversationEl();
-            const user = active?.dataset.user;
-            if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+      const active = this.getActiveConversationEl();
+      const user = active?.dataset.user;
+      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
 
-            const text = messageInput.value.trim();
-            if (!text) return;
+      const text = messageInput.value.trim();
+      if (!text) return;
 
-            const row = document.createElement("div");
-            row.className = "message-row outgoing";
-            row.innerHTML = `<div class="message-bubble">${this.escapeHtml(text)}</div>`;
-            chatBody.appendChild(row);
+      const row = document.createElement("div");
+      row.className = "message-row outgoing";
+      row.innerHTML = `<div class="message-bubble">${this.escapeHtml(text)}</div>`;
+      chatBody.appendChild(row);
 
-            messageInput.value = "";
-            chatBody.scrollTop = chatBody.scrollHeight;
-        });
+      messageInput.value = "";
+      chatBody.scrollTop = chatBody.scrollHeight;
+    });
 
-        this.els.conversationItems.forEach((item) => {
-            item.addEventListener("click", () => {
-                this.els.conversationItems.forEach((i) => i.classList.remove("is-active"));
-                item.classList.add("is-active");
+    this.els.conversationItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        this.els.conversationItems.forEach((i) => i.classList.remove("is-active"));
+        item.classList.add("is-active");
 
-                const userName = item.dataset.user;
-                const userAvatar = item.dataset.avatar;
+        const userName = item.dataset.user;
+        const userAvatar = item.dataset.avatar;
 
-                this.els.chatUserName.textContent = userName;
-                this.els.headerAvatar.src = userAvatar;
-                this.currentUserAvatar = userAvatar;
+        this.els.chatUserName.textContent = userName;
+        this.els.headerAvatar.src = userAvatar;
+        this.currentUserAvatar = userAvatar;
 
-                this.els.chatBody.innerHTML = `
+        this.els.chatBody.innerHTML = `
           <div class="message-row incoming">
             <div class="message-avatar">
               <img src="${userAvatar}" alt="${this.escapeHtml(userName)}" class="incoming-avatar">
@@ -595,67 +595,67 @@ class ComMessenger extends HTMLElement {
           </div>
         `;
 
-                this.updateIncomingAvatars();
-                this.applyUIForUser(userName);
-                this.updateConversationStatuses();
-            });
-        });
+        this.updateIncomingAvatars();
+        this.applyUIForUser(userName);
+        this.updateConversationStatuses();
+      });
+    });
 
-        this.els.emojiBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            const user = this.getActiveUserName();
-            if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
-            this.els.emojiPanel.classList.toggle("is-open");
-        });
+    this.els.emojiBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const user = this.getActiveUserName();
+      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+      this.els.emojiPanel.classList.toggle("is-open");
+    });
 
-        this.els.emojiItems.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const user = this.getActiveUserName();
-                if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+    this.els.emojiItems.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const user = this.getActiveUserName();
+        if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
 
-                const emoji = btn.dataset.emoji;
-                this.els.messageInput.value += emoji;
-                this.els.messageInput.focus();
-            });
-        });
+        const emoji = btn.dataset.emoji;
+        this.els.messageInput.value += emoji;
+        this.els.messageInput.focus();
+      });
+    });
 
-        this.els.dateBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            const user = this.getActiveUserName();
-            if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+    this.els.dateBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const user = this.getActiveUserName();
+      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
 
-            this.els.dateOverlay.classList.add("is-open");
-            this.els.dateOverlay.setAttribute("aria-hidden", "false");
-            this.els.emojiPanel.classList.remove("is-open");
-        });
+      this.els.dateOverlay.classList.add("is-open");
+      this.els.dateOverlay.setAttribute("aria-hidden", "false");
+      this.els.emojiPanel.classList.remove("is-open");
+    });
 
-        this.els.dateCancelBtn.addEventListener("click", () => {
-            this.closeDateOverlay();
-        });
+    this.els.dateCancelBtn.addEventListener("click", () => {
+      this.closeDateOverlay();
+    });
 
-        this.els.dateSendBtn.addEventListener("click", () => {
-            const user = this.getActiveUserName();
-            if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+    this.els.dateSendBtn.addEventListener("click", () => {
+      const user = this.getActiveUserName();
+      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
 
-            const text = "Болзоонд явах уу? 🫶";
-            const row = document.createElement("div");
-            row.className = "message-row outgoing";
-            row.innerHTML = `<div class="message-bubble">${this.escapeHtml(text)}</div>`;
-            this.els.chatBody.appendChild(row);
-            this.els.chatBody.scrollTop = this.els.chatBody.scrollHeight;
+      const text = "Болзоонд явах уу? 🫶";
+      const row = document.createElement("div");
+      row.className = "message-row outgoing";
+      row.innerHTML = `<div class="message-bubble">${this.escapeHtml(text)}</div>`;
+      this.els.chatBody.appendChild(row);
+      this.els.chatBody.scrollTop = this.els.chatBody.scrollHeight;
 
-            this.closeDateOverlay();
-        });
+      this.closeDateOverlay();
+    });
 
-        this.els.dateOverlay.addEventListener("click", (e) => {
-            if (e.target === this.els.dateOverlay) this.closeDateOverlay();
-        });
+    this.els.dateOverlay.addEventListener("click", (e) => {
+      if (e.target === this.els.dateOverlay) this.closeDateOverlay();
+    });
 
-        this.els.blockBtn.addEventListener("click", () => {
-            const userName = this.getActiveUserName();
-            if (!userName) return;
+    this.els.blockBtn.addEventListener("click", () => {
+      const userName = this.getActiveUserName();
+      if (!userName) return;
 
-            const sure = window.confirm(`\${userName}-г блоклох уу? Мессеж илгээх боломжгүй болно。\`);
+      const sure = window.confirm(`\${userName}-г блоклох уу? Мессеж илгээх боломжгүй болно。\`);
       if (!sure) return;
 
       this.blockedUsers.add(userName);
