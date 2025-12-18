@@ -887,6 +887,49 @@ class Profile extends HTMLElement{
                         z-index: 1;
                         
                     }
+
+                    .voice {
+                        margin-top: 20px;
+                        display: flex;
+                        max-width: 60vw;
+                        width: 100%;
+                        justify-content: center;
+                        label{
+                            display: flex;
+                            align-items: center;
+                            width: 60%;
+                            color: var(--second-color);
+                            font-family: var(--font-body);
+                            font-weight: 600;
+                            justify-content: space-between;
+                        }
+                        label > .voice-progress{
+                            width: 100px;
+                            height: 2px;
+                            background-color:var(--second-color);
+                        }
+                        input{
+                            display: none;
+                        }
+                        .player{
+                            height: 20px;
+                        }
+                        .pause{
+                            cursor: pointer;
+                            display: none;
+                        }
+                        .play{
+                            cursor:pointer;
+                        }
+
+                        input:checked + .player > .pause{
+                            display: inline;
+                        }
+
+                        input:checked + .player > .play{
+                            display: none;
+                        }
+                    }
                 </style>
                 <div id="editVoice"></div>
                 <main>
@@ -1037,11 +1080,43 @@ class Profile extends HTMLElement{
                 </main>
             `;
 
-        const editPlayer = document.querySelector('#editPlayer');
+        const editPlayer = document.querySelector('#editVoice');
         const player = this.querySelector('.editPlayer');
         player.addEventListener('change', ()=>{
             if(player.checked) {
-                editPlayer.innerHTML = ``;
+                editPlayer.innerHTML = `
+                    <div>
+                        <p>Таны одоогийн voice</p>
+                        <div class="voice">
+                            <label>
+                                <input type="checkbox">
+                                <span class="player">
+                                    <svg width="15" height="20" viewBox="0 0 16 20" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="play">
+                                        <path d="M15.2083 9.68894L-3.52182e-05 0.000121889L0.314103 19.8541L15.2083 9.68894Z"
+                                            fill="#CF0F47" />
+                                    </svg>
+                                    <svg width="15" height="20" viewBox="0 0 15 20" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="pause">
+                                        <rect width="5" height="20" fill="#CF0F47" />
+                                        <rect x="10" width="5" height="20" fill="#CF0F47" />
+                                    </svg>
+                                </span>
+                                <div class="voice-progress"></div>
+                                <span>0.03</span>
+                            </label>
+
+                            <audio id="audio">
+                            </audio>
+                        </div>
+                        <div class="redline"></div>
+                        <div class="player">                      
+                            <svg width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 9V11C15 14.866 11.866 18 8 18M1 9V11C1 14.866 4.13401 18 8 18M8 18V21M4 21H12M8 14C6.34315 14 5 12.6569 5 11V4C5 2.34315 6.34315 1 8 1C9.65685 1 11 2.34315 11 4V11C11 12.6569 9.65685 14 8 14Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                `;
             }
             else editPlayer.innerHTML = ``;
         });

@@ -866,11 +866,8 @@ class Home extends HTMLElement {
     </main>
         `;
         
-                // 🔥 1) profiles must be "let" so we can fill it later
         let profiles = [];
 
-        // 🔥 2) Fetch from your backend API
-        //    Make sure this matches your Node route (e.g. /api/profiles or /api/user)
         fetch('/api/userbasics')
             .then(res => {
                 if (!res.ok) {
@@ -880,8 +877,8 @@ class Home extends HTMLElement {
             })
             .then(data => {
                 console.log('Profiles from server:', data);
-                profiles = data;      // now allowed because we used "let"
-                new ProfileSwipe();   // create swiper after data is loaded
+                profiles = data;
+                new ProfileSwipe();  
             })
             .catch(err => {
                 console.error('Failed to load profiles:', err);
@@ -915,23 +912,37 @@ class Home extends HTMLElement {
                 this.closeButton.style.transition = 'transform 0.3s ease';
             }
 
-            updateProfile() {
-                if (!profiles.length) return; // nothing yet
-
-                if (this.currentProfileIndex >= profiles.length) {
-                    this.currentProfileIndex = 0;
+            getCurrentProfile() {
+                if (!profiles.length) {
+                    console.warn('No profiles loaded');
+                    return null;
                 }
 
-                const currentProfile = profiles[this.currentProfileIndex];
+                // keep index in range
+                if (this.currentProfileIndex >= profiles.length) {
+                    this.currentProfileIndex = 0;
+                } else if (this.currentProfileIndex < 0) {
+                    this.currentProfileIndex = profiles.length - 1;
+                }
+
+                return profiles[this.currentProfileIndex];
+            }
+
+
+            updateProfile() {
+                const currentProfile = this.getCurrentProfile();
+                if (!currentProfile) return;
+
                 this.profileElement.style.opacity = '0';
 
                 setTimeout(() => {
                     this.profileImage.src = currentProfile.image;
-                    this.profileName.textContent = currentProfile.name + ', ' + currentProfile.age;
-                    this.profileAge.textContent = currentProfile.major || 'Программ хангамж'; // optional
+                    this.profileName.textContent = `${currentProfile.name}, ${currentProfile.age}`;
+                    this.profileAge.textContent = currentProfile.major || 'Программ хангамж';
                     this.profileElement.style.opacity = '1';
                 }, 300);
             }
+
 
             refresh() {
                 this.refreshButton.style.transform = 'rotate(360deg)';
@@ -942,6 +953,9 @@ class Home extends HTMLElement {
             }
 
             like() {
+                const currentProfile = this.getCurrentProfile();
+                if (!currentProfile) return;
+
                 this.heartButton.style.transform = 'scale(1.2)';
                 this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
 
@@ -949,13 +963,16 @@ class Home extends HTMLElement {
                     this.heartButton.style.transform = 'scale(1)';
                     this.profileElement.style.transform = 'translateX(0) rotate(0)';
 
-                    console.log('Liked:', profiles[this.currentProfileIndex].name);
+                    console.log('Liked:', currentProfile.name);
                     this.currentProfileIndex++;
                     this.updateProfile();
                 }, 300);
             }
 
             pass() {
+                const currentProfile = this.getCurrentProfile();
+                if (!currentProfile) return;
+
                 this.closeButton.style.transform = 'rotate(90deg)';
                 this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
 
@@ -963,11 +980,12 @@ class Home extends HTMLElement {
                     this.closeButton.style.transform = 'rotate(0deg)';
                     this.profileElement.style.transform = 'translateX(0) rotate(0)';
 
-                    console.log('Passed:', profiles[this.currentProfileIndex].name);
+                    console.log('Passed:', currentProfile.name);
                     this.currentProfileIndex++;
                     this.updateProfile();
                 }, 300);
             }
+
 
             attachEventListeners() {
                 this.refreshButton.addEventListener('click', () => this.refresh());
