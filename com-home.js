@@ -878,6 +878,7 @@ class Home extends HTMLElement {
             console.error('Failed to load profiles:', err);
         });
 
+        
         class ProfileSwipe {
             constructor() {
                 this.currentProfileIndex = 0;
