@@ -1036,6 +1036,107 @@ class Home extends HTMLElement {
 
         // DropdownFilter + filter button code stays the same
 
+        class DropdownFilter {
+            constructor() {
+                this.dropdowns = document.querySelectorAll('.dropdown');
+                this.init();
+            }
+
+            init() {
+                this.attachEventListeners();
+                this.setupClickOutside();
+            }
+
+            attachEventListeners() {
+                this.dropdowns.forEach(dropdown => {
+                    const dropbtn = dropdown.querySelector('.dropbtn');
+                    const content = dropdown.querySelector('.dropdown-content, .dropdown-content-school');
+                    const buttons = content.querySelectorAll('button');
+                    const countSpan = dropdown.querySelector('.selected-count');
+
+                    dropbtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggleDropdown(dropdown);
+                    });
+
+                    buttons.forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.toggleSelection(button, content, countSpan);
+                        });
+                    });
+                });
+            }
+
+            toggleDropdown(currentDropdown) {
+                this.dropdowns.forEach(dropdown => {
+                    if (dropdown !== currentDropdown) {
+                        dropdown.classList.remove('open');
+                    }
+                });
+
+                currentDropdown.classList.toggle('open');
+            }
+
+            toggleSelection(button, content, countSpan) {
+                button.classList.toggle('selected');
+
+                const selectedCount = content.querySelectorAll('button.selected').length;
+
+                if (selectedCount > 0) {
+                    countSpan.textContent = selectedCount;
+                    countSpan.style.display = 'inline-block';
+                } else {
+                    countSpan.style.display = 'none';
+                }
+            }
+
+            setupClickOutside() {
+                document.addEventListener('click', () => {
+                    this.dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('open');
+                    });
+                });
+            }
+
+            getSelectedFilters() {
+                const filters = {};
+
+                this.dropdowns.forEach(dropdown => {
+                    const dropdownTitle = dropdown.querySelector('.dropbtn h1').textContent;
+                    const selectedButtons = dropdown.querySelectorAll('button.selected');
+
+                    if (selectedButtons.length > 0) {
+                        filters[dropdownTitle] = Array.from(selectedButtons).map(btn =>
+                            btn.querySelector('h2').textContent
+                        );
+                    }
+                });
+
+                return filters;
+            }
+        }
+
+        const dropdownFilter = new DropdownFilter();
+
+        // DropdownFilter + filter button code stays the same
+
+        const seeMoreBtn = this.querySelector('.see-more-btn');
+        if (seeMoreBtn) {
+            seeMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.hash = '#othersProfile';
+            });
+        }
+
+        const filterButton = this.querySelector('.filter');
+        if (filterButton) {
+            filterButton.addEventListener('click', () => {
+                const selectedFilters = dropdownFilter.getSelectedFilters();
+                console.log('Selected Filters:', selectedFilters);
+            });
+        }
+
     }
 };
 
