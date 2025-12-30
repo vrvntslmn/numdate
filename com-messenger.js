@@ -655,7 +655,7 @@ class ComMessenger extends HTMLElement {
       const userName = this.getActiveUserName();
       if (!userName) return;
 
-      const sure = window.confirm(`\${userName}-г блоклох уу? Мессеж илгээх боломжгүй болно。\`);
+      const sure = window.confirm(`${userName}-г блоклох уу? Мессеж илгээх боломжгүй болно`);
       if (!sure) return;
 
       this.blockedUsers.add(userName);
@@ -665,21 +665,21 @@ class ComMessenger extends HTMLElement {
       this.updateConversationStatuses();
       this.applyUIForUser(userName);
 
-      window.alert(\`\${userName} has been blocked。\`);
+      window.alert(`\${userName} has been blocked`);
     });
 
     this.els.reportBtn.addEventListener("click", () => {
       const userName = this.getActiveUserName();
       if (!userName) return;
 
-      const reason = window.prompt(\`\${userName}-г мэдээлэх шалтгааныг тодорхой бичнэ үү:\`);
+      const reason = window.prompt(`\${userName}-г мэдээлэх шалтгааныг тодорхой бичнэ үү:`);
       if (reason === null) return;
       if (reason.trim() === "") {
         window.alert("Report cancelled — reason is required.");
         return;
       }
 
-      const sure = window.confirm(\`Та үнэхээр \${userName}-г дараах шалтгаанаар мэдээлэхийг хүсч байна уу:\\n"\${reason}"\`);
+      const sure = window.confirm(`Та үнэхээр \${userName}-г дараах шалтгаанаар мэдээлэхийг хүсч байна уу:\\n"\${reason}"`);
       if (!sure) return;
 
       this.reportedUsers.add(userName);
@@ -689,7 +689,7 @@ class ComMessenger extends HTMLElement {
       this.updateConversationStatuses();
       this.applyUIForUser(userName);
 
-      window.alert(\`Reported \${userName}.\\nReason: \${reason}\`);
+      window.alert(`Reported \${userName}.\\nReason: \${reason}`);
     });
 
     this.shadowRoot.addEventListener("click", (e) => {
