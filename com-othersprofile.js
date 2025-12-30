@@ -16,8 +16,6 @@ class OthersProfile extends HTMLElement {
             BlinkMacSystemFont, "Segoe UI", sans-serif;
           color: #111;
         }
-
-        /* --- PAGE LAYOUT: 2 CARD, НЭГ МӨРӨНД --- */
         .wrapper {
           max-width: 1160px;
           margin: 36px auto 40px;
@@ -487,13 +485,11 @@ class OthersProfile extends HTMLElement {
         </section>
       </div>
     `;
-
-    // буцах товчны click event
     const cancelBtn = this.shadowRoot.querySelector(".cancel-btn");
     if (cancelBtn) {
       cancelBtn.addEventListener("click", () => {
         window.history.back();
-        
+
       });
     }
   }
