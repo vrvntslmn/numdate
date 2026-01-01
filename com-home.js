@@ -428,14 +428,14 @@ class Home extends HTMLElement {
         <main>
         <div>
             <section class="swipe">
-                // <div class="profile">
-                //     <div>
-                //         <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div>
-                //     </div>
-                //     <h1>Jennie Kim, 28</h1>
-                //     <p>Программ хангамж</p>
-                //    <a href="#othersProfile" class="see-more-btn">See more</a>
-                // </div>
+                <div class="profile">
+                    <div>
+                        <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div>
+                    </div>
+                    <h1>Jennie Kim, 28</h1>
+                    <p>Программ хангамж</p>
+                   <a href="#othersProfile" class="see-more-btn">See more</a>
+                </div>
                 <div class="buttons">
                     <button class="other_button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 64 64" stroke-width="8" stroke="#000000" fill="none"><path d="M54.89,26.73A23.52,23.52,0,0,1,15.6,49" stroke-linecap="round"/><path d="M9,37.17a23.75,23.75,0,0,1-.53-5A23.51,23.51,0,0,1,48.3,15.2" stroke-linecap="round"/><polyline points="37.73 16.24 48.62 15.44 47.77 5.24" stroke-linecap="round"/><polyline points="25.91 47.76 15.03 48.56 15.88 58.76" stroke-linecap="round"/></svg>
