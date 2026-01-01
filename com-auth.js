@@ -1,4 +1,9 @@
 class Auth extends HTMLElement {
+    static MBTI = ["INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP", "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP"];
+    static LOVE_LANG = ["Words of Affirmation", "Receiving Gifts", "Quality Time", "Acts of Service", "Physical Touch", "Shared Experiences"];
+    static REL_GOALS = ["Long-term", "Short-term fun", "Short-term, open to long", "Friends", "Just have fun", "Not sure"];
+    static INTERESTED_IN = ["Эр", "Эм", "Бусад", "Бүгд"];
+    static INTERESTS = ["Урлаг", "Спорт", "Хөгжим", "Компьютер", "Аялал", "Ном", "Шатар", "Гоо сайхан", "Гэрэл зураг", "Хувцас", "Кино", "Хичээл", "Кофе", "Гүйлт", "Gaming", "Cooking"];
     constructor() {
         super();
         this.state = {
@@ -917,14 +922,14 @@ class Auth extends HTMLElement {
         this.toggleBtn(this.signupBtn, ok);
         return ok;
     }
-
     mountChips() {
-        this.single('mbtiChips', ["INTJ", "ENTP", "ISFJ"], 'mbti');
-        this.single('loveLangChips', ["Words", "Gifts", "Time"], 'loveLanguage');
-        this.single('relGoalChips', ["Long-term", "Short-term"], 'relationshipGoal');
-        this.single('interestedInChips', ["Эр", "Эм", "Бүгд"], 'interestedIn');
-        this.multi('interestChips', ["Кино", "Хөгжим", "Спорт", "Ном"], 'interests');
+        this.single('mbtiChips', MBTI, 'mbti');
+        this.single('loveLangChips', LOVE_LANG, 'loveLanguage');
+        this.single('relGoalChips', REL_GOALS, 'relationshipGoal');
+        this.single('interestedInChips', INTERESTED_IN, 'interestedIn');
+        this.multi('interestChips', INTERESTS, 'interests');
     }
+
 
     single(id, opts, key) {
         const root = this.querySelector('#' + id);
@@ -935,11 +940,12 @@ class Auth extends HTMLElement {
             b.textContent = o;
             b.onclick = () => {
                 this.state.signup[key] = o;
-                [...root.children].forEach(c =>
-                    c.classList.toggle('selected', c === b)
-                );
-                this.validateStep3();
+                [...root.children].forEach(c => c.classList.toggle('selected', c === b));
+
+                if (key === 'interestedIn') this.validateStep4();
+                else this.validateStep3();
             };
+
             root.appendChild(b);
         });
     }
