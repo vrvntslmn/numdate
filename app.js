@@ -6,14 +6,45 @@ import './com-notif.js';
 import './com-route.js';
 import './com-routes.js';
 import './com-router.js';
+import './com-auth.js';
 
 
 class App extends HTMLElement {
     constructor() {
         super();
+        this.user = null;
     }
 
-    connectedCallback() {
+    connectedCallback(){
+        this.bootstrap();
+    }
+
+    async bootstrap() {
+        try {
+        const res = await fetch('/api/me', {
+            credentials: 'include', // send session cookie
+        });
+
+        if (!res.ok) {
+            this.renderLogin();
+            return;
+        }
+
+        const data = await res.json();
+
+        if (!data.user) {
+            this.renderLogin();
+        } else {
+            this.user = data.user;
+            this.render();
+        }
+        } catch (err) {
+        console.error('bootstrap /api/me error', err);
+        this.renderLogin();
+        }
+    }
+
+    render() {
         this.innerHTML = `
             <style>
                 :root{
@@ -244,6 +275,10 @@ class App extends HTMLElement {
         `;
 
 
+    }
+
+    renderLogin(){
+        this.innerHTML = `<com-auth></com-auth>`;
     }
 
 }
