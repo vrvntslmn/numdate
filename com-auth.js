@@ -3,7 +3,25 @@ class Auth extends HTMLElement {
     static LOVE_LANG = ["Words of Affirmation", "Receiving Gifts", "Quality Time", "Acts of Service", "Physical Touch", "Shared Experiences"];
     static REL_GOALS = ["Long-term", "Short-term fun", "Short-term, open to long", "Friends", "Just have fun", "Not sure"];
     static INTERESTED_IN = ["Эр", "Эм", "Бусад", "Бүгд"];
-    static INTERESTS = ["Урлаг", "Спорт", "Хөгжим", "Компьютер", "Аялал", "Ном", "Шатар", "Гоо сайхан", "Гэрэл зураг", "Хувцас", "Кино", "Хичээл", "Кофе", "Гүйлт", "Gaming", "Cooking"];
+    static INTERESTS = {
+        art: "Урлаг",
+        sport: "Спорт",
+        music: "Хөгжим",
+        computer: "Компьютер",
+        travel: "Аялал",
+        book: "Ном",
+        chess: "Шатар",
+        beauty: "Гоо сайхан",
+        photo: "Гэрэл зураг",
+        fashion: "Хувцас",
+        movie: "Кино",
+        study: "Хичээл",
+        coffee: "Кофе",
+        run: "Гүйлт",
+        gaming: "Gaming",
+        cooking: "Cooking",
+    };
+
 
     constructor() {
         super();
@@ -15,7 +33,7 @@ class Auth extends HTMLElement {
                 loveLanguage: '',
                 relationshipGoal: '',
                 interestedIn: '',
-                interests: []
+                interests: {}
             }
         };
     }
@@ -941,10 +959,12 @@ class Auth extends HTMLElement {
 
     validateStep4() {
         const s = this.state.signup;
-        const ok = s.interestedIn && s.interests.length >= 3;
+        const count = Object.keys(s.interests || {}).length;
+        const ok = s.interestedIn && count >= 3;
         this.toggleBtn(this.signupBtn, ok);
         return ok;
     }
+
 
     collectSignupPayload() {
         const s = this.state.signup;
@@ -957,7 +977,7 @@ class Auth extends HTMLElement {
         const password  = get('#signupPw');
         const major     = get('#signupMajor');
         const school    = get('#signupSchool');
-        const dob       = get('#signupDob');      // "YYYY-MM-DD"
+        const dob       = get('#signupDob');
         const gender    = get('#signupGender');
         const zodiac    = get('#signupZodiac');
         const course    = get('#signupCourse');
@@ -965,25 +985,26 @@ class Auth extends HTMLElement {
         return {
             email,
             password,
-            // your server expects "name": we combine овог + нэр
-            name: `${lastName} ${firstName}`.trim(),
+            name: firstName,
+            lname: lastName,
             major,
-
-            // extra profile-ish fields (we’ll handle on backend in step 3)
             school,
             dob,
             gender,
             zodiac,
             course,
 
-            // from chips state
             mbti: s.mbti,
             loveLanguage: s.loveLanguage,
             relationshipGoal: s.relationshipGoal,
             interestedIn: s.interestedIn,
-            interests: s.interests,   // array
+
+            // ⬇️ Одоо ийм shape явах болно:
+            // { art: "Урлаг", sport: "Спорт", ... }
+            interests: s.interests,
         };
     }
+
 
 
     mountChips() {
@@ -993,6 +1014,7 @@ class Auth extends HTMLElement {
         this.single('interestedInChips', Auth.INTERESTED_IN, 'interestedIn');
         this.multi('interestChips', Auth.INTERESTS, 'interests');
     }
+
 
 
     single(id, opts, key) {
@@ -1019,22 +1041,31 @@ class Auth extends HTMLElement {
         const root = this.querySelector('#' + id);
         if (!root) return;
 
-        opts.forEach(o => {
+        // opts = Auth.INTERESTS = { art: "Урлаг", sport: "Спорт", ... }
+        Object.entries(opts).forEach(([interestKey, label]) => {
             const b = document.createElement('button');
             b.type = 'button';
             b.className = 'chip';
-            b.textContent = o;
+            b.textContent = label;
+
             b.onclick = () => {
-                const arr = this.state.signup[key];
-                const i = arr.indexOf(o);
-                if (i >= 0) arr.splice(i, 1);
-                else arr.push(o);
-                b.classList.toggle('selected');
+                const obj = this.state.signup[key]; // interests object
+                if (obj[interestKey]) {
+                    // сонгосон байвал авах
+                    delete obj[interestKey];
+                    b.classList.remove('selected');
+                } else {
+                    // сонгоогүй байвал нэмэх
+                    obj[interestKey] = label;
+                    b.classList.add('selected');
+                }
                 this.validateStep4();
             };
+
             root.appendChild(b);
         });
     }
+
 
     toggleBtn(btn, ok) {
         if (!btn) return;
