@@ -323,8 +323,9 @@ class DateIdea extends HTMLElement {
           display: flex;
           gap: 16px;
           overflow-x: auto;
-          padding-bottom: 4px;
+          padding-bottom: 7px;
           scroll-snap-type: x mandatory;
+          scrollbar-width: none;
         }
 
         .top-card {
@@ -339,6 +340,7 @@ class DateIdea extends HTMLElement {
           transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease,
             background-color 0.18s ease;
           scroll-snap-align: start;
+          gap:10px;
         }
 
         .top-card__image {
@@ -519,7 +521,7 @@ class DateIdea extends HTMLElement {
         .date-card--selected,
         .top-card--selected {
           border-color: var(--second-color);
-          box-shadow: 0 0 0 2px rgba(207, 15, 71, 0.25);
+          box-shadow: 0 0 0 1px rgba(207, 15, 71, 0.25);
           background: #fff7fb;
         }
 
@@ -715,12 +717,36 @@ class DateIdea extends HTMLElement {
           box-shadow: 0 0 0 2px rgba(207, 15, 71, 0.18);
         }
 
-        @media (max-width: 720px) {
-          .date-layout { padding: 20px 16px; }
-          .date-chooser { padding: 20px 18px 24px; border-radius: 22px; }
-          .category-row { grid-template-columns: 1fr; }
-          .category-cards { grid-column: 1 / -1; }
-          .date-modal__dialog { width: calc(100% - 24px); }
+       @media (max-width: 720px) {
+  .date-layout { padding: 20px 16px; }
+  .date-chooser { padding: 20px 18px 24px; border-radius: 22px; }
+
+  /* ✅ SVG + name нэг мөрөнд */
+  .category-row{
+    grid-template-columns: 56px 1fr; /* badge | text */
+    column-gap: 12px;
+    row-gap: 0;
+    align-items: center;
+  }
+
+  .category-text{
+    margin-bottom: 20px;
+  }
+  .category-badge{
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+  }
+     .category-cards { grid-column: 1 / -1; margin-top: 12px; }
+
+  .category-badge svg{
+    translate: 12px;
+  }
+
+  .date-modal__dialog { width: calc(100% - 24px); }
+}
+
+
         }
       </style>
 
@@ -734,10 +760,6 @@ class DateIdea extends HTMLElement {
           </div>
 
           <h2 class="layout-title">Date ideas</h2>
-          <p class="layout-subtitle">
-            Pick a vibe: coffee, outdoor chill, adventure, or a romantic dinner.
-          </p>
-
           <div class="category-section">
             ${this.renderCategoriesHtml()}
           </div>

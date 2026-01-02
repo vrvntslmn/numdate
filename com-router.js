@@ -20,6 +20,13 @@ class Route extends HTMLElement{
                     break;
                 case '#profile':
                     content.innerHTML = `<com-profile></com-profile>`;
+                    break;
+                case '#othersProfile':
+                    content.innerHTML = `<com-othersprofile></com-othersprofile>`;
+                    break;
+                case '#match':
+                    content.innerHTML = `<com-match></com-match>`;
+                    break;
                 default :
                     break;                 
             }

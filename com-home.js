@@ -10,6 +10,7 @@ class Home extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
     <style>
+      
         main>div {
             display: flex;
             flex-wrap: wrap;
@@ -434,7 +435,7 @@ class Home extends HTMLElement {
                     </div>
                     <h1>Jennie Kim, 28</h1>
                     <p>Программ хангамж</p>
-                   <a href="#othersProfile" class="see-more-btn">See more</a>
+                   <a href="#othersprofile" class="see-more-btn">See more</a>
                 </div>
                 <div class="buttons">
                     <button class="other_button">
@@ -891,7 +892,7 @@ class Home extends HTMLElement {
     }
 
     fetchProfiles() {
-        fetch('/api/profile')
+        fetch('/api/profiles')
             .then(res => res.json())
             .then(data => {
                 this.allProfiles = data;
@@ -1365,4 +1366,5 @@ class DropdownFilter {
         return filters;
     }
 }
+  
 window.customElements.define('com-home', Home);
