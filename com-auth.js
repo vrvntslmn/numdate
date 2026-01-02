@@ -4,6 +4,7 @@ class Auth extends HTMLElement {
     static REL_GOALS = ["Long-term", "Short-term fun", "Short-term, open to long", "Friends", "Just have fun", "Not sure"];
     static INTERESTED_IN = ["Эр", "Эм", "Бусад", "Бүгд"];
     static INTERESTS = ["Урлаг", "Спорт", "Хөгжим", "Компьютер", "Аялал", "Ном", "Шатар", "Гоо сайхан", "Гэрэл зураг", "Хувцас", "Кино", "Хичээл", "Кофе", "Гүйлт", "Gaming", "Cooking"];
+
     constructor() {
         super();
         this.state = {
@@ -27,571 +28,474 @@ class Auth extends HTMLElement {
         this.setAuth('login');
         this.setStep(0);
     }
+
     render() {
         this.innerHTML = `
             <style>
                 :root {
                     --bg: #faf8f9;
-                --card: #ffffff;
-                --accent: #EE0067;
-                --accent2: #BC2265;
-                --muted: #8b8f95;
-                --text: #101828;
-                --danger: #E03A3A;
-                --success: #27AE60;
-                --radius: 16px;
-                --shadow: 0 18px 60px rgba(16, 24, 40, .10);
-                font-family: "Roboto Condensed", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-        }
-
-                * {
-                    box-sizing: border-box
-        }
-
-                html,
-                body {
-                    height: 100%;
-                margin: 0;
-        }
-
+                    --card: #ffffff;
+                    --accent: #EE0067;
+                    --accent2: #BC2265;
+                    --muted: #8b8f95;
+                    --text: #101828;
+                    --danger: #E03A3A;
+                    --success: #27AE60;
+                    --radius: 16px;
+                    --shadow: 0 18px 60px rgba(16, 24, 40, .10);
+                    font-family: "Roboto Condensed", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+                }
+                * { box-sizing: border-box }
+                html, body { height: 100%; margin: 0; }
                 body {
                     background:
-                radial-gradient(1200px 800px at 10% 10%, rgba(238, 0, 103, .10), transparent 55%),
-                radial-gradient(900px 700px at 90% 30%, rgba(188, 34, 101, .10), transparent 55%),
-                linear-gradient(180deg, #fff 0, #fbf5f7 100%);
-                color: var(--text);
-        }
-
+                        radial-gradient(1200px 800px at 10% 10%, rgba(238, 0, 103, .10), transparent 55%),
+                        radial-gradient(900px 700px at 90% 30%, rgba(188, 34, 101, .10), transparent 55%),
+                        linear-gradient(180deg, #fff 0, #fbf5f7 100%);
+                    color: var(--text);
+                }
                 .wrap {
                     min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 28px;
-        }
-
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 28px;
+                }
                 .shell {
                     width: min(980px, 96vw);
-                display: grid;
-                grid-template-columns: 1.05fr .95fr;
-                gap: 18px;
-                align-items: stretch;
-        }
-
+                    display: grid;
+                    grid-template-columns: 1.05fr .95fr;
+                    gap: 18px;
+                    align-items: stretch;
+                }
                 .promo {
                     min-height: 560px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                gap: 20px;
-                padding: 32px;
-                border-radius: var(--radius);
-                background: linear-gradient(135deg,
-                rgba(238, 0, 103, .96),
-                rgba(188, 34, 101, .96));
-                color: #fff;
-                box-shadow: var(--shadow);
-                position: relative;
-                overflow: hidden;
-        }
-
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 20px;
+                    padding: 32px;
+                    border-radius: var(--radius);
+                    background: linear-gradient(135deg,
+                        rgba(238, 0, 103, .96),
+                        rgba(188, 34, 101, .96));
+                    color: #fff;
+                    box-shadow: var(--shadow);
+                    position: relative;
+                    overflow: hidden;
+                }
                 .promo::after {
                     content: "";
-                position: absolute;
-                inset: -120px -120px auto auto;
-                width: 420px;
-                height: 420px;
-                background: radial-gradient(circle at 30% 30%,
-                rgba(255, 255, 255, .35),
-                rgba(255, 255, 255, 0) 60%);
-                transform: rotate(18deg);
-                pointer-events: none;
-        }
-
+                    position: absolute;
+                    inset: -120px -120px auto auto;
+                    width: 420px;
+                    height: 420px;
+                    background: radial-gradient(circle at 30% 30%,
+                        rgba(255, 255, 255, .35),
+                        rgba(255, 255, 255, 0) 60%);
+                    transform: rotate(18deg);
+                    pointer-events: none;
+                }
                 .promoHeader {
                     display: flex;
-                align-items: center;
-                gap: 18px;
-                margin-bottom: 0;
-        }
-
+                    align-items: center;
+                    gap: 18px;
+                    margin-bottom: 0;
+                }
                 .promo .logo {
                     width: 112px;
-                height: auto;
-                flex: 0 0 auto;
-        }
-
+                    height: auto;
+                    flex: 0 0 auto;
+                }
                 .brandName {
                     font-size: 56px;
-                letter-spacing: 1.2px;
-        }
-
+                    letter-spacing: 1.2px;
+                }
                 .brandSub {
                     margin-top: 10px;
-                opacity: .92;
-        }
-
+                    opacity: .92;
+                }
                 p.tagline {
                     font-size: 16px;
-                line-height: 1.65;
-                margin: 6px 0 0;
-                max-width: 50ch;
-        }
-
+                    line-height: 1.65;
+                    margin: 6px 0 0;
+                    max-width: 50ch;
+                }
                 .pillrow {
                     margin-top: 0;
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 12px;
-        }
-
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 12px;
+                }
                 .pill {
                     padding: 12px 14px;
-                border-radius: 30px;
-                font-size: 14px;
-                font-weight: 700;
-                background: rgba(255, 255, 255, .14);
-                border: 1px solid rgba(255, 255, 255, .20);
-        }
-
+                    border-radius: 30px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    background: rgba(255, 255, 255, .14);
+                    border: 1px solid rgba(255, 255, 255, .20);
+                }
                 .promoFoot {
                     margin-top: 8px;
-                font-size: 12.5px;
-                opacity: .9;
-                line-height: 1.5;
-                padding-top: 14px;
-                border-top: 1px solid rgba(255, 255, 255, .18);
-        }
-
+                    font-size: 12.5px;
+                    opacity: .9;
+                    line-height: 1.5;
+                    padding-top: 14px;
+                    border-top: 1px solid rgba(255, 255, 255, .18);
+                }
                 .card {
                     border-radius: var(--radius);
-                background: var(--card);
-                box-shadow: var(--shadow);
-                overflow: hidden;
-                min-height: 620px;
-                display: flex;
-                flex-direction: column;
-        }
-
+                    background: var(--card);
+                    box-shadow: var(--shadow);
+                    overflow: hidden;
+                    min-height: 620px;
+                    display: flex;
+                    flex-direction: column;
+                }
                 .cardHead {
                     padding: 18px 18px 10px 18px;
-                border-bottom: 1px solid rgba(16, 24, 40, .06);
-        }
-
+                    border-bottom: 1px solid rgba(16, 24, 40, .06);
+                }
                 .lead {
                     margin: 0;
-                color: var(--muted);
-                font-size: 13px;
-                line-height: 1.4;
-                font-weight: 400;
-        }
-
+                    color: var(--muted);
+                    font-size: 13px;
+                    line-height: 1.4;
+                    font-weight: 400;
+                }
                 .switchRow {
                     display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 12px;
-                margin-top: 10px;
-        }
-
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    margin-top: 10px;
+                }
                 .authFooter {
                     margin-top: auto;
-                padding-top: 14px;
-                border-top: 1px solid rgba(16, 24, 40, .06);
-                display: flex;
-                justify-content: center;
-        }
-
+                    padding-top: 14px;
+                    border-top: 1px solid rgba(16, 24, 40, .06);
+                    display: flex;
+                    justify-content: center;
+                }
                 .authTitle {
                     font-weight: 800;
-                font-size: 40px;
-                color: var(--accent);
-        }
-
+                    font-size: 40px;
+                    color: var(--accent);
+                }
                 .linkBtn {
                     border: 0;
-                background: transparent;
-                cursor: pointer;
-                padding: 6px 0;
-                font-family: "Roboto Condensed", system-ui, sans-serif;
-                font-size: 13.5px;
-                color: var(--accent2);
-                font-weight: 700;
-        }
-
+                    background: transparent;
+                    cursor: pointer;
+                    padding: 6px 0;
+                    font-family: "Roboto Condensed", system-ui, sans-serif;
+                    font-size: 13.5px;
+                    color: var(--accent2);
+                    font-weight: 700;
+                }
                 .linkBtn:hover {
                     text-decoration: underline;
-        }
-
+                }
                 .metaRow {
                     margin-top: 10px;
-                display: flex;
-                justify-content: flex-end;
-        }
-
+                    display: flex;
+                    justify-content: flex-end;
+                }
                 .cardBody {
                     padding: 16px 18px 18px 18px;
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-        }
-
-                form {
-                    margin: 0;
-        }
-
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                }
+                form { margin: 0; }
                 label {
                     display: block;
-                font-size: 12.8px;
-                font-weight: 700;
-                color: #20242c;
-                margin: 10px 0 6px;
-        }
-
+                    font-size: 12.8px;
+                    font-weight: 700;
+                    color: #20242c;
+                    margin: 10px 0 6px;
+                }
                 .row2 {
                     display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-        }
-
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                }
                 .field {
                     display: flex;
-                align-items: center;
-                gap: 10px;
-                border: 1px solid rgba(16, 24, 40, .10);
-                padding: 11px 12px;
-                border-radius: 12px;
-                background: #fff;
-                transition: border .12s, box-shadow .12s;
-        }
-
+                    align-items: center;
+                    gap: 10px;
+                    border: 1px solid rgba(16, 24, 40, .10);
+                    padding: 11px 12px;
+                    border-radius: 12px;
+                    background: #fff;
+                    transition: border .12s, box-shadow .12s;
+                }
                 .field:focus-within {
                     border-color: rgba(238, 0, 103, .35);
-                box-shadow: 0 0 0 4px rgba(238, 0, 103, .08);
-        }
-
-                input,
-                select {
+                    box-shadow: 0 0 0 4px rgba(238, 0, 103, .08);
+                }
+                input, select {
                     border: 0;
-                outline: none;
-                font-size: 14.5px;
-                width: 100%;
-                background: transparent;
-                color: #111;
-                font-family: "Roboto Condensed", system-ui, sans-serif;
-        }
-
-                select {
-                    appearance: none;
-        }
-
+                    outline: none;
+                    font-size: 14.5px;
+                    width: 100%;
+                    background: transparent;
+                    color: #111;
+                    font-family: "Roboto Condensed", system-ui, sans-serif;
+                }
+                select { appearance: none; }
                 .hint {
                     font-size: 12.5px;
-                color: var(--muted);
-                margin-top: 6px;
-        }
-
+                    color: var(--muted);
+                    margin-top: 6px;
+                }
                 .err {
                     font-size: 12.5px;
-                color: var(--danger);
-                margin-top: 6px;
-                display: none;
-                font-weight: 400;
-        }
-
+                    color: var(--danger);
+                    margin-top: 6px;
+                    display: none;
+                    font-weight: 400;
+                }
                 .ok {
                     font-size: 12.5px;
-                color: var(--success);
-                margin-top: 6px;
-                display: none;
-                font-weight: 400;
-        }
-
+                    color: var(--success);
+                    margin-top: 6px;
+                    display: none;
+                    font-weight: 400;
+                }
                 .pw-toggle {
                     background: transparent;
-                border: 0;
-                cursor: pointer;
-                font-weight: 700;
-                color: var(--muted);
-                font-size: 12px;
-                font-family: "Roboto Condensed", system-ui, sans-serif;
-        }
-
+                    border: 0;
+                    cursor: pointer;
+                    font-weight: 700;
+                    color: var(--muted);
+                    font-size: 12px;
+                    font-family: "Roboto Condensed", system-ui, sans-serif;
+                }
                 .actions {
                     display: flex;
-                gap: 10px;
-                margin-top: 14px;
-                align-items: center;
-        }
-
+                    gap: 10px;
+                    margin-top: 14px;
+                    align-items: center;
+                }
                 .actions.stack {
                     flex-direction: column;
-                align-items: stretch;
-        }
-
-                .actions.stack .btn {
-                    width: 100%;
-        }
-
+                    align-items: stretch;
+                }
+                .actions.stack .btn { width: 100%; }
                 .btn {
                     flex: 1;
-                border: 0;
-                padding: 11px 12px;
-                border-radius: 12px;
-                cursor: pointer;
-                font-weight: 700;
-                letter-spacing: .2px;
-                transition: transform .12s, box-shadow .12s, opacity .12s;
-                font-family: "Roboto Condensed", system-ui, sans-serif;
-        }
-
+                    border: 0;
+                    padding: 11px 12px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    font-weight: 700;
+                    letter-spacing: .2px;
+                    transition: transform .12s, box-shadow .12s, opacity .12s;
+                    font-family: "Roboto Condensed", system-ui, sans-serif;
+                }
                 .btn.primary {
                     background: linear-gradient(90deg, var(--accent), var(--accent2));
-                color: #fff;
-                box-shadow: 0 14px 34px rgba(238, 0, 103, .18);
-        }
-
+                    color: #fff;
+                    box-shadow: 0 14px 34px rgba(238, 0, 103, .18);
+                }
                 .btn.secondary {
                     background: #fff;
-                border: 1px solid rgba(188, 34, 101, .14);
-                color: var(--accent2);
-                box-shadow: none;
-        }
-
-                .btn:active {
-                    transform: translateY(1px);
-        }
-
+                    border: 1px solid rgba(188, 34, 101, .14);
+                    color: var(--accent2);
+                    box-shadow: none;
+                }
+                .btn:active { transform: translateY(1px); }
                 .btn.disabled {
                     opacity: .45;
-                cursor: default;
-                box-shadow: none;
-                transform: none;
-        }
-
+                    cursor: default;
+                    box-shadow: none;
+                    transform: none;
+                }
                 .wizardTop {
                     display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 12px;
-                margin-bottom: 10px;
-        }
-
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 10px;
+                }
                 .stepTitle {
                     font-weight: 700;
-                font-size: 14px;
-                margin: 0;
-        }
-
+                    font-size: 14px;
+                    margin: 0;
+                }
                 .stepCounter {
                     font-size: 12.5px;
-                color: var(--muted);
-                font-weight: 700;
-        }
-
+                    color: var(--muted);
+                    font-weight: 700;
+                }
                 .progress {
                     height: 8px;
-                border-radius: 999px;
-                background: rgba(16, 24, 40, .08);
-                overflow: hidden;
-                margin-bottom: 12px;
-        }
-
+                    border-radius: 999px;
+                    background: rgba(16, 24, 40, .08);
+                    overflow: hidden;
+                    margin-bottom: 12px;
+                }
                 .bar {
                     height: 100%;
-                width: 0%;
-                background: linear-gradient(90deg, var(--accent), var(--accent2));
-                border-radius: 999px;
-                transition: width .18s ease;
-        }
-
-                .step {
-                    display: none;
-        }
-
-                .step.active {
-                    display: block;
-        }
-
+                    width: 0%;
+                    background: linear-gradient(90deg, var(--accent), var(--accent2));
+                    border-radius: 999px;
+                    transition: width .18s ease;
+                }
+                .step { display: none; }
+                .step.active { display: block; }
                 .chips {
                     display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                margin-top: 8px;
-        }
-
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    margin-top: 8px;
+                }
                 .chip {
                     border: 1px solid rgba(16, 24, 40, .12);
-                background: #fff;
-                padding: 10px 12px;
-                border-radius: 999px;
-                font-size: 13px;
-                font-weight: 700;
-                color: #222;
-                cursor: pointer;
-                transition: transform .12s, background .12s, color .12s, border .12s, box-shadow .12s;
-                user-select: none;
-                font-family: "Roboto Condensed", system-ui, sans-serif;
-        }
-
+                    background: #fff;
+                    padding: 10px 12px;
+                    border-radius: 999px;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #222;
+                    cursor: pointer;
+                    transition: transform .12s, background .12s, color .12s, border .12s, box-shadow .12s;
+                    user-select: none;
+                    font-family: "Roboto Condensed", system-ui, sans-serif;
+                }
                 .chip:hover {
                     transform: translateY(-1px);
-                box-shadow: 0 10px 18px rgba(16, 24, 40, .06);
-        }
-
+                    box-shadow: 0 10px 18px rgba(16, 24, 40, .06);
+                }
                 .chip.selected {
                     background: linear-gradient(90deg, var(--accent), var(--accent2));
-                border-color: transparent;
-                color: #fff;
-                box-shadow: 0 12px 26px rgba(238, 0, 103, .16);
-        }
-
+                    border-color: transparent;
+                    color: #fff;
+                    box-shadow: 0 12px 26px rgba(238, 0, 103, .16);
+                }
                 .divider {
                     height: 1px;
-                background: rgba(16, 24, 40, .06);
-                margin: 12px 0;
-        }
-
+                    background: rgba(16, 24, 40, .06);
+                    margin: 12px 0;
+                }
                 .tiny {
                     font-size: 12px;
-                color: var(--muted);
-                line-height: 1.4;
-        }
-
+                    color: var(--muted);
+                    line-height: 1.4;
+                }
                 @media (max-width: 900px) {
-            .shell {
-                    grid-template-columns: 1fr;
-            }
-
-                .promo {
-                    min-height: 220px;
-            }
-
-                .card {
-                    min-height: auto;
-            }
-        }
-
+                    .shell { grid-template-columns: 1fr; }
+                    .promo { min-height: 220px; }
+                    .card { min-height: auto; }
+                }
                 @media (max-width: 520px) {
-            .promo {
-                    padding: 22px;
-                min-height: 380px;
-            }
-
-                .promo .logo {
-                    width: 86px;
-            }
-
-                .brandName {
-                    font-size: 44px;
-            }
-
-                .pillrow {
-                    grid-template-columns: 1fr;
-            }
-        }
+                    .promo { padding: 22px; min-height: 380px; }
+                    .promo .logo { width: 86px; }
+                    .brandName { font-size: 44px; }
+                    .pillrow { grid-template-columns: 1fr; }
+                }
             </style>
-                <div class="wrap">
-                    <div class="shell">
 
-                        <section class="promo" aria-label="NUMdate promo">
-                            <div class="promoHeader">
-                                <svg class="logo" width="54" height="34" viewBox="0 0 54 34" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M50.136 22.8237H54.0002V25.2515H47.8684V24.7739H47.8606L47.8743 15.7222L45.4895 16.7349L44.7004 13.9741L49.8528 11.9985V12.0103L50.2317 11.8354L50.136 22.8237Z"
-                                        fill="white" />
-                                    <path
-                                        d="M4.30957 12.1104L4.29199 12.0615L9.91406 14.0518L8.06445 16.5996L6.1123 15.708L6.13867 24.917H6.13184V25.252H0V22.8232H3.93652L3.84082 11.9033L4.30957 12.1104Z"
-                                        fill="white" />
-                                    <path
-                                        d="M14.0569 10.7131L12.3108 13.5393L10.0598 12.5657L10.0989 26.1028L7.51392 26.1125L7.37329 8.4436L7.38989 8.45239L7.38208 8.43481L14.0569 10.7131Z"
-                                        fill="white" />
-                                    <path
-                                        d="M46.5684 26.1333L44.0576 26.1255L44.0938 12.1401L41.1895 13.0864L40.5225 10.0347L45.8271 8.58154L45.8418 8.62939L46.7275 8.27588L46.5684 26.1333Z"
-                                        fill="white" />
-                                    <path
-                                        d="M28.8005 1.61523L28.7937 1.62109L33.2908 6.07324L31.4402 7.90527L26.9431 3.45312L22.4968 7.85645L20.8669 6.24219L25.3123 1.83789L25.3093 1.83496L27.1599 0.00292969L27.1628 0.00585938L27.1697 0L28.8005 1.61523Z"
-                                        fill="white" />
-                                    <path
-                                        d="M42.6882 26.8562L39.5046 26.8386L39.4851 9.05444L27.3943 12.9421L27.3796 12.8962L27.3611 12.9587L14.7527 9.09937L14.7244 26.6433L11.4558 26.6628L11.3464 4.71362L12.5916 5.18042L12.6072 5.12964L27.3972 9.65698L41.6052 5.09058L41.6277 5.16187L42.8074 4.70288L42.6882 26.8562Z"
-                                        fill="white" />
-                                    <path
-                                        d="M30.9601 14.4175C35.6415 13.9417 37.8321 18.1152 37.3641 21.1851C36.6873 25.6243 28.9405 29.861 27.4134 31.3232C25.935 30.0066 17.0865 25.2019 16.7024 20.1194C16.4966 17.3964 18.3845 14.3232 22.0179 14.3232C26.2356 14.5844 27.0213 17.359 27.0213 17.359C27.0213 17.359 27.2234 15.156 30.9601 14.4175Z"
-                                        stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path
-                                        d="M0 26.1072C0 26.1072 22.709 32.609 27.2508 30.9759C31.7926 29.3428 31.7926 31.2481 27.2508 33.1533C22.709 35.0585 0.613143 33.1533 0.613143 33.1533L0 26.1072Z"
-                                        fill="white" />
-                                    <path
-                                        d="M53.3433 26.1072C53.3433 26.1072 32.1558 32.609 27.7956 30.9759C23.4355 29.3428 23.4355 31.2481 27.7956 33.1533C32.1558 35.0585 53.3433 33.1533 53.3433 33.1533V26.1072Z"
-                                        fill="white" />
-                                </svg>
+            <div class="wrap">
+                <div class="shell">
 
-                                <div class="brandText">
-                                    <div class="brandName">NUMDATE</div>
-                                    <div class="brandSub">NUM students only</div>
-                                </div>
+                    <section class="promo" aria-label="NUMdate promo">
+                        <div class="promoHeader">
+                            <!-- logo svg omitted here for brevity, keep same as your version -->
+                            <svg class="logo" width="54" height="34" viewBox="0 0 54 34" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M50.136 22.8237H54.0002V25.2515H47.8684V24.7739H47.8606L47.8743 15.7222L45.4895 16.7349L44.7004 13.9741L49.8528 11.9985V12.0103L50.2317 11.8354L50.136 22.8237Z"
+                                    fill="white" />
+                                <path
+                                    d="M4.30957 12.1104L4.29199 12.0615L9.91406 14.0518L8.06445 16.5996L6.1123 15.708L6.13867 24.917H6.13184V25.252H0V22.8232H3.93652L3.84082 11.9033L4.30957 12.1104Z"
+                                    fill="white" />
+                                <path
+                                    d="M14.0569 10.7131L12.3108 13.5393L10.0598 12.5657L10.0989 26.1028L7.51392 26.1125L7.37329 8.4436L7.38989 8.45239L7.38208 8.43481L14.0569 10.7131Z"
+                                    fill="white" />
+                                <path
+                                    d="M46.5684 26.1333L44.0576 26.1255L44.0938 12.1401L41.1895 13.0864L40.5225 10.0347L45.8271 8.58154L45.8418 8.62939L46.7275 8.27588L46.5684 26.1333Z"
+                                    fill="white" />
+                                <path
+                                    d="M28.8005 1.61523L28.7937 1.62109L33.2908 6.07324L31.4402 7.90527L26.9431 3.45312L22.4968 7.85645L20.8669 6.24219L25.3123 1.83789L25.3093 1.83496L27.1599 0.00292969L27.1628 0.00585938L27.1697 0L28.8005 1.61523Z"
+                                    fill="white" />
+                                <path
+                                    d="M42.6882 26.8562L39.5046 26.8386L39.4851 9.05444L27.3943 12.9421L27.3796 12.8962L27.3611 12.9587L14.7527 9.09937L14.7244 26.6433L11.4558 26.6628L11.3464 4.71362L12.5916 5.18042L12.6072 5.12964L27.3972 9.65698L41.6052 5.09058L41.6277 5.16187L42.8074 4.70288L42.6882 26.8562Z"
+                                    fill="white" />
+                                <path
+                                    d="M30.9601 14.4175C35.6415 13.9417 37.8321 18.1152 37.3641 21.1851C36.6873 25.6243 28.9405 29.861 27.4134 31.3232C25.935 30.0066 17.0865 25.2019 16.7024 20.1194C16.4966 17.3964 18.3845 14.3232 22.0179 14.3232C26.2356 14.5844 27.0213 17.359 27.0213 17.359C27.0213 17.359 27.2234 15.156 30.9601 14.4175Z"
+                                    stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path
+                                    d="M0 26.1072C0 26.1072 22.709 32.609 27.2508 30.9759C31.7926 29.3428 31.7926 31.2481 27.2508 33.1533C22.709 35.0585 0.613143 33.1533 0.613143 33.1533L0 26.1072Z"
+                                    fill="white" />
+                                <path
+                                    d="M53.3433 26.1072C53.3433 26.1072 32.1558 32.609 27.7956 30.9759C23.4355 29.3428 23.4355 31.2481 27.7956 33.1533C32.1558 35.0585 53.3433 33.1533 53.3433 33.1533V26.1072Z"
+                                    fill="white" />
+                            </svg>
+
+                            <div class="brandText">
+                                <div class="brandName">NUMDATE</div>
+                                <div class="brandSub">NUM students only</div>
                             </div>
+                        </div>
 
-                            <p class="tagline">
-                                NUM оюутнуудад зориулсан болзооны платформ.<br />
-                                Зөвхөн <b>@stud.num.edu.mn</b> имэйлээр нэвтэрнэ.
-                            </p>
+                        <p class="tagline">
+                            NUM оюутнуудад зориулсан болзооны платформ.<br />
+                            Зөвхөн <b>@stud.num.edu.mn</b> имэйлээр нэвтэрнэ.
+                        </p>
 
-                            <div class="pillrow">
-                                <div class="pill">Love interest</div>
-                                <div class="pill">MBTI</div>
-                                <div class="pill">Love language</div>
-                                <div class="pill">Relationship goals</div>
-                                <div class="pill">School / Major</div>
-                                <div class="pill">Interests</div>
+                        <div class="pillrow">
+                            <div class="pill">Love interest</div>
+                            <div class="pill">MBTI</div>
+                            <div class="pill">Love language</div>
+                            <div class="pill">Relationship goals</div>
+                            <div class="pill">School / Major</div>
+                            <div class="pill">Interests</div>
+                        </div>
+                    </section>
+
+                    <section class="card" role="region" aria-label="NUMdate authentication">
+                        <div class="cardHead">
+                            <div class="switchRow">
+                                <span id="authTitle" class="authTitle">Нэвтрэх</span>
                             </div>
-                        </section>
+                        </div>
 
-                        <section class="card" role="region" aria-label="NUMdate authentication">
-                            <div class="cardHead">
-                                <div class="switchRow">
-                                    <span id="authTitle" class="authTitle">Нэвтрэх</span>
-                                </div>
-                            </div>
+                        <div class="cardBody">
 
-                            <div class="cardBody">
+                            <section id="panelLogin" role="tabpanel" aria-hidden="false">
+                                <form id="formLogin" novalidate>
+                                    <label for="loginEmail">NUM имэйл</label>
+                                    <div class="field">
+                                        <input id="loginEmail" type="email" placeholder="name@stud.num.edu.mn"
+                                            autocomplete="username">
+                                    </div>
+                                    <div id="loginEmailErr" class="err"></div>
 
-                                <section id="panelLogin" role="tabpanel" aria-hidden="false">
-                                    <form id="formLogin" novalidate>
-                                        <label for="loginEmail">NUM имэйл</label>
-                                        <div class="field">
-                                            <input id="loginEmail" type="email" placeholder="name@stud.num.edu.mn"
-                                                autocomplete="username">
-                                        </div>
-                                        <div id="loginEmailErr" class="err"></div>
+                                    <label for="loginPw">Нууц үг</label>
+                                    <div class="field">
+                                        <input id="loginPw" type="password" placeholder="••••••••"
+                                            autocomplete="current-password">
+                                        <button type="button" class="pw-toggle" id="loginPwToggle">Show</button>
+                                    </div>
+                                    <div id="loginPwErr" class="err"></div>
 
-                                        <label for="loginPw">Нууц үг</label>
-                                        <div class="field">
-                                            <input id="loginPw" type="password" placeholder="••••••••"
-                                                autocomplete="current-password">
-                                                <button type="button" class="pw-toggle" id="loginPwToggle">Show</button>
-                                        </div>
-                                        <div id="loginPwErr" class="err"></div>
+                                    <div class="actions stack">
+                                        <button type="submit" id="loginBtn" class="btn primary disabled"
+                                            aria-disabled="true">Нэвтрэх</button>
+                                        <button type="button" id="loginMs" class="btn secondary">Microsoft</button>
+                                    </div>
 
-                                        <div class="actions stack">
-                                            <button type="submit" id="loginBtn" class="btn primary disabled"
-                                                aria-disabled="true">Нэвтрэх</button>
-                                            <button type="button" id="loginMs" class="btn secondary">Microsoft</button>
-                                        </div>
+                                    <div class="divider"></div>
+                                    <div class="metaRow">
+                                        <button type="button" id="forgotPw" class="linkBtn">Нууц үгээ мартсан уу?</button>
+                                    </div>
+                                </form>
+                            </section>
 
-                                        <div class="divider"></div>
-                                        <div class="metaRow">
-                                            <button type="button" id="forgotPw" class="linkBtn">Нууц үгээ мартсан уу?</button>
-                                        </div>
-
-                                    </form>
-                                </section>
-
-                                <section id="panelSignup" role="tabpanel" aria-hidden="true" style="display:none;">
-                                    <form id="formSignup" novalidate>
-
-                                        <div class="wizardTop">
+                            <section id="panelSignup" role="tabpanel" aria-hidden="true" style="display:none;">
+                                <form id="formSignup" novalidate>
+                                    <div class="wizardTop">
                                             <p id="stepTitle" class="stepTitle">Алхам 1: Үндсэн мэдээлэл</p>
                                             <div class="stepCounter"><span id="stepNow">1</span>/<span id="stepTotal">4</span></div>
                                         </div>
@@ -782,21 +686,21 @@ class Auth extends HTMLElement {
                                             <div class="tiny">* Бүртгэлийн дараа profile зураг/био нэмэх алхам руу оруулж болно.
                                             </div>
                                         </div>
+                                </form>
+                            </section>
 
-                                    </form>
-                                </section>
-
-                                <div class="authFooter">
-                                    <button type="button" id="switchAuth" class="linkBtn">
-                                        Бүртгэлгүй юу? <b>Бүртгүүлэх</b>
-                                    </button>
-                                </div>
-
+                            <div class="authFooter">
+                                <button type="button" id="switchAuth" class="linkBtn">
+                                    Бүртгэлгүй юу? <b>Бүртгүүлэх</b>
+                                </button>
                             </div>
-                        </section>
-                    </div>
-                </div>`;
+                        </div>
+                    </section>
+                </div>
+            </div>
+        `;
     }
+
     cache() {
         const q = s => this.querySelector(s);
 
@@ -808,6 +712,10 @@ class Auth extends HTMLElement {
         this.loginEmail = q('#loginEmail');
         this.loginPw = q('#loginPw');
         this.loginBtn = q('#loginBtn');
+
+        this.loginPwToggle = q('#loginPwToggle');          // FIX: cache pw toggle
+        this.signupPwToggle = q('#signupPwToggle');        // FIX
+        this.signupPwConfirmToggle = q('#signupPwConfirmToggle'); // FIX
 
         this.formLogin = q('#formLogin');
         this.formSignup = q('#formSignup');
@@ -825,7 +733,6 @@ class Auth extends HTMLElement {
         this.signupBack2 = q('#signupBack2');
         this.signupBack3 = q('#signupBack3');
         this.signupBack4 = q('#signupBack4');
-
     }
 
     bind() {
@@ -835,26 +742,142 @@ class Auth extends HTMLElement {
         this.loginEmail.oninput = () => this.validateLogin();
         this.loginPw.oninput = () => this.validateLogin();
 
-        this.formLogin.onsubmit = e => {
+        // FIX: wire up password toggles
+        if (this.loginPwToggle) {
+            this.loginPwToggle.onclick = () => this.togglePw(this.loginPw, this.loginPwToggle);
+        }
+        if (this.signupPwToggle) {
+            const pw = this.querySelector('#signupPw');
+            this.signupPwToggle.onclick = () => this.togglePw(pw, this.signupPwToggle);
+        }
+        if (this.signupPwConfirmToggle) {
+            const pw2 = this.querySelector('#signupPwConfirm');
+            this.signupPwConfirmToggle.onclick = () => this.togglePw(pw2, this.signupPwConfirmToggle);
+        }
+
+        
+        this.formLogin.onsubmit = async (e) => {
             e.preventDefault();
-            alert('LOGIN DEMO: ' + this.loginEmail.value);
+
+            // if button is visually disabled, do nothing
+            if (this.loginBtn.classList.contains('disabled')) return;
+
+            const email = this.loginEmail.value.trim();
+            const password = this.loginPw.value;
+
+            const emailErr = this.querySelector('#loginEmailErr');
+            const pwErr = this.querySelector('#loginPwErr');
+
+            // clear old errors
+            if (emailErr) { emailErr.textContent = ''; emailErr.style.display = 'none'; }
+            if (pwErr)   { pwErr.textContent   = ''; pwErr.style.display   = 'none'; }
+
+            // lock button while logging in
+            this.toggleBtn(this.loginBtn, false);
+            this.loginBtn.textContent = 'Нэвтэрч байна…';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // same-origin is default, but explicit is fine
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ email, password }),
+                });
+
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (_) {
+                    data = {};
+                }
+
+                if (!res.ok) {
+                    // backend sends { error: '...' }
+                    const msg = data.error || 'Нэвтрэх амжилтгүй боллоо';
+                    if (pwErr) {
+                        pwErr.textContent = msg;
+                        pwErr.style.display = 'block';
+                    }
+                    this.loginBtn.textContent = 'Нэвтрэх';
+                    this.validateLogin(); // re-enable if form is valid
+                    return;
+                }
+
+                // ✅ success: server set session cookie
+                this.loginBtn.textContent = 'Амжилттай';
+
+                // OPTION A: hard redirect to main app
+                window.location.href = '/';
+
+                // OPTION B (SPA): tell parent component and let it switch view
+                // this.dispatchEvent(new CustomEvent('login-success', {
+                //     detail: data.user,
+                //     bubbles: true,
+                // }));
+            } catch (err) {
+                console.error('Login fetch error', err);
+                if (pwErr) {
+                    pwErr.textContent = 'Сервертэй холбогдож чадсангүй. Дахин оролдоно уу.';
+                    pwErr.style.display = 'block';
+                }
+                this.loginBtn.textContent = 'Нэвтрэх';
+                this.validateLogin(); // re-enable if form still valid
+            }
         };
+
+
         this.signupBack2.onclick = () => this.setStep(0);
         this.signupBack3.onclick = () => this.setStep(1);
         this.signupBack4.onclick = () => this.setStep(2);
-
 
         this.signupNext1.onclick = () => this.validateStep1() && this.setStep(1);
         this.signupNext2.onclick = () => this.validateStep2() && this.setStep(2);
         this.signupNext3.onclick = () => this.validateStep3() && this.setStep(3);
 
-        this.formSignup.onsubmit = e => {
+        this.formSignup.onsubmit = async (e) => {
             e.preventDefault();
-            if (this.validateStep4()) {
-                alert('SIGNUP DEMO OK');
+
+            // make sure all steps valid
+            if (!this.validateStep1() || !this.validateStep2() || !this.validateStep3() || !this.validateStep4()) {
+                return;
+            }
+
+            const payload = this.collectSignupPayload();
+
+            try {
+                // disable button & show small “loading” text
+                this.toggleBtn(this.signupBtn, false);
+                const originalLabel = this.signupBtn.textContent;
+                this.signupBtn.textContent = 'Түр хүлээнэ үү...';
+
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    console.error('Signup error response', data);
+                    alert(data.error || 'Бүртгэл амжилтгүй. Дахин оролдоно уу.');
+                    return;
+                }
+
+                // success
+                alert(data.message || 'Бүртгэл амжилттай. Имэйлээ шалгаад баталгаажуулаарай.');
                 this.setAuth('login');
+            } catch (err) {
+                console.error('Signup network/server error', err);
+                alert('Сервертэй холбогдож чадсангүй. Дараа дахин оролдоно уу.');
+            } finally {
+                this.signupBtn.textContent = 'Бүртгүүлэх';
+                this.validateStep4();
             }
         };
+
+
         ['#signupOvog', '#signupNer', '#signupEmail', '#signupPw', '#signupPwConfirm']
             .forEach(sel => this.querySelector(sel).addEventListener('input', () => this.validateStep1()));
 
@@ -875,6 +898,7 @@ class Auth extends HTMLElement {
     }
 
     validateLogin() {
+        // NOTE: adjust domain to match backend (@num.edu.mn or @stud.num.edu.mn)
         const ok =
             this.loginEmail.value.endsWith('@stud.num.edu.mn') &&
             this.loginPw.value.length > 0;
@@ -893,7 +917,6 @@ class Auth extends HTMLElement {
         if (i === 2) this.validateStep3();
         if (i === 3) this.validateStep4();
     }
-
 
     validateStep1() {
         const req = ['signupOvog', 'signupNer', 'signupEmail', 'signupPw', 'signupPwConfirm'];
@@ -922,17 +945,60 @@ class Auth extends HTMLElement {
         this.toggleBtn(this.signupBtn, ok);
         return ok;
     }
+
+    collectSignupPayload() {
+        const s = this.state.signup;
+        const get = (selector) =>
+            this.querySelector(selector)?.value.trim() || '';
+
+        const lastName  = get('#signupOvog');
+        const firstName = get('#signupNer');
+        const email     = get('#signupEmail');
+        const password  = get('#signupPw');
+        const major     = get('#signupMajor');
+        const school    = get('#signupSchool');
+        const dob       = get('#signupDob');      // "YYYY-MM-DD"
+        const gender    = get('#signupGender');
+        const zodiac    = get('#signupZodiac');
+        const course    = get('#signupCourse');
+
+        return {
+            email,
+            password,
+            // your server expects "name": we combine овог + нэр
+            name: `${lastName} ${firstName}`.trim(),
+            major,
+
+            // extra profile-ish fields (we’ll handle on backend in step 3)
+            school,
+            dob,
+            gender,
+            zodiac,
+            course,
+
+            // from chips state
+            mbti: s.mbti,
+            loveLanguage: s.loveLanguage,
+            relationshipGoal: s.relationshipGoal,
+            interestedIn: s.interestedIn,
+            interests: s.interests,   // array
+        };
+    }
+
+
     mountChips() {
-        this.single('mbtiChips', MBTI, 'mbti');
-        this.single('loveLangChips', LOVE_LANG, 'loveLanguage');
-        this.single('relGoalChips', REL_GOALS, 'relationshipGoal');
-        this.single('interestedInChips', INTERESTED_IN, 'interestedIn');
-        this.multi('interestChips', INTERESTS, 'interests');
+        this.single('mbtiChips', Auth.MBTI, 'mbti');
+        this.single('loveLangChips', Auth.LOVE_LANG, 'loveLanguage');
+        this.single('relGoalChips', Auth.REL_GOALS, 'relationshipGoal');
+        this.single('interestedInChips', Auth.INTERESTED_IN, 'interestedIn');
+        this.multi('interestChips', Auth.INTERESTS, 'interests');
     }
 
 
     single(id, opts, key) {
         const root = this.querySelector('#' + id);
+        if (!root) return;
+
         opts.forEach(o => {
             const b = document.createElement('button');
             b.type = 'button';
@@ -945,13 +1011,14 @@ class Auth extends HTMLElement {
                 if (key === 'interestedIn') this.validateStep4();
                 else this.validateStep3();
             };
-
             root.appendChild(b);
         });
     }
 
     multi(id, opts, key) {
         const root = this.querySelector('#' + id);
+        if (!root) return;
+
         opts.forEach(o => {
             const b = document.createElement('button');
             b.type = 'button';
@@ -960,7 +1027,8 @@ class Auth extends HTMLElement {
             b.onclick = () => {
                 const arr = this.state.signup[key];
                 const i = arr.indexOf(o);
-                i >= 0 ? arr.splice(i, 1) : arr.push(o);
+                if (i >= 0) arr.splice(i, 1);
+                else arr.push(o);
                 b.classList.toggle('selected');
                 this.validateStep4();
             };
@@ -969,9 +1037,18 @@ class Auth extends HTMLElement {
     }
 
     toggleBtn(btn, ok) {
+        if (!btn) return;
         btn.classList.toggle('disabled', !ok);
         btn.setAttribute('aria-disabled', String(!ok));
     }
+
+    // FIX: shared helper for show/hide password
+    togglePw(input, btn) {
+        if (!input || !btn) return;
+        const isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
+        btn.textContent = isPw ? 'Hide' : 'Show';
+    }
 }
 
-customElements.define('com-auth', Auth);
+window.customElements.define('com-auth', Auth);
