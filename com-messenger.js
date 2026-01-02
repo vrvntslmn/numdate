@@ -582,6 +582,7 @@ class ComMessenger extends HTMLElement {
           justify-content: space-between;
           cursor: pointer;
           font-size: 14px;
+          font-family: 'Roboto Condensed', sans-serif;
         }
         .report-row + .report-row {
           border-top: 1px solid #F3F3F3;
@@ -601,6 +602,7 @@ class ComMessenger extends HTMLElement {
           background: #F5F5F5;
           font-size: 14px;
           cursor: pointer;
+          font-family: 'Roboto Condensed', sans-serif;
         }
         .report-back:hover { background: #EBEBEB; }
         .empty-state {
@@ -710,7 +712,7 @@ class ComMessenger extends HTMLElement {
         }
         .confirm-cancel {
           color: #262626;
-          background: #F5F5F5;
+          // background: #F5F5F5;
         }
         .confirm-cancel:hover { background: #EBEBEB; }
 
@@ -1200,8 +1202,18 @@ class ComMessenger extends HTMLElement {
     this.els.blockBtn.addEventListener("click", () => {
       const userName = this.getActiveUserName();
       if (!userName) return;
-      this.openConfirmOverlay({ type: "block", userName });
+
+      const isBlocked = this.blockedUsers.has(userName);
+
+      if (isBlocked) {
+        // Unblock confirm
+        this.openConfirmOverlay({ type: "unblock", userName });
+      } else {
+        // Block confirm
+        this.openConfirmOverlay({ type: "block", userName });
+      }
     });
+
 
     this.els.reportBtn.addEventListener("click", () => {
       const userName = this.getActiveUserName();
@@ -1277,23 +1289,42 @@ class ComMessenger extends HTMLElement {
       confirmPrimaryBtn.addEventListener("click", () => {
         const state = this._confirmState;
         if (!state) return;
+
         const { type, userName } = state;
 
         if (type === "block") {
           this.blockedUsers.add(userName);
+
+          // block хийвэл status нуух
           this.els.headerStatus.classList.add("hidden-status");
+
           this.updateConversationStatuses();
           this.applyUIForUser(userName);
-        } else if (type === "report") {
+        }
+
+        else if (type === "unblock") {
+          this.blockedUsers.delete(userName);
+
+          // report хийгээгүй бол status эргүүлж харуулна
+          if (!this.reportedUsers.has(userName)) {
+            this.els.headerStatus.classList.remove("hidden-status");
+          }
+
+          this.updateConversationStatuses();
+          this.applyUIForUser(userName);
+        }
+
+        else if (type === "report") {
           this.reportedUsers.add(userName);
           this.els.headerStatus.classList.add("hidden-status");
+
           this.updateConversationStatuses();
           this.applyUIForUser(userName);
-        } else if (type === "delete") {
-          // чатны message-уудыг цэвэрлэнэ
+        }
+
+        else if (type === "delete") {
           this.els.chatBody.innerHTML = "";
 
-          // идэвхтэй байгаа conversation item-аа list-ээс устгана
           const active = this.getActiveConversationEl();
           if (active) {
             active.remove();
@@ -1305,6 +1336,7 @@ class ComMessenger extends HTMLElement {
           this.updateEmptyState();
         }
 
+        // details panel хаах
         if (this.els.detailsPanel) {
           this.els.detailsPanel.classList.remove("is-open");
         }
@@ -1312,6 +1344,7 @@ class ComMessenger extends HTMLElement {
         this.closeConfirmOverlay();
       });
     }
+
 
     // click outside – emoji, details panel-ийг хаах
     this.shadowRoot.addEventListener("click", (e) => {
@@ -1349,15 +1382,10 @@ class ComMessenger extends HTMLElement {
     this.els.reportOverlay.classList.remove("is-open");
     this.els.reportOverlay.setAttribute("aria-hidden", "true");
   }
-
   openConfirmOverlay({ type, userName, reason }) {
     this._confirmState = { type, userName, reason };
-    const {
-      confirmOverlay,
-      confirmTitle,
-      confirmText,
-      confirmPrimaryBtn,
-    } = this.els;
+
+    const { confirmOverlay, confirmTitle, confirmText, confirmPrimaryBtn } = this.els;
     if (!confirmOverlay) return;
 
     if (type === "block") {
@@ -1365,6 +1393,10 @@ class ComMessenger extends HTMLElement {
       confirmText.textContent =
         "They won't be able to find your profile, posts or story. They also won't know you blocked them.";
       confirmPrimaryBtn.textContent = "Block";
+    } else if (type === "unblock") {
+      confirmTitle.textContent = `Unblock ${userName}?`;
+      confirmText.textContent = "They will be able to message you and see your profile again.";
+      confirmPrimaryBtn.textContent = "Unblock";
     } else if (type === "report") {
       confirmTitle.textContent = `Report ${userName}?`;
       confirmText.textContent = reason
@@ -1378,15 +1410,9 @@ class ComMessenger extends HTMLElement {
       confirmPrimaryBtn.textContent = "Delete";
     }
 
+    // ✅ always open
     confirmOverlay.classList.add("is-open");
     confirmOverlay.setAttribute("aria-hidden", "false");
-  }
-
-  updateEmptyState() {
-    if (!this.els.emptyState) return;
-    const items = this.shadowRoot.querySelectorAll(".conversation-item");
-    const hasConversations = items.length > 0;
-    this.els.emptyState.style.display = hasConversations ? "none" : "flex";
   }
 
   closeConfirmOverlay() {
@@ -1394,6 +1420,13 @@ class ComMessenger extends HTMLElement {
     this.els.confirmOverlay.classList.remove("is-open");
     this.els.confirmOverlay.setAttribute("aria-hidden", "true");
     this._confirmState = null;
+  }
+
+  updateEmptyState() {
+    if (!this.els.emptyState) return;
+    const items = this.shadowRoot.querySelectorAll(".conversation-item");
+    const hasConversations = items.length > 0;
+    this.els.emptyState.style.display = hasConversations ? "none" : "flex";
   }
 
   escapeHtml(text) {
@@ -1416,10 +1449,11 @@ class ComMessenger extends HTMLElement {
   }
 
   updateConversationStatuses() {
+    if (!this.els.conversationItems) return;
     this.els.conversationItems.forEach((item) => {
       const user = item.dataset.user;
-      if (this.blockedUsers.has(user)) item.classList.add("hidden-status");
-      else item.classList.remove("hidden-status");
+      const hide = this.blockedUsers.has(user) || this.reportedUsers.has(user);
+      item.classList.toggle("hidden-status", hide);
     });
   }
 
@@ -1428,28 +1462,19 @@ class ComMessenger extends HTMLElement {
     const isReported = this.reportedUsers.has(user);
     const isMuted = this.mutedUsers.has(user);
 
-    if (isBlocked || isReported) {
-      this.els.headerBanner.style.display = "inline-block";
-      if (isBlocked && isReported) {
-        this.els.headerBanner.textContent = "Blocked & reported";
-        this.els.headerBanner.style.background = "#FFE6E6";
-        this.els.headerBanner.style.color = "#B00020";
-      } else if (isBlocked) {
-        this.els.headerBanner.textContent = "Blocked";
-        this.els.headerBanner.style.background = "#FFE6E6";
-        this.els.headerBanner.style.color = "#B00020";
+    if (this.els.blockBtn) {
+      this.els.blockBtn.textContent = isBlocked ? "Unblock" : "Block";
+    }
+    if (this.els.headerBanner) {
+      if (isMuted) {
+        this.els.headerBanner.style.display = "inline-block";
+        this.els.headerBanner.textContent = "Muted";
+        this.els.headerBanner.style.background = "#F5F5F5";
+        this.els.headerBanner.style.color = "#555";
       } else {
-        this.els.headerBanner.textContent = "Reported";
-        this.els.headerBanner.style.background = "#FFF7E6";
-        this.els.headerBanner.style.color = "#8A5F00";
+        this.els.headerBanner.style.display = "none";
+        this.els.headerBanner.textContent = "";
       }
-    } else if (isMuted) {
-      this.els.headerBanner.style.display = "inline-block";
-      this.els.headerBanner.textContent = "Muted";
-      this.els.headerBanner.style.background = "#F5F5F5";
-      this.els.headerBanner.style.color = "#555";
-    } else {
-      this.els.headerBanner.style.display = "none";
     }
 
     if (this.els.muteToggle) {
@@ -1463,8 +1488,8 @@ class ComMessenger extends HTMLElement {
       this.els.attachmentsBar.style.display = "flex";
       this.els.messageForm.style.display = "flex";
 
-      this.els.emojiBtn.disabled = false;
-      this.els.dateBtn.disabled = false;
+      if (this.els.emojiBtn) this.els.emojiBtn.disabled = false;
+      if (this.els.dateBtn) this.els.dateBtn.disabled = false;
 
       return;
     }
@@ -1474,28 +1499,27 @@ class ComMessenger extends HTMLElement {
     this.els.emojiPanel.classList.remove("is-open");
     this.closeDateOverlay();
 
-    this.els.emojiBtn.disabled = true;
-    this.els.dateBtn.disabled = true;
+    if (this.els.emojiBtn) this.els.emojiBtn.disabled = true;
+    if (this.els.dateBtn) this.els.dateBtn.disabled = true;
 
     this.els.footerBanner.style.display = "block";
 
     if (isBlocked && isReported) {
       this.els.footerBanner.textContent =
-        "This user is blocked and reported — messaging disabled.";
-      this.els.footerBanner.style.background = "#FFE6E6";
-      this.els.footerBanner.style.color = "#B00020";
+        "Энэ хэрэглэгч блоклогдсон бас репортлосон байна.";
+      this.els.footerBanner.style.background = "#F5F5F5";
+      this.els.footerBanner.style.color = "#555";
     } else if (isBlocked) {
       this.els.footerBanner.textContent =
-        "You have blocked this user — messaging disabled.";
-      this.els.footerBanner.style.background = "#FFE6E6";
-      this.els.footerBanner.style.color = "#B00020";
+        "Та энэ хэрэглэгчийн блоклосон байна.";
+      this.els.footerBanner.style.background = "#F5F5F5";
+      this.els.footerBanner.style.color = "#555";
     } else {
       this.els.footerBanner.textContent =
-        "You reported this user — messaging disabled.";
-      this.els.footerBanner.style.background = "#FFF7E6";
-      this.els.footerBanner.style.color = "#8A5F00";
+        "Та энэ хэрэглэгчийг репортлосон байна.";
+      this.els.footerBanner.style.background = "#F5F5F5";
+      this.els.footerBanner.style.color = "#555";
     }
   }
 }
-
 window.customElements.define("com-messenger", ComMessenger);
