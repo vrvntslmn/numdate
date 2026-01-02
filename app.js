@@ -3,7 +3,7 @@ import './com-dateidea.js';
 import './com-messenger.js';
 import './com-profile.js';
 
-// ✅ com-match эхэлж import (notif дараа нь)
+
 import './com-match.js';
 import './com-notif.js';
 
@@ -12,6 +12,8 @@ import './com-routes.js';
 import './com-router.js';
 import './com-auth.js';
 import './com-othersprofile.js';
+import './nm-mini-profile.js';
+
 
 class App extends HTMLElement {
   constructor() {
