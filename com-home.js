@@ -891,7 +891,7 @@ class Home extends HTMLElement {
     }
 
     fetchProfiles() {
-        fetch('/api/profile')
+        fetch('/api/profiles')
             .then(res => res.json())
             .then(data => {
                 this.allProfiles = data;
@@ -1237,19 +1237,6 @@ class ProfileSwipe {
         if (this.closeButton) {
             this.closeButton.addEventListener('click', () => this.pass());
         }
-    }
-
-    setupKeyboardControls() {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') {
-                this.pass();
-            } else if (e.key === 'ArrowRight') {
-                this.like();
-            } else if (e.key === ' ') {
-                e.preventDefault();
-                this.refresh();
-            }
-        });
     }
 
     setupTouchControls() {
