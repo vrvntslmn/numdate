@@ -1068,7 +1068,6 @@ class ProfileSwipe {
     init() {
         this.setupTransitions();
         this.attachEventListeners();
-        this.setupKeyboardControls();
         this.setupTouchControls();
         this.checkRefreshLimit();
     }
@@ -1238,19 +1237,6 @@ class ProfileSwipe {
         if (this.closeButton) {
             this.closeButton.addEventListener('click', () => this.pass());
         }
-    }
-
-    setupKeyboardControls() {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') {
-                this.pass();
-            } else if (e.key === 'ArrowRight') {
-                this.like();
-            } else if (e.key === ' ') {
-                e.preventDefault();
-                this.refresh();
-            }
-        });
     }
 
     setupTouchControls() {
