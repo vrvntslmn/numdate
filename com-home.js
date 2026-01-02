@@ -1067,7 +1067,6 @@ class ProfileSwipe {
     init() {
         this.setupTransitions();
         this.attachEventListeners();
-        this.setupKeyboardControls();
         this.setupTouchControls();
         this.checkRefreshLimit();
     }
