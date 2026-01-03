@@ -1,3 +1,5 @@
+import {api} from './apiClient.js';
+
 class ComProfSet extends HTMLElement {
     constructor() {
         super();
@@ -67,18 +69,14 @@ class ComProfSet extends HTMLElement {
         const deleteEl = this.querySelector('.delete');
 
         if (logoutEl) {
-            logoutEl.addEventListener('click', async () => {
-                try {
-                    await fetch('/api/auth/logout', {
-                        method: 'POST',         // эсвэл 'GET' байж болно, backend-ээ дага
-                        credentials: 'include', // cookie-тай ажиллавал
+            logoutEl.addEventListener('click', () => {
+                api.logout()
+                    .then( () =>{
+                        window.location.href = '/'
+                    }
+                    ).catch(e => {
+                        console.error('Logout failed:', e);
                     });
-                } catch (e) {
-                    console.error('Logout failed:', e);
-                } finally {
-                    // Амжилттай/амжилтгүй байсан ч login-рүү явуулна
-                    window.location.href = '/login'; // эсвэл '/'
-                }
             });
         }
 
