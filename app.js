@@ -3,7 +3,6 @@ import './com-dateidea.js';
 import './com-messenger.js';
 import './com-profile.js';
 
-
 import './com-match.js';
 import './com-notif.js';
 
@@ -15,8 +14,6 @@ import './com-othersprofile.js';
 import './nm-mini-profile.js';
 import './apiClient.js';
 import './com-profSet.js';
-
-
 
 class App extends HTMLElement {
   constructor() {
@@ -255,14 +252,14 @@ class App extends HTMLElement {
         }
 
         header nav ul .prof{
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-          }
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+        }
 
         .prof.has(input[checked]){
             display: block;
-          }
+        }
 
           header nav ul .prof input{
             display: none;

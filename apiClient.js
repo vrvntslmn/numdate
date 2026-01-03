@@ -1,13 +1,11 @@
-// api.js
-const API_BASE = ""; // same origin (http://localhost:3000)
- 
-/** low-level wrapper */
+const API_BASE = "";
+
 async function request(path, { method = "GET", body } = {}) {
   const res = await fetch(API_BASE + path, {
     method,
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
-    credentials: "include", // important for session cookies
+    credentials: "include",
   });
  
   const text = await res.text();
@@ -76,17 +74,15 @@ export const api = {
   getRecipients() {
     return request("/api/recipients");
   },
-     // ✅ Others profile (See more)
+
   getProfileByUserId(userId) {
     return request(`/api/profile/${encodeURIComponent(userId)}`);
   },
 
-  // (optional) If you decide to use profileId instead of userId
   getProfileById(profileId) {
     return request(`/api/profiles/${encodeURIComponent(profileId)}`);
   },
 
-  // ✅ Like someone
   like(toUserId) {
     return request("/api/like", {
       method: "POST",
@@ -94,11 +90,8 @@ export const api = {
     });
   },
 
-  // ✅ (optional) Matches notifications
   getMatchNotifications() {
     return request("/api/notifications/matches");
   },
-
-
-
+  
 };
