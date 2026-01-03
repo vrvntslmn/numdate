@@ -1508,10 +1508,11 @@ class ComMessenger extends HTMLElement {
     return data.user || null;
   }
   async fetchUsers() {
-    const res = await fetch("/api/profiles", { credentials: "include" });
+    const res = await fetch("/api/matches", { credentials: "include" });
     if (!res.ok) return [];
-    return await res.json(); // [{userId,name,image,...}]
+    return await res.json(); // зөвхөн match болсон хүмүүс
   }
+
   async initAuthAndUsers() {
     this.me = await this.fetchMe();
     if (!this.me?._id) {
@@ -1549,10 +1550,11 @@ class ComMessenger extends HTMLElement {
       const el = document.createElement("div");
       el.className = "conversation-item";
 
-      const id = u.userId || u._id; // ✅ хамгаалалт
-      el.dataset.user = u.name || "User";
+      const id = u.userId;              // profiles дээр userId байна
+      el.dataset.user = `${u.name || ""}`.trim() || "User";
       el.dataset.userId = String(id);
-      el.dataset.avatar = u.image || u.avatar || "img/profile2.jpg";
+      el.dataset.avatar = u.avatar || "img/profile2.jpg";
+
 
       el.innerHTML = `
       <div class="conversation-avatar">
