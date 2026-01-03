@@ -93,5 +93,12 @@ export const api = {
   getMatchNotifications() {
     return request("/api/notifications/matches");
   },
+
+  setPhoto(form){
+    return request("//api/upload/image", {
+      method: "POST",
+      body: form,
+    });
+  }
   
 };
