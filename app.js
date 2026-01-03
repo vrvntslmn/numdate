@@ -19,10 +19,18 @@ class App extends HTMLElement {
   constructor() {
     super();
     this.user = null;
+
+    this._notifTimer = null;
+    this._refreshing = false;
   }
 
   connectedCallback() {
     this.bootstrap();
+  }
+
+  disconnectedCallback() {
+    if (this._notifTimer) clearInterval(this._notifTimer);
+    this._notifTimer = null;
   }
 
   async bootstrap() {
@@ -41,10 +49,54 @@ class App extends HTMLElement {
       } else {
         this.user = data.user;
         this.render();
+
+        // ✅ render хийсний дараа badge шалгана + polling эхлүүлнэ
+        this.refreshNotifBadge();
+        this._startNotifPolling();
       }
     } catch (err) {
       console.error('bootstrap /api/me error', err);
       this.renderLogin();
+    }
+  }
+
+  _startNotifPolling() {
+    if (this._notifTimer) clearInterval(this._notifTimer);
+
+    // ✅ 5 секунд тутам refresh
+    this._notifTimer = setInterval(() => {
+      // notif panel нээлттэй үед давхар дуудаж болно, асуудалгүй
+      this.refreshNotifBadge();
+    }, 5000);
+  }
+
+  async refreshNotifBadge() {
+    const badge = this.querySelector('#notifBadge');
+    if (!badge) return;
+
+    // ✅ олон удаа зэрэг дуудагдахаас хамгаалъя
+    if (this._refreshing) return;
+    this._refreshing = true;
+
+    try {
+      const res = await fetch('/api/notifications/unread-count', {
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        badge.hidden = true;
+        return;
+      }
+
+      const data = await res.json();
+      const count = Number(data.count || 0);
+
+      // red dot only
+      badge.hidden = count === 0;
+    } catch (e) {
+      badge.hidden = true;
+    } finally {
+      this._refreshing = false;
     }
   }
 
@@ -156,6 +208,26 @@ class App extends HTMLElement {
           display: none;
         }
 
+        /* ✅ badge wrapper */
+        header nav ul .notifWrap{
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+        }
+
+        /* ✅ badge red dot */
+        header nav ul .notifBadge{
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 9px;
+          height: 9px;
+          border-radius: 999px;
+          background: #ff2d55;
+          border: 2px solid rgba(255,255,255,0.9);
+          box-sizing: content-box;
+        }
+
         /* notif panel */
         com-notif{
           height: 90%;
@@ -261,7 +333,7 @@ class App extends HTMLElement {
           display: none;
         }
 
-          /* notif panel */
+        /* profile settings panel */
         com-profSet{
           height: 90%;
           background-color: white;
@@ -272,7 +344,6 @@ class App extends HTMLElement {
           top: var(--header-height);
           z-index: 20;
         }
-
 
         com-match{
           display: block;
@@ -337,11 +408,17 @@ class App extends HTMLElement {
               </label>
             </li>
 
+            <!-- ✅ notif icon + red dot -->
             <li>
               <label class="notif">
-               <svg width="22" height="20" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z" fill="white"></path>
-               </svg>
+                <span class="notifWrap">
+                  <svg width="22" height="20" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z" fill="white"></path>
+                  </svg>
+
+                  <i class="notifBadge" id="notifBadge" hidden></i>
+                </span>
+
                 <input type="checkbox" id="notif">
               </label>
             </li>
@@ -370,6 +447,10 @@ class App extends HTMLElement {
   }
 
   renderLogin() {
+    // polling зогсооно
+    if (this._notifTimer) clearInterval(this._notifTimer);
+    this._notifTimer = null;
+
     this.innerHTML = `<com-auth></com-auth>`;
   }
 }

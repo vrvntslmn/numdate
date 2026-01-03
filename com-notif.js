@@ -7,20 +7,13 @@ class ComNotif extends HTMLElement {
   }
 
   connectedCallback() {
-    // notif checkbox байхгүй бол шууд гарна
     this._notifInput = document.getElementById("notif");
     if (!this._notifInput) return;
 
-    // checkbox toggle
     this._notifInput.addEventListener("click", this._onToggle);
-
-    // panel дотор click delegation
     this.addEventListener("click", this._onClick);
-
-    // гадна дархад хаах (UX)
     document.addEventListener("click", this._onDocClick);
 
-    // анхнаасаа checked байвал render
     if (this._notifInput.checked) this.renderNotif();
   }
 
@@ -30,10 +23,10 @@ class ComNotif extends HTMLElement {
     document.removeEventListener("click", this._onDocClick);
   }
 
-  _onToggle() {
+  async _onToggle() {
     if (!this._notifInput) return;
 
-    if (this._notifInput.checked) this.renderNotif();
+    if (this._notifInput.checked) await this.renderNotif();
     else this._closePanel();
   }
 
@@ -49,13 +42,9 @@ class ComNotif extends HTMLElement {
   }
 
   _onDocClick(e) {
-    // notif icon дээр дарж байвал document click-ээр хаахгүй
     if (e.target.closest("label.notif")) return;
-
-    // panel дотор дарж байвал хаахгүй
     if (e.target.closest("com-notif")) return;
 
-    // checkbox checked үед гадна дарвал хаана
     if (this._notifInput?.checked) this._closePanel();
   }
 
@@ -65,30 +54,123 @@ class ComNotif extends HTMLElement {
   }
 
   _goTo(route) {
-    // Танай нав дээр "#dateidea" маягийн hash ашиглаж байна.
-    // Зарим router "#/xxx" шаардаж магадгүй.
-    // Тиймээс эхлээд "#route" тавиад, ажиллахгүй бол "#/route" болгон дахин тохируулна.
-
     const tryHash1 = `#${route}`;
     const tryHash2 = `#/${route}`;
 
-    // 1) эхнийхийг тавина
     window.location.hash = tryHash1;
 
-    // 2) дараа нь router чинь "#/" шаарддаг бол автоматаар засна
-    // (hash өөрчлөгдөөгүй эсвэл router таныг буцаагаад байвал)
     setTimeout(() => {
-      // хэрвээ яг хүссэн route руу ороогүй байвал
       const h = window.location.hash || "";
-      const normalized = h.replace(/^#\/?/, ""); // '#match' '#/match' -> 'match'
-
-      if (normalized !== route) {
-        window.location.hash = tryHash2;
-      }
+      const normalized = h.replace(/^#\/?/, "");
+      if (normalized !== route) window.location.hash = tryHash2;
     }, 0);
   }
 
-  renderNotif() {
+  // ✅ panel нээгдэх үед "seen" болгоно
+  async _markMatchesSeen() {
+    try {
+      await fetch("/api/notifications/matches/seen", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // ✅ com-app дээр байгаа refreshNotifBadge()-ийг дуудаж dot унтраана
+  _refreshBadgeFromApp() {
+    const appEl = document.querySelector("com-app");
+    if (appEl && typeof appEl.refreshNotifBadge === "function") {
+      appEl.refreshNotifBadge();
+    }
+  }
+
+  // ✅ time ago helper
+  _timeAgo(inputDate) {
+    const d = inputDate ? new Date(inputDate) : null;
+    if (!d || Number.isNaN(d.getTime())) return "now";
+
+    const diffMs = Date.now() - d.getTime();
+    const sec = Math.floor(diffMs / 1000);
+
+    if (sec < 5) return "now";
+    if (sec < 60) return `${sec}s ago`;
+
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min}m ago`;
+
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h ago`;
+
+    const day = Math.floor(hr / 24);
+    if (day < 7) return `${day}d ago`;
+
+    const wk = Math.floor(day / 7);
+    if (wk < 4) return `${wk}w ago`;
+
+    const mo = Math.floor(day / 30);
+    if (mo < 12) return `${mo}mo ago`;
+
+    const yr = Math.floor(day / 365);
+    return `${yr}y ago`;
+  }
+
+  async _fetchNotifs() {
+    try {
+      const res = await fetch("/api/notifications", { credentials: "include" });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.items || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  async renderNotif() {
+    // ✅ panel нээгдэх мөчид seen болгож badge унтраана
+    await this._markMatchesSeen();
+    this._refreshBadgeFromApp();
+
+    // loading UI
+    this.innerHTML = `
+      <style>
+        .notifSec{ padding: 20px; width: 360px; max-width: 90vw; }
+        .notifHead{ color: var(--second-color); font-size: 40px; margin-bottom: 20px; }
+        .loading{ font-family: var(--font-body); color:#666; }
+      </style>
+      <section class="notifSec">
+        <h2 class="notifHead">Notification</h2>
+        <p class="loading">Loading...</p>
+      </section>
+    `;
+
+    const items = await this._fetchNotifs();
+    const matches = items.filter((n) => n.type === "match");
+
+    const listHtml = matches.length
+      ? matches
+          .map((n) => {
+            const otherName = n.other?.name || "Unknown";
+            const when = this._timeAgo(n.createdAt);
+
+            return `
+              <article class="notifArt" data-open="match" role="button" tabindex="0" aria-label="Open match">
+                <div class="notifCir"></div>
+
+                <svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.9998 15.085L14.9998 18.4813L21.7498 10.8398M16.4895 5.12698C13.4905 1.15778 8.48937 0.0900799 4.7318 3.72467C0.974222 7.35927 0.445207 13.4361 3.39605 17.7348C5.62489 20.9816 11.9567 27.4999 14.9218 30.4952C15.4668 31.0459 15.7394 31.3212 16.0585 31.4296C16.3355 31.5236 16.6434 31.5236 16.9205 31.4296C17.2396 31.3212 17.5121 31.0459 18.0572 30.4952C21.0223 27.4999 27.3541 20.9816 29.5829 17.7348C32.5338 13.4361 32.0693 7.32104 28.2472 3.72467C24.425 0.128312 19.4885 1.15778 16.4895 5.12698Z"
+                    stroke="#CF0F47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+
+                <p class="notifText"><b>${otherName}</b>-тэй match боллоо 🎉</p>
+                <p class="notifDate">${when}</p>
+              </article>
+            `;
+          })
+          .join("")
+      : `<p class="empty">Одоохондоо мэдэгдэл алга. Хичээгээрэй!</p>`;
+
     this.innerHTML = `
       <style>
         .notifHead{
@@ -107,11 +189,13 @@ class ComNotif extends HTMLElement {
           flex: 0 0 auto;
         }
         .notifText{ font-size: 20px; margin: 0; }
+        .notifText b{ font-weight: 700; }
         .notifDate{
           color: var(--second-color);
           font-size: 18px;
           margin-left: auto;
           flex: 0 0 auto;
+          white-space: nowrap;
         }
         .notifSec{ padding: 20px; width: 360px; max-width: 90vw; }
         .notifArt{
@@ -126,20 +210,17 @@ class ComNotif extends HTMLElement {
           background-color: #ffd8e5ff;
           cursor: pointer;
         }
+        .empty{
+          font-family: var(--font-body);
+          color: #666;
+          font-size: 16px;
+          margin: 0;
+        }
       </style>
 
       <section class="notifSec">
         <h2 class="notifHead">Notification</h2>
-
-        <article class="notifArt" data-open="match" role="button" tabindex="0" aria-label="Open match">
-          <div class="notifCir"></div>
-          <svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.9998 15.085L14.9998 18.4813L21.7498 10.8398M16.4895 5.12698C13.4905 1.15778 8.48937 0.0900799 4.7318 3.72467C0.974222 7.35927 0.445207 13.4361 3.39605 17.7348C5.62489 20.9816 11.9567 27.4999 14.9218 30.4952C15.4668 31.0459 15.7394 31.3212 16.0585 31.4296C16.3355 31.5236 16.6434 31.5236 16.9205 31.4296C17.2396 31.3212 17.5121 31.0459 18.0572 30.4952C21.0223 27.4999 27.3541 20.9816 29.5829 17.7348C32.5338 13.4361 32.0693 7.32104 28.2472 3.72467C24.425 0.128312 19.4885 1.15778 16.4895 5.12698Z"
-              stroke="#CF0F47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <p class="notifText">Та хоёр match боллоо 🎉</p>
-          <p class="notifDate">now</p>
-        </article>
+        ${listHtml}
       </section>
     `;
   }
