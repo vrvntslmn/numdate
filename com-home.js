@@ -1148,7 +1148,7 @@ class Home extends HTMLElement {
         }
         const seeMoreBtn = this.querySelector('.see-more-btn');
 if (seeMoreBtn) {
-  seeMoreBtn.addEventListener('click', async (e) => {
+  seeMoreBtn.addEventListener("click", async (e) => {
     e.preventDefault();
 
     const currentProfile = this.profileSwipe.getCurrentProfile();
@@ -1161,23 +1161,26 @@ if (seeMoreBtn) {
     }
 
     try {
-      // ✅ 1) token авах
-      const res = await fetch("/api/link/othersprofile", {
+      // ✅ 1) session дээр 'үзэх хүн'-ийг set хийнэ
+      const res = await fetch("/api/othersprofile/select", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",           // ✅ cookie/session явна
         body: JSON.stringify({ userId }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "failed to create token");
 
-      // ✅ 2) token-оор route хийх
-      window.location.hash = `#/othersprofile?t=${encodeURIComponent(data.token)}`;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "failed to select profile");
+
+      // ✅ 2) URL дээр userId/token хийхгүй
+      window.location.hash = "#/othersprofile";
     } catch (err) {
       console.error(err);
-      alert("Линк үүсгэж чадсангүй");
+      alert("Профайл сонгож чадсангүй");
     }
   });
 }
+
 
     }
 
