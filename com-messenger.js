@@ -743,43 +743,7 @@ class ComMessenger extends HTMLElement {
                 />
               </div>
             </div>
-            <div class="conversation-list">
-              <div class="conversation-item is-active" data-user="Тэмүүжин" data-avatar="img/profile2.jpg">
-                <div class="conversation-avatar"><img src="img/profile2.jpg" alt="Тэмүүжин"></div>
-                <div class="conversation-text">
-                  <div class="conversation-name">Тэмүүжин</div>
-                  <div class="conversation-snippet">Сайн уу, яаж байна?</div>
-                </div>
-                <div class="conversation-status"></div>
-              </div>
-
-              <div class="conversation-item" data-user="Jennie Kim" data-avatar="img/profile3.jpg">
-                <div class="conversation-avatar"><img src="img/profile3.jpg" alt="Jennie Kim"></div>
-                <div class="conversation-text">
-                  <div class="conversation-name">Jennie Kim</div>
-                  <div class="conversation-snippet">See you tomorrow!</div>
-                </div>
-                <div class="conversation-status"></div>
-              </div>
-
-              <div class="conversation-item" data-user="Анударь" data-avatar="img/profile4.jpg">
-                <div class="conversation-avatar"><img src="img/profile4.jpg" alt="Анударь"></div>
-                <div class="conversation-text">
-                  <div class="conversation-name">Анударь</div>
-                  <div class="conversation-snippet">Маргааш уулзъя</div>
-                </div>
-                <div class="conversation-status"></div>
-              </div>
-
-              <div class="conversation-item" data-user="Үүрээ" data-avatar="img/profile5.jpg">
-                <div class="conversation-avatar"><img src="img/profile5.jpg" alt="Үүрээ"></div>
-                <div class="conversation-text">
-                  <div class="conversation-name">Үүрээ</div>
-                  <div class="conversation-snippet">Баярлалаа!</div>
-                </div>
-                <div class="conversation-status"></div>
-              </div>
-            </div>
+              <div class="conversation-list" id="conversationList"></div>
           </aside>
 
           <section class="chat-panel">
@@ -809,21 +773,6 @@ class ComMessenger extends HTMLElement {
             </header>
 
             <div class="chat-body" id="chatBody">
-              <div class="message-row incoming">
-                <div class="message-avatar">
-                  <img src="img/profile2.jpg" alt="User" class="incoming-avatar">
-                </div>
-                <div class="message-bubble">Сайн уу! Яаж байна?</div>
-              </div>
-              <div class="message-row outgoing">
-                <div class="message-bubble">Сайн байна! Чи яаж байна?</div>
-              </div>
-              <div class="message-row incoming">
-                <div class="message-avatar">
-                  <img src="img/profile2.jpg" alt="User" class="incoming-avatar">
-                </div>
-                <div class="message-bubble">Би ч бас сайн. Маргааш уулзах уу?</div>
-              </div>
             </div>
             <div class="empty-state" id="emptyState">
               <div class="empty-icon">
@@ -1005,6 +954,7 @@ class ComMessenger extends HTMLElement {
       blockBtn: $("#blockBtn"),
       reportBtn: $("#reportBtn"),
       deleteChatBtn: $("#deleteChatBtn"),
+      conversationList: $("#conversationList"),
       conversationItems: $$(".conversation-item"),
       emojiItems: $$(".emoji-item"),
       actionsToggle: $("#actionsToggle"),
@@ -1035,6 +985,8 @@ class ComMessenger extends HTMLElement {
     if (active) this.applyUIForUser(active.dataset.user);
 
     this.updateEmptyState();
+    this.initAuthAndUsers();
+
   }
 
   bindEvents() {
@@ -1063,24 +1015,50 @@ class ComMessenger extends HTMLElement {
       });
     }
 
-    messageForm.addEventListener("submit", (e) => {
+    messageForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const active = this.getActiveConversationEl();
       const user = active?.dataset.user;
+      if (!active) return;
+
+      // blocked/reported бол бичихгүй
       if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+
+      const otherId = active.dataset.userId;
+      if (!otherId) {
+        console.error("No otherId on active conversation");
+        return;
+      }
 
       const text = messageInput.value.trim();
       if (!text) return;
 
+      // optimistic UI
       const row = document.createElement("div");
       row.className = "message-row outgoing";
       row.innerHTML = `<div class="message-bubble">${this.escapeHtml(text)}</div>`;
       chatBody.appendChild(row);
-
-      messageInput.value = "";
       chatBody.scrollTop = chatBody.scrollHeight;
+      messageInput.value = "";
+
+      // ✅ DB save
+      try {
+        const res = await fetch("/api/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ other: otherId, text, type: "text" }),
+        });
+
+        if (!res.ok) {
+          console.error("send failed", await res.text());
+        }
+      } catch (err) {
+        console.error("send error", err);
+      }
     });
+
 
     // Search input – sidebar filter
     if (searchInput) {
@@ -1101,42 +1079,6 @@ class ComMessenger extends HTMLElement {
         if (searchInput) searchInput.focus();
       });
     }
-
-    // Conversation click
-    this.els.conversationItems.forEach((item) => {
-      item.addEventListener("click", () => {
-        this.els.conversationItems.forEach((i) =>
-          i.classList.remove("is-active")
-        );
-        item.classList.add("is-active");
-
-        const userName = item.dataset.user;
-        const userAvatar = item.dataset.avatar;
-
-        this.els.chatUserName.textContent = userName;
-        this.els.headerAvatar.src = userAvatar;
-        this.currentUserAvatar = userAvatar;
-
-        this.els.chatBody.innerHTML = `
-          <div class="message-row incoming">
-            <div class="message-avatar">
-              <img src="${userAvatar}" alt="${this.escapeHtml(
-          userName
-        )}" class="incoming-avatar">
-            </div>
-            <div class="message-bubble">Сайн уу!</div>
-          </div>
-        `;
-
-        this.updateIncomingAvatars();
-        this.applyUIForUser(userName);
-        this.updateConversationStatuses();
-
-        if (this.els.muteToggle) {
-          this.els.muteToggle.checked = this.mutedUsers.has(userName);
-        }
-      });
-    });
 
     // Emoji
     this.els.emojiBtn.addEventListener("click", (e) => {
@@ -1424,10 +1366,10 @@ class ComMessenger extends HTMLElement {
 
   updateEmptyState() {
     if (!this.els.emptyState) return;
-    const items = this.shadowRoot.querySelectorAll(".conversation-item");
-    const hasConversations = items.length > 0;
+    const hasConversations = (this.els.conversationList?.children.length || 0) > 0;
     this.els.emptyState.style.display = hasConversations ? "none" : "flex";
   }
+
 
   escapeHtml(text) {
     const div = document.createElement("div");
@@ -1521,5 +1463,149 @@ class ComMessenger extends HTMLElement {
       this.els.footerBanner.style.color = "#555";
     }
   }
+  async fetchMe() {
+    const res = await fetch("/api/me", { credentials: "include" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user || null;
+  }
+  async fetchUsers() {
+    const res = await fetch("/api/profiles", { credentials: "include" });
+    if (!res.ok) return [];
+    return await res.json(); // [{userId,name,image,...}]
+  }
+  async initAuthAndUsers() {
+    this.me = await this.fetchMe();
+    if (!this.me?._id) {
+      this.renderConversationList([]);
+      this.updateEmptyState();
+      return;
+    }
+    this.meId = String(this.me._id);
+
+    const users = await this.fetchUsers();
+
+    // ✅ id-г нэг мөрөнд normalize
+    const normalizeId = (u) => String(u.userId || u._id || "");
+
+    // ✅ me-г зөв хасна
+    const others = users.filter(u => normalizeId(u) && normalizeId(u) !== this.meId);
+
+    this.renderConversationList(others);
+
+    const first = others[0];
+    if (first) {
+      this.selectConversationByUserId(normalizeId(first));
+    } else {
+      this.updateEmptyState();
+    }
+  }
+
+  renderConversationList(list) {
+    const wrap = this.els.conversationList;
+    if (!wrap) return;
+
+    wrap.innerHTML = "";
+
+    list.forEach(u => {
+      const el = document.createElement("div");
+      el.className = "conversation-item";
+
+      const id = u.userId || u._id; // ✅ хамгаалалт
+      el.dataset.user = u.name || "User";
+      el.dataset.userId = String(id);
+      el.dataset.avatar = u.image || u.avatar || "img/profile2.jpg";
+
+      el.innerHTML = `
+      <div class="conversation-avatar">
+        <img src="${this.escapeHtml(el.dataset.avatar)}" alt="${this.escapeHtml(el.dataset.user)}">
+      </div>
+      <div class="conversation-text">
+        <div class="conversation-name">${this.escapeHtml(el.dataset.user)}</div>
+        <div class="conversation-snippet"></div>
+      </div>
+      <div class="conversation-status"></div>
+    `;
+
+      el.addEventListener("click", () => this.selectConversationEl(el));
+      wrap.appendChild(el);
+    });
+
+    // ✅ зөвхөн conversationList доторх item-үүд
+    this.els.conversationItems = Array.from(
+      this.els.conversationList.querySelectorAll(".conversation-item")
+    );
+
+    this.updateEmptyState();
+  }
+
+  selectConversationByUserId(userId) {
+    const el = this.shadowRoot.querySelector(`.conversation-item[data-user-id="${CSS.escape(userId)}"]`);
+    if (el) this.selectConversationEl(el);
+  }
+  async selectConversationEl(item) {
+    // active class
+    this.els.conversationItems.forEach(i => i.classList.remove("is-active"));
+    item.classList.add("is-active");
+
+    const userName = item.dataset.user;
+    const userAvatar = item.dataset.avatar;
+    const otherId = item.dataset.userId;
+
+    this.activeOtherId = otherId;
+
+    this.els.chatUserName.textContent = userName;
+    this.els.headerAvatar.src = userAvatar;
+    this.currentUserAvatar = userAvatar;
+
+    // UI (mute banner etc)
+    this.applyUIForUser(userName);
+    this.updateConversationStatuses();
+    if (this.els.muteToggle) this.els.muteToggle.checked = this.mutedUsers.has(userName);
+
+    // ✅ DB-с messages
+    await this.loadMessages(otherId, userAvatar, userName);
+  }
+  async loadMessages(otherId, otherAvatar, otherName) {
+    try {
+      const res = await fetch(`/api/messages?other=${encodeURIComponent(otherId)}&limit=200`, {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        this.els.chatBody.innerHTML = `<div style="padding:16px;">Failed to load messages</div>`;
+        return;
+      }
+
+      const msgs = await res.json();
+      this.els.chatBody.innerHTML = "";
+
+      msgs.forEach(m => {
+        const isOutgoing = String(m.fromUserId) === String(this.meId);
+
+        const row = document.createElement("div");
+        row.className = `message-row ${isOutgoing ? "outgoing" : "incoming"}`;
+
+        if (!isOutgoing) {
+          row.innerHTML = `
+          <div class="message-avatar">
+            <img src="${otherAvatar}" alt="${this.escapeHtml(otherName)}" class="incoming-avatar">
+          </div>
+          <div class="message-bubble">${this.escapeHtml(m.text || "")}</div>
+        `;
+        } else {
+          row.innerHTML = `<div class="message-bubble">${this.escapeHtml(m.text || "")}</div>`;
+        }
+
+        this.els.chatBody.appendChild(row);
+      });
+
+      this.els.chatBody.scrollTop = this.els.chatBody.scrollHeight;
+    } catch (e) {
+      console.error("loadMessages error", e);
+    }
+  }
+
+
 }
 window.customElements.define("com-messenger", ComMessenger);
