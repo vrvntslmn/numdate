@@ -1,8 +1,8 @@
-import {api} from './apiClient.js';
+import { api } from './apiClient.js';
 import './nm-selection.js';
 
 
-class Profile extends HTMLElement{
+class Profile extends HTMLElement {
     static GOAL = 'Харилцааны хэлбэр';
     static LOVELANG = 'Хайрын хэл';
     static ZODIAC = 'Орд';
@@ -10,12 +10,17 @@ class Profile extends HTMLElement{
     static MAJOR = 'ХӨТӨЛБӨР';
     static INTERESTS = 'Сонирхол';
 
-    constructor(){
-        super(); 
+    constructor() {
+        super();
         this.profile = null;
+        this.imageAvatar = null;
+        this.image0 = null;
+        this.image1 = null;
+        this.image2 = null;
+        this.image3 = null;
     }
 
-    connectedCallback(){
+    connectedCallback() {
 
         this.addEventListener('click', (event) => {
             const target = event.target;
@@ -36,7 +41,7 @@ class Profile extends HTMLElement{
                 this.render();
             })
             .catch(err => console.error('Failed to load profiles:', err)
-        );
+            );
 
     }
 
@@ -68,7 +73,7 @@ class Profile extends HTMLElement{
             age = a;
         }
 
-        const $  = (sel) => this.querySelector(sel);
+        const $ = (sel) => this.querySelector(sel);
         const $$ = (sel) => this.querySelectorAll(sel);
 
         const goalEl = $('.goal p');
@@ -79,7 +84,7 @@ class Profile extends HTMLElement{
 
         const majorEl = $('.major p');
         if (majorEl && major) majorEl.textContent = major;
-        
+
         const aboutBlock = $('.about');
         const hasAbout =
             about &&
@@ -113,15 +118,15 @@ class Profile extends HTMLElement{
 
 
         const likesEl = $('.likes button');
-        
-        if(!likes || Object.keys(likes).length == 0) if (likesEl) likesEl.style.display = 'none';
+
+        if (!likes || Object.keys(likes).length == 0) if (likesEl) likesEl.style.display = 'none';
 
         Object.keys(interests).forEach((key) => {
-        const el = $(`.${key} p`);
-        if (el) {
-            el.parentElement.style.display = 'flex';
-            el.textContent = interests[key];
-        }
+            const el = $(`.${key} p`);
+            if (el) {
+                el.parentElement.style.display = 'flex';
+                el.textContent = interests[key];
+            }
         });
 
         const avatarImg = $('.avatar img');
@@ -139,7 +144,7 @@ class Profile extends HTMLElement{
     }
 
 
-    render(){
+    render() {
         this.innerHTML = `
             <style>
                 :root{
@@ -156,6 +161,9 @@ class Profile extends HTMLElement{
                     --back-col-white: white;
                     --inputBorder: #D9D9D9;
                     --subInfoTitle-col: #55565A;
+                }
+                :host{
+                    color-scheme: light dark;
                 }
                 
                 .edit-button{
@@ -314,6 +322,7 @@ class Profile extends HTMLElement{
                     & > section{
                         margin: 20px;
                         display: grid;
+                        flex: 1 0 auto;
                         grid-template-areas: "ln h3" "ln div";
                         grid-template-columns: 30px auto;
                         grid-template-rows: 30px;
@@ -489,7 +498,21 @@ class Profile extends HTMLElement{
                 }
 
                 .out{
-                    margin-top: 20px;
+                    display: grid;
+                    place-items: center;
+                    margin-top: 50px;
+                    height: 30%;
+                    background-color: var(--back-col-white);
+                    padding: 20px;
+                    border-radius: 41px;
+                    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+                    min-width: 300px;
+
+                    & > div{
+                        display: flex;
+                        width: 80%;
+                        border: 1px solid var(--first-color);
+                    }
                 }
 
                 .description p{
@@ -556,6 +579,104 @@ class Profile extends HTMLElement{
                 .travel{display:none;}
                 .book{display:none;}
                 
+                @media (prefers-color-scheme: dark) {
+                    body{
+                        background-color: #0b0d10 !important;
+                    }
+
+                    div.main-container,
+                    article.subscription{
+                        background-color: #0f131a !important;
+                        box-shadow: 0px 10px 30px rgba(0,0,0,.55) !important;
+                    }
+
+                    h2, h3, h4, h5, p, label{
+                        color: #e8ecf3 !important;
+                    }
+
+                    .bio,
+                    h5{
+                        color: rgba(232,236,243,.75) !important;
+                    }
+
+                    .border-red{
+                        border-color: rgba(207,15,71,.8) !important;
+                    }
+
+                    .blackline{
+                        background-color: rgba(255,255,255,.12) !important;
+                    }
+
+                    .goal{
+                        border-bottom: 1px solid rgba(255,255,255,.12) !important;
+                    }
+
+                    div.main-container > section > div:last-of-type{
+                        background: transparent !important;
+                    }
+
+                    input, textarea{
+                        background-color: rgba(255,255,255,.06) !important;
+                        color: #e8ecf3 !important;
+                        border-color: rgba(255,255,255,.18) !important;
+                    }
+
+                    textarea::placeholder{
+                        color: rgba(232,236,243,.45) !important;
+                    }
+
+                    div.main-container > section > div:last-of-type > article > section > div{
+                        border-color: rgba(255,255,255,.18) !important;
+                        background-color: rgba(255,255,255,.04) !important;
+                    }
+
+                    #edit{
+                        background: rgba(0,0,0,0.55) !important;
+                        border: 1px solid rgba(255,255,255,0.12) !important;
+                    }
+
+                    #editAvatar{
+                        background-color: #0f131a !important;
+                        border: 1px solid rgba(255,255,255,.12) !important;
+                    }
+
+                    button{
+                        color: #e8ecf3;
+                    }
+
+                    #exit{
+                        background-color: transparent !important;
+                        border-color: rgba(255,11,85,.9) !important;
+                        color: rgba(255,11,85,.95) !important;
+                    }
+
+                    svg path[stroke="black"]{
+                        stroke: rgba(232,236,243,.85) !important;
+                    }
+
+                    svg path[fill="black"]{
+                        fill: rgba(232,236,243,.85) !important;
+                    }
+                    }
+
+                    html.dark body,
+                    body.dark{
+                    background-color: #0b0d10 !important;
+                    }
+
+                    html.dark div.main-container,
+                    html.dark article.subscription,
+                    body.dark div.main-container,
+                    body.dark article.subscription{
+                    background-color: #0f131a !important;
+                    box-shadow: 0px 10px 30px rgba(0,0,0,.55) !important;
+                    }
+
+                    html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark p,
+                    body.dark h2, body.dark h3, body.dark h4, body.dark h5, body.dark p{
+                    color: #e8ecf3 !important;
+                    }
+
             </style>
             <main>
 
@@ -787,7 +908,7 @@ class Profile extends HTMLElement{
                     </article>
                     
                     <article class="out">
-                         <div class="item logout">
+                        <div class="item logout">
                             <h4>Log out</h4>
                         </div>
 
@@ -810,12 +931,12 @@ class Profile extends HTMLElement{
         if (this.profile) this.loadUser();
     }
 
-    renderDefault(){
+    renderDefault() {
         const mainCont = this.querySelector('.main-container');
         const elMain = mainCont.parentElement;
 
         let edit = this.querySelector('#edit');
-        if(!edit) {
+        if (!edit) {
             this.insertAdjacentHTML('beforeend', ` 
                 <style>
                     #edit{
@@ -846,7 +967,7 @@ class Profile extends HTMLElement{
                 <div id="edit"></div>`);
             edit = this.querySelector('#edit');
         }
-     
+
         mainCont.innerHTML = `
             <article>
                 <div class="profile-head">
@@ -879,10 +1000,10 @@ class Profile extends HTMLElement{
                     <h4>ЗУРАГ</h4>
                 </div>
                 <div class="user-image-container">
-                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
-                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
-                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
-                    <img class="border-red" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" value="0" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" value="1" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" value="2" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" value="3" src="./img/image.jpeg" alt="user photo">
                 </div>
                 <div class="voice">
                     <p class="item">Voice</p>
@@ -1057,10 +1178,10 @@ class Profile extends HTMLElement{
                 <button id="exit">EXIT</button>
                 <button id="save">SAVE</button>
             </div>
-
+            <input type="file" id="imageFile" accept="image/*" hidden>
         `;
 
-        elMain.insertAdjacentHTML( 'beforeend', `
+        elMain.insertAdjacentHTML('beforeend', `
             <style>
                 .bckground{
                     position: absolute;
@@ -1211,10 +1332,10 @@ class Profile extends HTMLElement{
             </style>
             `
         );
-            
+
         const player = this.querySelector('.editPlayer');
-        player.addEventListener('change', ()=>{
-            if(player.checked) {
+        player.addEventListener('change', () => {
+            if (player.checked) {
                 edit.innerHTML = `
                     <div>
                         <p>Таны одоогийн voice</p>
@@ -1272,13 +1393,12 @@ class Profile extends HTMLElement{
                         h2{align-self:flex-start;}
 
                         & > .prevContainer{
-                            width: 50%;
                             height: 50%;
+                            width: 50%;
                             .preview{
                                 width: 100%;
                                 height: 100%;
                                 border-radius: 5%;
-                                object-fit: cover;
                             }
                         }
 
@@ -1298,10 +1418,8 @@ class Profile extends HTMLElement{
                     <div class="prevContainer">
                         <img class="preview" src="${this.querySelector('.avatar img').src}" alt="preview">
                     </div>
-
-                    <input id="avatarFile" type="file" accept="image/*" style="display:none" />
-
-                    <button id="avatarUploadBtn"><h4>ОРУУЛАХ</h4></button>               
+                    
+                    <button id="uploadBtn"><h4>ОРУУЛАХ</h4></button>               
 
                     <svg class="exit" width="38" height="31" viewBox="0 0 38 31" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M26.6694 7.55385L19.1157 15.1076L26.6694 22.6614" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1315,8 +1433,8 @@ class Profile extends HTMLElement{
         });
 
         const images = this.querySelectorAll('.user-image-container img');
-        images.forEach(img =>{
-            img.addEventListener('click', _ =>{
+        images.forEach(img => {
+            img.addEventListener('click', _ => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1334,9 +1452,14 @@ class Profile extends HTMLElement{
 
                             h2{align-self:flex-start;}
 
-                            & > svg{
-                                width: 50%;
+                            & > .prevContainer{
                                 height: 50%;
+                                width: 50%;
+                                .preview{
+                                    width: 100%;
+                                    height: 100%;
+                                    border-radius: 5%;
+                                }
                             }
 
                             & > button{
@@ -1351,13 +1474,16 @@ class Profile extends HTMLElement{
                     </style>
                     <div id="editAvatar">
                         <h2>ЗУРАГ ОРУУЛАХ</h2>    
-                        <svg width="105" height="105" viewBox="0 0 105 105" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13.8605 100.988L46.8432 64.3409C48.8232 62.1408 49.8133 61.0408 50.9549 60.6286C51.9591 60.2661 53.0409 60.2661 54.0451 60.6286C55.1867 61.0408 56.1768 62.1409 58.1569 64.3409L90.9196 100.744M62.5 69.1667L76.8431 53.2298C78.8232 51.0297 79.8133 49.9297 80.9549 49.5175C81.9591 49.155 83.0409 49.155 84.0451 49.5175C85.1867 49.9297 86.1768 51.0297 88.1569 53.2298L102.5 69.1667M42.5 35.8333C42.5 41.9698 38.0228 46.9444 32.5 46.9444C26.9772 46.9444 22.5 41.9698 22.5 35.8333C22.5 29.6968 26.9772 24.7222 32.5 24.7222C38.0228 24.7222 42.5 29.6968 42.5 35.8333ZM26.5 102.5H78.5C86.9008 102.5 91.1012 102.5 94.3099 100.683C97.1323 99.0855 99.427 96.5359 100.865 93.3998C102.5 89.8346 102.5 85.1675 102.5 75.8333V29.1667C102.5 19.8325 102.5 15.1654 100.865 11.6002C99.427 8.46412 97.1323 5.91445 94.3099 4.31656C91.1012 2.5 86.9008 2.5 78.5 2.5H26.5C18.0992 2.5 13.8988 2.5 10.6901 4.31656C7.86771 5.91445 5.573 8.46412 4.1349 11.6002C2.5 15.1654 2.5 19.8325 2.5 29.1667V75.8333C2.5 85.1675 2.5 89.8346 4.1349 93.3998C5.573 96.5359 7.86771 99.0855 10.6901 100.683C13.8988 102.5 18.0992 102.5 26.5 102.5Z" stroke="#55565A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <button><h4>ОРУУЛАХ</h4></button>               
+
+                        <div class="prevContainer">
+                            <img class="preview" src="${img.src}" alt="preview">
+                        </div>
+                        
+                        <button id="uploadBtn"><h4>ОРУУЛАХ</h4></button>               
+
                         <svg class="exit" width="38" height="31" viewBox="0 0 38 31" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M26.6694 7.55385L19.1157 15.1076L26.6694 22.6614" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M11.3306 22.8763L18.8843 15.3226L11.3306 7.7688" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M26.6694 7.55385L19.1157 15.1076L26.6694 22.6614" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.3306 22.8763L18.8843 15.3226L11.3306 7.7688" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
                 `;
@@ -1374,8 +1500,8 @@ class Profile extends HTMLElement{
 
         const goal = this.querySelector('.goal');
 
-        if(goal){
-            goal.addEventListener('click', ()=>{
+        if (goal) {
+            goal.addEventListener('click', () => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1392,8 +1518,8 @@ class Profile extends HTMLElement{
 
         const loveLang = this.querySelector('.loveLang');
 
-        if(loveLang){
-            loveLang.addEventListener('click', ()=>{
+        if (loveLang) {
+            loveLang.addEventListener('click', () => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1410,8 +1536,8 @@ class Profile extends HTMLElement{
 
         const mbti = this.querySelector('.mbti');
 
-        if(mbti){
-            mbti.addEventListener('click', ()=>{
+        if (mbti) {
+            mbti.addEventListener('click', () => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1431,10 +1557,10 @@ class Profile extends HTMLElement{
     }
 
     setupAvatarUpload(edit) {
-        const fileInput   = edit.querySelector('#avatarFile');
-        const uploadBtn   = edit.querySelector('#avatarUploadBtn');
-        const previewImg  = edit.querySelector('.preview');
-        const avatarImg   = this.querySelector('.avatar img'); // үндсэн profile дээрх зураг
+        const fileInput = edit.querySelector('#avatarFile');
+        const uploadBtn = edit.querySelector('#avatarUploadBtn');
+        const previewImg = edit.querySelector('.preview');
+        const avatarImg = this.querySelector('.avatar img'); // үндсэн profile дээрх зураг
 
         if (!fileInput || !uploadBtn || !previewImg || !avatarImg) return;
 
@@ -1443,57 +1569,141 @@ class Profile extends HTMLElement{
             fileInput.click();
         });
 
-        // Файл сонгосны дараа
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            // 1. Frontend preview (сервер рүү явуулахгүйгээр эхлээд харуулна)
-            const objectUrl = URL.createObjectURL(file);
-            previewImg.src = objectUrl;
-            avatarImg.src = objectUrl;
+            const localUrl = URL.createObjectURL(file);
+            avatarImg.src = localUrl;
 
-            // 2. Хэрэв серверт хадгалах бол (энд fetch / api ашиглана)
-            // ------- OPTION A: apiClient.js дээрээ method байгаа гэж үзье -------
-            /*
-            const formData = new FormData();
-            formData.append('avatar', file);
+            this.querySelector('.prevContainer img').src = localUrl;
 
-            try {
-                const res = await api.uploadAvatar(formData); // өөрөө api дээрээ засаарай
-                // res.avatarUrl буцаалаа гэж үзээд:
-                avatarImg.src = res.avatarUrl;
-            } catch (err) {
-                console.error('Avatar upload failed', err);
+            // 2) Server рүү upload
+            const form = new FormData();
+            form.append('image', file);
+            form.append('type', 'avatar');
+            this.imageAvatar = form;
+
+            // api.setPhoto(form).then(res => res.json()).then(data =>{
+            //         console.log("Uploaded url:", data.url);
+            //         avatarImg.src = data.url;
+            //     }).catch(err => {
+            //         console.error(err);
+            //         alert('Avatar зураг upload хийхэд алдаа гарлаа.');
+            //     });
+
+            // if (!res.ok) {
+            // const text = await res.text();
+            // throw new Error(`Upload failed: ${res.status} ${text}`);
+            // }
+
+            // const data = await res.json(); // { url: '/uploads/...' }
+
+            // // Profile обьект дээр хадгалж авна
+            // if (!this.profile) this.profile = {};
+            // this.profile.avatar = data.url;
+
+            // // Хэрэв хүсвэл backend–д профайл update
+            // // await fetch('/api/profile/me', {
+            // // method: 'PATCH',
+            // // headers: { 'Content-Type': 'application/json' },
+            // // credentials: 'include',
+            // // body: JSON.stringify({ avatar: data.url }),
+            // // });
+
+        });
+    }
+
+    setupGalleryUpload() {
+        const fileInput = this.querySelector('#imageFile');
+        const images = this.querySelectorAll('.user-image-container img');
+        const uploadBtn = edit.querySelector('#uploadBtn');
+        const prevImg = this.querySelector('.prevContainer img');
+        let value;
+
+        if (!fileInput || !images.length || !uploadBtn || !prevImg) return;
+
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const img = this.querySelector(
+                `.user-image-container img[value="${value}"]`
+            );
+            if (!img) return;
+
+            const localUrl = URL.createObjectURL(file);
+            img.src = localUrl;
+            prevImg.src = localUrl;
+
+            const form = new FormData();
+            form.append('image', file);
+            form.append('type', 'gallery');
+            form.append('index', String(index));
+
+            switch (value) {
+                case '0':
+                    this.image0 = form;
+                    break;
+                case '1':
+                    this.image0 = form;
+                    break;
+                case '2':
+                    this.image0 = form;
+                    break;
+                case '3':
+                    this.image0 = form;
+                    break;
             }
-            */
 
-            // ------- OPTION B: шууд fetch -------
-            /*
-            const formData = new FormData();
-            formData.append('avatar', file);
+            // const res = await fetch('/api/upload/image', {
+            // method: 'POST',
+            // body: form,
+            // credentials: 'include',
+            // });
 
-            try {
-                const res = await fetch('/api/profile/avatar', {
-                    method: 'POST',
-                    body: formData,
-                });
-                const data = await res.json();
-                avatarImg.src = data.avatar; // backend-аас буцааж байгаа url
-            } catch (err) {
-                console.error('Avatar upload failed', err);
-            }
-            */
+            // if (!res.ok) {
+            // const text = await res.text();
+            // throw new Error(`Upload failed: ${res.status} ${text}`);
+            // }
+
+            // const data = await res.json(); // { url: '/uploads/...' }
+
+            // if (!this.profile) this.profile = {};
+            // if (!Array.isArray(this.profile.photos)) {
+            // this.profile.photos = [];
+            // }
+            // this.profile.photos[index] = data.url;
+
+            // // Профайл хадгалах (optional)
+            // await fetch('/api/profile/me', {
+            // method: 'PATCH',
+            // headers: { 'Content-Type': 'application/json' },
+            // credentials: 'include',
+            // body: JSON.stringify({ photos: this.profile.photos }),
+            // });
+
+            // } catch (err) {
+            //     console.error(err);
+            //     alert('Gallery зураг upload хийхэд алдаа гарлаа.');
+            // } finally {
+            //     fileInput.value = '';
+            //     this._currentRole = null;
+            //     this._currentPhotoIndex = null;
+            // }
         });
     }
 
 
-    enableExit(edit){
-        this.querySelector('.exit').addEventListener('click', ()=>{
+    enableExit(edit) {
+        this.querySelector('.exit').addEventListener('click', () => {
             edit.style.display = `none`;
         });
     }
-   
+
 }
 
 window.customElements.define('com-profile', Profile);

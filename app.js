@@ -26,9 +26,11 @@ class App extends HTMLElement {
     this._onNotifToggle = this._onNotifToggle.bind(this);
   }
 
+
   connectedCallback() {
     this.bootstrap();
   }
+
 
   disconnectedCallback() {
     if (this._notifTimer) clearInterval(this._notifTimer);
@@ -39,6 +41,7 @@ class App extends HTMLElement {
     if (input) input.removeEventListener('change', this._onNotifToggle);
   }
 
+
   async bootstrap() {
     try {
       const res = await fetch('/api/me', { credentials: 'include' });
@@ -48,13 +51,16 @@ class App extends HTMLElement {
         return;
       }
 
+
       const data = await res.json();
+
 
       if (!data.user) {
         this.renderLogin();
       } else {
         this.user = data.user;
         this.render();
+
 
         // ✅ render хийсний дараа badge шалгана + polling эхлүүлнэ
         this.refreshNotifBadge();
@@ -103,6 +109,7 @@ class App extends HTMLElement {
     }, 5000);
   }
 
+
   async refreshNotifBadge() {
     const badge = this.querySelector('#notifBadge');
     if (!badge) return;
@@ -150,10 +157,38 @@ class App extends HTMLElement {
           --header-height: 55px;
           --bottom-nav-height: 64px;
         }
+        @media (prefers-color-scheme: dark){
+          :root{
+            --bg-white: #111827;         
+            --inputBorder: rgba(255,255,255,.12);
+            --box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.45);
+            --textWithBack: white;   
+            --app-bg: #0b0f17;
+            --panel-bg: #111827;    
+          }
 
+          body{
+            background-color: #0b0f17;
+            color: rgba(255,255,255,.92);
+          }
+
+          header nav{
+            border-top: 1px solid rgba(255,255,255,.10);
+            box-shadow: 0 -8px 20px rgba(0,0,0,.45);
+          }
+
+          com-notif{
+            background-color: #111827;
+            color: rgba(255,255,255,.92);
+          }
+
+          input, select, textarea{
+            color: rgba(255,255,255,.92);
+          }
+        }
         html { width: 100%; }
-        body { margin: 0; background-color: #F5F5F5; }
-
+        body { margin: 0;  background-color: var(--app-bg, #F5F5F5); }
+ 
         h1 { color: #F5F5F5; font-family: var(--font-header); }
         h2 { font-family: var(--font-header); font-weight: 400; font-size: 36px; margin: 0; }
         h3 { margin: 0; font-family: var(--font-header); font-size: 36px; }
@@ -172,12 +207,21 @@ class App extends HTMLElement {
         header{
           display: flex;
           width: 100%;
-          background: linear-gradient(to top, #EE0067, #BC2265);
+          background: transparent;
           height: var(--header-height);
           align-items: center;
           position: sticky;
           top: 0;
           z-index: 10;
+          overflow: hidden;
+          isolation: isolate;
+        }
+        header::before{
+          content: ""; 
+          position: absolute;
+          inset:0;
+          background:linear-gradient(to top, #EE0067, #BC2265);
+          z-index: -1;
         }
 
         header svg.logo{
@@ -199,6 +243,9 @@ class App extends HTMLElement {
           align-items: center;
           gap: 20px;
           font-family: var(--font-header);
+          background: transparent;
+          box-shadow: none;
+          border: 0;
         }
 
         header nav ul{
@@ -239,15 +286,13 @@ class App extends HTMLElement {
         header nav ul .notif input{
           display: none;
         }
-
-        /* ✅ badge wrapper */
+ 
         header nav ul .notifWrap{
           position: relative;
           display: inline-flex;
           align-items: center;
         }
-
-        /* ✅ badge red dot */
+ 
         header nav ul .notifBadge{
           position: absolute;
           top: -2px;
@@ -264,7 +309,7 @@ class App extends HTMLElement {
         com-notif{
           display: none; /* ✅ default hidden */
           height: 90%;
-          background-color: white;
+          background-color: var(--panel-bg, white); 
           border-radius: var(--brderRad-m);
           box-shadow: var(--box-shadow);
           position: absolute;
@@ -341,7 +386,7 @@ class App extends HTMLElement {
             right: 0;
             bottom: 0;
             height: var(--bottom-nav-height);
-            background: white;
+            background: var(--panel-bg, white);
             border-top: 1px solid rgba(0,0,0,0.08);
             box-shadow: 0 -8px 20px rgba(0,0,0,0.08);
             z-index: 30;
@@ -412,10 +457,9 @@ class App extends HTMLElement {
             display: block; /* ✅ open class үед л харагдана */
           }
         }
-
-        com-match{
-          display: block;
-        }
+          com-match{
+            display: block;
+          }
       </style>
 
       <header>
