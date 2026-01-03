@@ -33,7 +33,9 @@ class Auth extends HTMLElement {
                 loveLanguage: '',
                 relationshipGoal: '',
                 interestedIn: '',
-                interests: {}
+                interests: {},
+                avatarFile: null,
+                avatarUrl: ""
             }
         };
     }
@@ -693,16 +695,35 @@ class Auth extends HTMLElement {
                                             <div class="chips" id="interestChips"></div>
                                             <div class="hint">Хамгийн багадаа 3-г сонго.</div>
                                             <div id="signupInterestsErr" class="err"></div>
+                                             <div class="divider"></div>
+                                                <label>Profile зураг (Avatar)</label>
+
+                                                <div class="row2">
+                                                <div>
+                                                    <div class="field" style="justify-content: space-between;">
+                                                    <span id="avatarHint" class="hint" style="margin:0;">Зураг сонгоогүй байна</span>
+                                                    <button type="button" id="pickAvatarBtn" class="btn secondary" style="max-width:140px;">Choose</button>
+                                                    </div>
+
+                                                    <input id="avatarInput" type="file" accept="image/*" hidden />
+                                                    <div id="avatarErr" class="err"></div>
+                                                </div>
+
+                                                <div style="display:flex; align-items:center; justify-content:center;">
+                                                    <img id="avatarPreview"
+                                                    src="img/default-profile.jpg"
+                                                    alt="avatar preview"
+                                                    style="width:110px; height:110px; border-radius:50%; object-fit:cover; border:1px solid rgba(16,24,40,.12);" />
+                                                </div>
+                                                </div>
+
 
                                             <div class="actions">
                                                 <button type="button" id="signupBack4" class="btn secondary">Back</button>
                                                 <button type="submit" id="signupBtn" class="btn primary disabled"
                                                     aria-disabled="true">Бүртгүүлэх</button>
                                             </div>
-
                                             <div class="divider"></div>
-                                            <div class="tiny">* Бүртгэлийн дараа profile зураг/био нэмэх алхам руу оруулж болно.
-                                            </div>
                                         </div>
                                 </form>
                             </section>
@@ -751,6 +772,13 @@ class Auth extends HTMLElement {
         this.signupBack2 = q('#signupBack2');
         this.signupBack3 = q('#signupBack3');
         this.signupBack4 = q('#signupBack4');
+
+        this.pickAvatarBtn = q('#pickAvatarBtn');
+        this.avatarInput = q('#avatarInput');
+        this.avatarPreview = q('#avatarPreview');
+        this.avatarHint = q('#avatarHint');
+        this.avatarErr = q('#avatarErr');
+
     }
 
     bind() {
@@ -773,7 +801,7 @@ class Auth extends HTMLElement {
             this.signupPwConfirmToggle.onclick = () => this.togglePw(pw2, this.signupPwConfirmToggle);
         }
 
-        
+
         this.formLogin.onsubmit = async (e) => {
             e.preventDefault();
 
@@ -788,7 +816,7 @@ class Auth extends HTMLElement {
 
             // clear old errors
             if (emailErr) { emailErr.textContent = ''; emailErr.style.display = 'none'; }
-            if (pwErr)   { pwErr.textContent   = ''; pwErr.style.display   = 'none'; }
+            if (pwErr) { pwErr.textContent = ''; pwErr.style.display = 'none'; }
 
             // lock button while logging in
             this.toggleBtn(this.loginBtn, false);
@@ -856,44 +884,45 @@ class Auth extends HTMLElement {
         this.formSignup.onsubmit = async (e) => {
             e.preventDefault();
 
-            // make sure all steps valid
-            if (!this.validateStep1() || !this.validateStep2() || !this.validateStep3() || !this.validateStep4()) {
-                return;
-            }
+            if (!this.validateStep1() || !this.validateStep2() || !this.validateStep3() || !this.validateStep4()) return;
 
             const payload = this.collectSignupPayload();
+            this.toggleBtn(this.signupBtn, false);
+            this.signupBtn.textContent = "Түр хүлээнэ үү...";
 
             try {
-                // disable button & show small “loading” text
-                this.toggleBtn(this.signupBtn, false);
-                const originalLabel = this.signupBtn.textContent;
-                this.signupBtn.textContent = 'Түр хүлээнэ үү...';
-
-                const res = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                // 1) Register (энэ үед session cookie үүснэ)
+                const res = await fetch("/api/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
                     body: JSON.stringify(payload),
                 });
 
                 const data = await res.json().catch(() => ({}));
-
                 if (!res.ok) {
-                    console.error('Signup error response', data);
-                    alert(data.error || 'Бүртгэл амжилтгүй. Дахин оролдоно уу.');
+                    alert(data.error || "Бүртгэл амжилтгүй.");
                     return;
                 }
 
-                // success
-                alert(data.message || 'Бүртгэл амжилттай. Имэйлээ шалгаад баталгаажуулаарай.');
-                this.setAuth('login');
+                // 2) Avatar upload (login хийхгүй!)
+                if (this.state.signup.avatarFile) {
+                    const url = await this.uploadImage({ file: this.state.signup.avatarFile, type: "avatar" });
+                    console.log("avatar uploaded:", url);
+                }
+
+                alert(data.message || "Бүртгэл амжилттай. Имэйлээ шалгаад баталгаажуулаарай.");
+                this.setAuth("login");
             } catch (err) {
-                console.error('Signup network/server error', err);
-                alert('Сервертэй холбогдож чадсангүй. Дараа дахин оролдоно уу.');
+                console.error(err);
+                alert("Сервертэй холбогдож чадсангүй.");
             } finally {
-                this.signupBtn.textContent = 'Бүртгүүлэх';
+                this.signupBtn.textContent = "Бүртгүүлэх";
                 this.validateStep4();
             }
         };
+
+
 
 
         ['#signupOvog', '#signupNer', '#signupEmail', '#signupPw', '#signupPwConfirm']
@@ -901,7 +930,66 @@ class Auth extends HTMLElement {
 
         ['#signupMajor', '#signupSchool', '#signupDob', '#signupGender', '#signupZodiac', '#signupCourse']
             .forEach(sel => this.querySelector(sel).addEventListener('input', () => this.validateStep2()));
+
+        // Avatar pick
+        if (this.pickAvatarBtn && this.avatarInput) {
+            this.pickAvatarBtn.onclick = () => this.avatarInput.click();
+
+            this.avatarInput.onchange = () => {
+                const file = this.avatarInput.files?.[0];
+                if (!file) return;
+
+                // only image check
+                if (!file.type.startsWith('image/')) {
+                    if (this.avatarErr) {
+                        this.avatarErr.textContent = 'Зөвхөн зураг сонгоно уу.';
+                        this.avatarErr.style.display = 'block';
+                    }
+                    return;
+                }
+
+                // size check (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    if (this.avatarErr) {
+                        this.avatarErr.textContent = 'Зураг 5MB-аас бага байх ёстой.';
+                        this.avatarErr.style.display = 'block';
+                    }
+                    return;
+                }
+
+                if (this.avatarErr) { this.avatarErr.textContent = ''; this.avatarErr.style.display = 'none'; }
+
+                // preview
+                const url = URL.createObjectURL(file);
+                if (this.avatarPreview) this.avatarPreview.src = url;
+                if (this.avatarHint) this.avatarHint.textContent = file.name;
+
+                // save in state
+                this.state.signup.avatarFile = file;
+            };
+        }
+
     }
+    // class Auth { ... дотор
+    async uploadImage({ file, type = "avatar", index = 0 }) {
+        if (!file) return null;
+
+        const fd = new FormData();
+        fd.append("image", file);
+        fd.append("type", type);
+        if (type === "gallery") fd.append("index", String(index));
+
+        const res = await fetch("/api/upload/image", {
+            method: "POST",
+            credentials: "same-origin",
+            body: fd,
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+        return data.url;
+    }
+
 
     setAuth(mode) {
         this.state.authMode = mode;
@@ -971,16 +1059,16 @@ class Auth extends HTMLElement {
         const get = (selector) =>
             this.querySelector(selector)?.value.trim() || '';
 
-        const lastName  = get('#signupOvog');
+        const lastName = get('#signupOvog');
         const firstName = get('#signupNer');
-        const email     = get('#signupEmail');
-        const password  = get('#signupPw');
-        const major     = get('#signupMajor');
-        const school    = get('#signupSchool');
-        const dob       = get('#signupDob');
-        const gender    = get('#signupGender');
-        const zodiac    = get('#signupZodiac');
-        const course    = get('#signupCourse');
+        const email = get('#signupEmail');
+        const password = get('#signupPw');
+        const major = get('#signupMajor');
+        const school = get('#signupSchool');
+        const dob = get('#signupDob');
+        const gender = get('#signupGender');
+        const zodiac = get('#signupZodiac');
+        const course = get('#signupCourse');
 
         return {
             email,
@@ -998,10 +1086,7 @@ class Auth extends HTMLElement {
             loveLanguage: s.loveLanguage,
             relationshipGoal: s.relationshipGoal,
             interestedIn: s.interestedIn,
-
-            // ⬇️ Одоо ийм shape явах болно:
-            // { art: "Урлаг", sport: "Спорт", ... }
-            interests: s.interests,
+            interests: Object.keys(s.interests || {}),
         };
     }
 
@@ -1071,6 +1156,7 @@ class Auth extends HTMLElement {
         if (!btn) return;
         btn.classList.toggle('disabled', !ok);
         btn.setAttribute('aria-disabled', String(!ok));
+        btn.disabled = !ok;
     }
 
     // FIX: shared helper for show/hide password
