@@ -3,6 +3,7 @@ import './com-dateidea.js';
 import './com-messenger.js';
 import './com-profile.js';
 
+
 import './com-match.js';
 import './com-notif.js';
 
@@ -13,7 +14,8 @@ import './com-auth.js';
 import './com-othersprofile.js';
 import './nm-mini-profile.js';
 import './apiClient.js';
-import './com-profSet.js';
+
+
 
 class App extends HTMLElement {
   constructor() {
@@ -240,7 +242,7 @@ class App extends HTMLElement {
             stroke: var(--second-color);
           }
 
-          header nav ul label.prof svg path{
+          header nav ul label.notif svg path{
             fill: var(--second-color);
           }
 
@@ -251,29 +253,7 @@ class App extends HTMLElement {
           }
         }
 
-        header nav ul .prof{
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-        }
-
-        header nav ul .prof input{
-          display: none;
-        }
-
-          /* notif panel */
-        com-profSet{
-          height: 90%;
-          background-color: white;
-          border-radius: var(--brderRad-m);
-          box-shadow: var(--box-shadow);
-          position: absolute;
-          right: 0;
-          top: var(--header-height);
-          z-index: 20;
-        }
-
-
+        /* ✅ Match overlay visible дээр гарах баталгаа */
         com-match{
           display: block;
         }
@@ -328,13 +308,12 @@ class App extends HTMLElement {
             </li>
 
             <li>
-              <label class="prof">
+              <a href="#profile">
                 <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9.35727 13C6.1872 13 3.36807 14.5306 1.57327 16.906C1.18698 17.4172 0.993832 17.6728 1.00015 18.0183C1.00503 18.2852 1.17263 18.6219 1.38264 18.7867C1.65446 19 2.03114 19 2.7845 19H15.93C16.6834 19 17.0601 19 17.3319 18.7867C17.5419 18.6219 17.7095 18.2852 17.7144 18.0183C17.7207 17.6728 17.5276 17.4172 17.1413 16.906C15.3465 14.5306 12.5273 13 9.35727 13Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9.35727 10C11.8426 10 13.8573 7.98528 13.8573 5.5C13.8573 3.01472 11.8426 1 9.35727 1C6.87199 1 4.85727 3.01472 4.85727 5.5C4.85727 7.98528 6.87199 10 9.35727 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <input type="checkbox" id="prof">
-              </label>
+              </a>
             </li>
 
             <li>
@@ -350,7 +329,6 @@ class App extends HTMLElement {
       </header>
 
       <com-notif></com-notif>
-      <com-profSet></com-profSet>
 
       <div id="content">
         <com-home></com-home>
