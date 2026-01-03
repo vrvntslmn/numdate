@@ -1,8 +1,8 @@
-import {api} from './apiClient.js';
+import { api } from './apiClient.js';
 import './nm-selection.js';
 
 
-class Profile extends HTMLElement{
+class Profile extends HTMLElement {
     static GOAL = 'Харилцааны хэлбэр';
     static LOVELANG = 'Хайрын хэл';
     static ZODIAC = 'Орд';
@@ -10,8 +10,8 @@ class Profile extends HTMLElement{
     static MAJOR = 'ХӨТӨЛБӨР';
     static INTERESTS = 'Сонирхол';
 
-    constructor(){
-        super(); 
+    constructor() {
+        super();
         this.profile = null;
         this.imageAvatar = null;
         this.image0 = null;
@@ -20,7 +20,7 @@ class Profile extends HTMLElement{
         this.image3 = null;
     }
 
-    connectedCallback(){
+    connectedCallback() {
 
         this.addEventListener('click', (event) => {
             const target = event.target;
@@ -41,7 +41,7 @@ class Profile extends HTMLElement{
                 this.render();
             })
             .catch(err => console.error('Failed to load profiles:', err)
-        );
+            );
 
     }
 
@@ -73,7 +73,7 @@ class Profile extends HTMLElement{
             age = a;
         }
 
-        const $  = (sel) => this.querySelector(sel);
+        const $ = (sel) => this.querySelector(sel);
         const $$ = (sel) => this.querySelectorAll(sel);
 
         const goalEl = $('.goal p');
@@ -84,7 +84,7 @@ class Profile extends HTMLElement{
 
         const majorEl = $('.major p');
         if (majorEl && major) majorEl.textContent = major;
-        
+
         const aboutBlock = $('.about');
         const hasAbout =
             about &&
@@ -118,15 +118,15 @@ class Profile extends HTMLElement{
 
 
         const likesEl = $('.likes button');
-        
-        if(!likes || Object.keys(likes).length == 0) if (likesEl) likesEl.style.display = 'none';
+
+        if (!likes || Object.keys(likes).length == 0) if (likesEl) likesEl.style.display = 'none';
 
         Object.keys(interests).forEach((key) => {
-        const el = $(`.${key} p`);
-        if (el) {
-            el.parentElement.style.display = 'flex';
-            el.textContent = interests[key];
-        }
+            const el = $(`.${key} p`);
+            if (el) {
+                el.parentElement.style.display = 'flex';
+                el.textContent = interests[key];
+            }
         });
 
         const avatarImg = $('.avatar img');
@@ -144,7 +144,7 @@ class Profile extends HTMLElement{
     }
 
 
-    render(){
+    render() {
         this.innerHTML = `
             <style>
                 :root{
@@ -161,6 +161,9 @@ class Profile extends HTMLElement{
                     --back-col-white: white;
                     --inputBorder: #D9D9D9;
                     --subInfoTitle-col: #55565A;
+                }
+                :host{
+                    color-scheme: light dark;
                 }
                 
                 .edit-button{
@@ -576,6 +579,104 @@ class Profile extends HTMLElement{
                 .travel{display:none;}
                 .book{display:none;}
                 
+                @media (prefers-color-scheme: dark) {
+                    body{
+                        background-color: #0b0d10 !important;
+                    }
+
+                    div.main-container,
+                    article.subscription{
+                        background-color: #0f131a !important;
+                        box-shadow: 0px 10px 30px rgba(0,0,0,.55) !important;
+                    }
+
+                    h2, h3, h4, h5, p, label{
+                        color: #e8ecf3 !important;
+                    }
+
+                    .bio,
+                    h5{
+                        color: rgba(232,236,243,.75) !important;
+                    }
+
+                    .border-red{
+                        border-color: rgba(207,15,71,.8) !important;
+                    }
+
+                    .blackline{
+                        background-color: rgba(255,255,255,.12) !important;
+                    }
+
+                    .goal{
+                        border-bottom: 1px solid rgba(255,255,255,.12) !important;
+                    }
+
+                    div.main-container > section > div:last-of-type{
+                        background: transparent !important;
+                    }
+
+                    input, textarea{
+                        background-color: rgba(255,255,255,.06) !important;
+                        color: #e8ecf3 !important;
+                        border-color: rgba(255,255,255,.18) !important;
+                    }
+
+                    textarea::placeholder{
+                        color: rgba(232,236,243,.45) !important;
+                    }
+
+                    div.main-container > section > div:last-of-type > article > section > div{
+                        border-color: rgba(255,255,255,.18) !important;
+                        background-color: rgba(255,255,255,.04) !important;
+                    }
+
+                    #edit{
+                        background: rgba(0,0,0,0.55) !important;
+                        border: 1px solid rgba(255,255,255,0.12) !important;
+                    }
+
+                    #editAvatar{
+                        background-color: #0f131a !important;
+                        border: 1px solid rgba(255,255,255,.12) !important;
+                    }
+
+                    button{
+                        color: #e8ecf3;
+                    }
+
+                    #exit{
+                        background-color: transparent !important;
+                        border-color: rgba(255,11,85,.9) !important;
+                        color: rgba(255,11,85,.95) !important;
+                    }
+
+                    svg path[stroke="black"]{
+                        stroke: rgba(232,236,243,.85) !important;
+                    }
+
+                    svg path[fill="black"]{
+                        fill: rgba(232,236,243,.85) !important;
+                    }
+                    }
+
+                    html.dark body,
+                    body.dark{
+                    background-color: #0b0d10 !important;
+                    }
+
+                    html.dark div.main-container,
+                    html.dark article.subscription,
+                    body.dark div.main-container,
+                    body.dark article.subscription{
+                    background-color: #0f131a !important;
+                    box-shadow: 0px 10px 30px rgba(0,0,0,.55) !important;
+                    }
+
+                    html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark p,
+                    body.dark h2, body.dark h3, body.dark h4, body.dark h5, body.dark p{
+                    color: #e8ecf3 !important;
+                    }
+
             </style>
             <main>
 
@@ -830,12 +931,12 @@ class Profile extends HTMLElement{
         if (this.profile) this.loadUser();
     }
 
-    renderDefault(){
+    renderDefault() {
         const mainCont = this.querySelector('.main-container');
         const elMain = mainCont.parentElement;
 
         let edit = this.querySelector('#edit');
-        if(!edit) {
+        if (!edit) {
             this.insertAdjacentHTML('beforeend', ` 
                 <style>
                     #edit{
@@ -866,7 +967,7 @@ class Profile extends HTMLElement{
                 <div id="edit"></div>`);
             edit = this.querySelector('#edit');
         }
-     
+
         mainCont.innerHTML = `
             <article>
                 <div class="profile-head">
@@ -1080,7 +1181,7 @@ class Profile extends HTMLElement{
             <input type="file" id="imageFile" accept="image/*" hidden>
         `;
 
-        elMain.insertAdjacentHTML( 'beforeend', `
+        elMain.insertAdjacentHTML('beforeend', `
             <style>
                 .bckground{
                     position: absolute;
@@ -1231,10 +1332,10 @@ class Profile extends HTMLElement{
             </style>
             `
         );
-            
+
         const player = this.querySelector('.editPlayer');
-        player.addEventListener('change', ()=>{
-            if(player.checked) {
+        player.addEventListener('change', () => {
+            if (player.checked) {
                 edit.innerHTML = `
                     <div>
                         <p>Таны одоогийн voice</p>
@@ -1332,8 +1433,8 @@ class Profile extends HTMLElement{
         });
 
         const images = this.querySelectorAll('.user-image-container img');
-        images.forEach(img =>{
-            img.addEventListener('click', _ =>{
+        images.forEach(img => {
+            img.addEventListener('click', _ => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1399,8 +1500,8 @@ class Profile extends HTMLElement{
 
         const goal = this.querySelector('.goal');
 
-        if(goal){
-            goal.addEventListener('click', ()=>{
+        if (goal) {
+            goal.addEventListener('click', () => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1417,8 +1518,8 @@ class Profile extends HTMLElement{
 
         const loveLang = this.querySelector('.loveLang');
 
-        if(loveLang){
-            loveLang.addEventListener('click', ()=>{
+        if (loveLang) {
+            loveLang.addEventListener('click', () => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1435,8 +1536,8 @@ class Profile extends HTMLElement{
 
         const mbti = this.querySelector('.mbti');
 
-        if(mbti){
-            mbti.addEventListener('click', ()=>{
+        if (mbti) {
+            mbti.addEventListener('click', () => {
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1455,35 +1556,33 @@ class Profile extends HTMLElement{
         if (this.profile) this.loadUser();
     }
 
-    collectPayload(){
-        this.querySelector('');
-    }
+    setupAvatarUpload(edit) {
+        const fileInput = edit.querySelector('#avatarFile');
+        const uploadBtn = edit.querySelector('#avatarUploadBtn');
+        const previewImg = edit.querySelector('.preview');
+        const avatarImg = this.querySelector('.avatar img'); // үндсэн profile дээрх зураг
 
-    setupAvatarUpload() {
-        const fileInput = this.querySelector('#imageFile');
-        const avatarImg = this.querySelector('.avatar img');
-        const uploadBtn   = edit.querySelector('#uploadBtn');
-        
-        if (!avatarImg || !fileInput || !uploadBtn) return;
-        
+        if (!fileInput || !uploadBtn || !previewImg || !avatarImg) return;
+
+        // "Оруулах" дээр дарвал file chooser нээнэ
         uploadBtn.addEventListener('click', () => {
             fileInput.click();
         });
-        
+
         fileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-            
-        const localUrl = URL.createObjectURL(file);
-        avatarImg.src = localUrl;
+            const file = e.target.files[0];
+            if (!file) return;
 
-        this.querySelector('.prevContainer img').src = localUrl;
+            const localUrl = URL.createObjectURL(file);
+            avatarImg.src = localUrl;
 
-        // 2) Server рүү upload
-        const form = new FormData();
-        form.append('image', file);
-        form.append('type', 'avatar');
-        this.imageAvatar = form;
+            this.querySelector('.prevContainer img').src = localUrl;
+
+            // 2) Server рүү upload
+            const form = new FormData();
+            form.append('image', file);
+            form.append('type', 'avatar');
+            this.imageAvatar = form;
 
             // api.setPhoto(form).then(res => res.json()).then(data =>{
             //         console.log("Uploaded url:", data.url);
@@ -1511,14 +1610,14 @@ class Profile extends HTMLElement{
             // // credentials: 'include',
             // // body: JSON.stringify({ avatar: data.url }),
             // // });
-            
+
         });
     }
 
     setupGalleryUpload() {
         const fileInput = this.querySelector('#imageFile');
         const images = this.querySelectorAll('.user-image-container img');
-        const uploadBtn   = edit.querySelector('#uploadBtn');
+        const uploadBtn = edit.querySelector('#uploadBtn');
         const prevImg = this.querySelector('.prevContainer img');
         let value;
 
@@ -1545,7 +1644,7 @@ class Profile extends HTMLElement{
             form.append('type', 'gallery');
             form.append('index', String(index));
 
-            switch(value){
+            switch (value) {
                 case '0':
                     this.image0 = form;
                     break;
@@ -1557,7 +1656,7 @@ class Profile extends HTMLElement{
                     break;
                 case '3':
                     this.image0 = form;
-                    break;  
+                    break;
             }
 
             // const res = await fetch('/api/upload/image', {
@@ -1587,24 +1686,24 @@ class Profile extends HTMLElement{
             // body: JSON.stringify({ photos: this.profile.photos }),
             // });
 
-        // } catch (err) {
-        //     console.error(err);
-        //     alert('Gallery зураг upload хийхэд алдаа гарлаа.');
-        // } finally {
-        //     fileInput.value = '';
-        //     this._currentRole = null;
-        //     this._currentPhotoIndex = null;
-        // }
+            // } catch (err) {
+            //     console.error(err);
+            //     alert('Gallery зураг upload хийхэд алдаа гарлаа.');
+            // } finally {
+            //     fileInput.value = '';
+            //     this._currentRole = null;
+            //     this._currentPhotoIndex = null;
+            // }
         });
     }
 
 
-    enableExit(edit){
-        this.querySelector('.exit').addEventListener('click', ()=>{
+    enableExit(edit) {
+        this.querySelector('.exit').addEventListener('click', () => {
             edit.style.display = `none`;
         });
     }
-   
+
 }
 
 window.customElements.define('com-profile', Profile);

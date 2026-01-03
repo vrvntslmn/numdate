@@ -3,24 +3,20 @@ class DateIdea extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
 
-    // --- bind handlers ---
     this.handleCardClick = this.handleCardClick.bind(this);
 
-    // modal
     this.closeModal = this.closeModal.bind(this);
     this.handleModalKeydown = this.handleModalKeydown.bind(this);
     this.handleSendClick = this.handleSendClick.bind(this);
 
-    // --- DB data state ---
     this.topPicks = [];
     this.categories = [];
     this.cardById = new Map();
   }
 
   connectedCallback() {
-    // connectedCallback async байж болно (return-г browser ашиглахгүй)
     (async () => {
-      await this.loadDateIdeas();   // ⭐ DB-ээс татна
+      await this.loadDateIdeas();
       this.render();
       this.initCardSelection();
       this.initModal();
@@ -53,7 +49,6 @@ class DateIdea extends HTMLElement {
   buildCardIndex() {
     this.cardById = new Map();
 
-    // top picks
     this.topPicks.forEach((c) => {
       if (!c?.id) return;
       this.cardById.set(String(c.id), {
@@ -69,7 +64,6 @@ class DateIdea extends HTMLElement {
       });
     });
 
-    // categories
     this.categories.forEach((cat) => {
       const catId = String(cat?.id ?? "");
       const cards = Array.isArray(cat?.cards) ? cat.cards : [];
@@ -90,7 +84,6 @@ class DateIdea extends HTMLElement {
     });
   }
 
-  // --- SVG icons: cat.id-аар нь map хийнэ (DB-ээс icon өгөхгүй бол) ---
   categoryIconSvg(catId) {
     const id = String(catId || "").toLowerCase();
 
@@ -210,19 +203,18 @@ class DateIdea extends HTMLElement {
             </div>
 
             <div class="category-cards">
-              ${
-                cards.length
-                  ? cards
-                      .map((c) => {
-                        const id = String(c.id || "");
-                        const title = c.title || c.displayTitle || "";
-                        const displayTitle = c.displayTitle || c.title || "";
-                        const detail = c.detail || "";
-                        const meta = c.meta || "";
-                        const tags = Array.isArray(c.tags) ? c.tags : [];
-                        const image = c.image || "";
+              ${cards.length
+            ? cards
+              .map((c) => {
+                const id = String(c.id || "");
+                const title = c.title || c.displayTitle || "";
+                const displayTitle = c.displayTitle || c.title || "";
+                const detail = c.detail || "";
+                const meta = c.meta || "";
+                const tags = Array.isArray(c.tags) ? c.tags : [];
+                const image = c.image || "";
 
-                        return `
+                return `
                           <article
                             class="date-card"
                             data-date-card
@@ -243,10 +235,10 @@ class DateIdea extends HTMLElement {
                             </div>
                           </article>
                         `;
-                      })
-                      .join("")
-                  : `<div style="color:#94a3b8;font-size:13px;">No cards</div>`
-              }
+              })
+              .join("")
+            : `<div style="color:#94a3b8;font-size:13px;">No cards</div>`
+          }
             </div>
           </div>
         `;
@@ -264,7 +256,6 @@ class DateIdea extends HTMLElement {
   }
 
   escapeAttr(str) {
-    // attribute-д аюулгүй болгоно
     return this.escapeHtml(str).replaceAll("\n", " ").replaceAll("\r", " ");
   }
 
@@ -273,24 +264,62 @@ class DateIdea extends HTMLElement {
       <style>
         @import url("https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@300;400;500&family=Roboto+Condensed:wght@300;400;500&display=swap");
 
+        *, *::before, *::after { box-sizing: border-box; }
+
         :host {
           --first-color: #FF0B55;
           --second-color: #CF0F47;
           --font-header: "Yanone Kaffeesatz", sans-serif;
           --font-body: "Roboto Condensed", sans-serif;
+
+          --bg: #f8fafc;
+          --surface: #ffffff;
+          --surface-2: #f1f5f9;
+          --text: #0f172a;
+          --text-2: #475569;
+          --muted: #94a3b8;
+
+          --border: #cbd5e1;
+          --shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+
           display: block;
           font-family: var(--font-body);
-          color: #0f172a;
+          color: var(--text);
+          overflow: hidden;
         }
 
-        *, *::before, *::after { box-sizing: border-box; }
+        :host([theme="dark"]) {
+          --bg: #000;
+          --surface: #000;
+          --surface-2: #111C33;
+          --text: #E5E7EB;
+          --text-2: #CBD5E1;
+          --muted: #9CA3AF;
+
+          --border: #1F2937;
+          --shadow: 0 18px 60px rgba(0,0,0,.55);
+        }
+
+        @media (prefers-color-scheme: dark){
+          :host(:not([theme])){
+            --bg: #000;
+            --surface: #000;
+            --surface-2: #111C33;
+            --text: #E5E7EB;
+            --text-2: #CBD5E1;
+            --muted: #9CA3AF;
+
+            --border: #1F2937;
+            --shadow: 0 18px 60px rgba(0,0,0,.55);
+          }
+        }
 
         h2 {
           font-family: var(--font-header);
           font-weight: 400;
           font-size: 28px;
           margin: 0;
-          color: #333;
+          color: var(--text);
         }
 
         p { font-family: var(--font-body); margin: 0; }
@@ -299,16 +328,19 @@ class DateIdea extends HTMLElement {
           padding: 32px 24px;
           display: flex;
           justify-content: center;
-          background: #f8fafc;
+          background: var(--bg);
+          overflow: hidden;
         }
 
         .date-chooser {
           max-width: 1120px;
           width: 100%;
-          background: #ffffff;
+          background: var(--surface);
           border-radius: 28px;
           padding: 24px 28px 32px;
-          box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+          box-shadow: var(--shadow);
+          overflow: hidden;
+          border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
         }
 
         .top-strip {
@@ -316,7 +348,7 @@ class DateIdea extends HTMLElement {
           font-size: 20px;
           font-weight: 500;
           margin-bottom: 12px;
-          color: #1e293b;
+          color: var(--text);
         }
 
         .top-cards-row {
@@ -327,25 +359,25 @@ class DateIdea extends HTMLElement {
           scroll-snap-type: x mandatory;
           scrollbar-width: none;
         }
+        .top-cards-row::-webkit-scrollbar { display: none; }
 
         .top-card {
           min-width: 180px;
           max-width: 190px;
           border-radius: 18px;
-          border: 1px solid #cbd5e1;
+          border: 1px solid var(--border);
           overflow: hidden;
-          background: #fff;
+          background: var(--surface);
           cursor: pointer;
           flex-shrink: 0;
-          transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease,
-            background-color 0.18s ease;
+          transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
           scroll-snap-align: start;
-          gap:10px;
+          gap: 10px;
         }
 
         .top-card__image {
           height: 86px;
-          background: #dde5f0;
+          background: color-mix(in srgb, var(--surface-2) 70%, var(--border));
           display: flex;
           align-items: center;
           justify-content: center;
@@ -369,13 +401,13 @@ class DateIdea extends HTMLElement {
         .top-card__title {
           font-family: var(--font-header);
           font-size: 17px;
-          color: #0f172a;
+          color: var(--text);
           margin: 0 0 4px;
         }
 
         .top-card__subtitle {
           font-size: 12px;
-          color: #6b7280;
+          color: var(--text-2);
           line-height: 1.4;
         }
 
@@ -383,7 +415,7 @@ class DateIdea extends HTMLElement {
 
         .layout-subtitle {
           font-size: 13px;
-          color: #64748b;
+          color: var(--text-2);
           margin-bottom: 20px;
         }
 
@@ -401,18 +433,18 @@ class DateIdea extends HTMLElement {
           width: 64px;
           height: 64px;
           border-radius: 24px;
-          border: 2px solid #cbd5e1;
+          border: 2px solid var(--border);
           display: flex;
           align-items: center;
           justify-content: center;
           transform: rotate(45deg);
+          background: color-mix(in srgb, var(--surface) 92%, black);
         }
 
         .category-badge svg {
           width: 85%;
           height: 85%;
           transform: rotate(-45deg);
-          color: #cbd5e1;
           translate: 15px;
         }
 
@@ -421,11 +453,11 @@ class DateIdea extends HTMLElement {
         .category-text h3 {
           font-family: var(--font-header);
           font-size: 22px;
-          color: #1f2933;
+          color: var(--text);
           margin: 0 0 4px;
         }
 
-        .category-text p { font-size: 13px; color: #94a3b8; }
+        .category-text p { font-size: 13px; color: var(--muted); }
 
         .category-cards {
           grid-column: 2 / 3;
@@ -438,7 +470,7 @@ class DateIdea extends HTMLElement {
         .date-card {
           position: relative;
           border-radius: 20px;
-          border: 1px solid #cbd5e1;
+          border: 1px solid var(--border);
           min-height: 150px;
           min-width: 180px;
           cursor: pointer;
@@ -448,8 +480,7 @@ class DateIdea extends HTMLElement {
           background-color: #000;
           color: #fff;
           padding: 0;
-          transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease,
-            background-color 0.18s ease;
+          transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
         }
 
         .date-card::before {
@@ -471,11 +502,7 @@ class DateIdea extends HTMLElement {
           right: 0;
           bottom: 0;
           height: 45%;
-          background: linear-gradient(
-            to top,
-            rgba(15, 23, 42, 0.9),
-            rgba(15, 23, 42, 0.3)
-          );
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.25));
           z-index: 1;
         }
 
@@ -514,15 +541,16 @@ class DateIdea extends HTMLElement {
 
         .date-card:hover,
         .top-card:hover {
-          box-shadow: 0 8px 16px rgba(148, 163, 184, 0.35);
+          box-shadow: 0 10px 22px rgba(0,0,0,.25);
           transform: translateY(-2px);
+          border-color: color-mix(in srgb, var(--border) 70%, var(--text));
         }
 
         .date-card--selected,
         .top-card--selected {
           border-color: var(--second-color);
           box-shadow: 0 0 0 1px rgba(207, 15, 71, 0.25);
-          background: #fff7fb;
+          background: color-mix(in srgb, var(--surface) 92%, var(--first-color));
         }
 
         [data-date-card]:focus-visible {
@@ -535,15 +563,14 @@ class DateIdea extends HTMLElement {
         #chosen-message {
           margin-top: 18px;
           font-size: 14px;
-          color: #475569;
+          color: var(--text-2);
           padding: 10px 12px;
           border-radius: 999px;
-          background: #f9f5ff;
+          background: color-mix(in srgb, var(--surface) 90%, var(--first-color));
           display: inline-flex;
           align-items: center;
           gap: 8px;
         }
-
         #chosen-message::before { content: "💘"; }
         #chosen-message[hidden] { display: none; }
 
@@ -570,28 +597,29 @@ class DateIdea extends HTMLElement {
           max-width: 460px;
           width: calc(100% - 40px);
           border-radius: 24px;
-          background: #ffffff;
+          background: var(--surface);
           padding: 22px 22px 18px;
-          box-shadow: 0 20px 45px rgba(15, 23, 42, 0.55);
+          box-shadow: 0 20px 45px rgba(0,0,0,0.55);
+          border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
         }
 
         .date-modal__title {
           font-family: var(--font-header);
           font-size: 22px;
           margin: 0 0 8px;
-          color: #0f172a;
+          color: var(--text);
         }
 
         .date-modal__body {
           font-size: 14px;
-          color: #475569;
+          color: var(--text-2);
           line-height: 1.5;
           margin: 6px 0 14px;
         }
 
         .date-modal__meta {
           font-size: 12px;
-          color: #94a3b8;
+          color: var(--muted);
           margin-bottom: 4px;
         }
 
@@ -606,9 +634,9 @@ class DateIdea extends HTMLElement {
           font-size: 11px;
           padding: 2px 8px;
           border-radius: 999px;
-          background: #f1f5f9;
-          color: #0f172a;
-          border: 1px solid #e2e8f0;
+          background: color-mix(in srgb, var(--surface) 92%, black);
+          color: var(--text);
+          border: 1px solid var(--border);
         }
 
         .date-modal__actions {
@@ -621,12 +649,12 @@ class DateIdea extends HTMLElement {
 
         .date-modal__btn {
           border-radius: 999px;
-          border: 1px solid #cbd5e1;
+          border: 1px solid var(--border);
           padding: 6px 14px;
           font-size: 13px;
           cursor: pointer;
-          background: #f8fafc;
-          color: #0f172a;
+          background: color-mix(in srgb, var(--surface) 92%, black);
+          color: var(--text);
           display: inline-flex;
           align-items: center;
           gap: 6px;
@@ -642,7 +670,7 @@ class DateIdea extends HTMLElement {
           background: var(--first-color);
           border-color: var(--second-color);
           color: #f9fafb;
-          font-family: "Roboto Condensed", sans-serif;
+          font-family: var(--font-body);
         }
 
         .date-modal__btn--primary:hover:not([disabled]) { filter: brightness(1.03); }
@@ -655,17 +683,16 @@ class DateIdea extends HTMLElement {
           background: transparent;
           cursor: pointer;
           font-size: 20px;
-          color: #94a3b8;
+          color: var(--muted);
           padding: 4px;
         }
-
-        .date-modal__close:hover { color: #0f172a; }
+        .date-modal__close:hover { color: var(--text); }
 
         .date-modal__recipients { margin: 8px 0 10px; }
 
         .date-modal__recipients-label {
           font-size: 13px;
-          color: #64748b;
+          color: var(--text-2);
           margin-bottom: 6px;
         }
 
@@ -677,29 +704,30 @@ class DateIdea extends HTMLElement {
 
         .recipient-chip {
           border-radius: 999px;
-          border: 1px solid #cbd5e1;
+          border: 1px solid var(--border);
           padding: 4px 10px 4px 4px;
-          background: #f8fafc;
+          background: color-mix(in srgb, var(--surface) 92%, black);
           display: inline-flex;
           align-items: center;
           gap: 6px;
           font-size: 13px;
           cursor: pointer;
           font-family: var(--font-body);
+          color: var(--text);
         }
 
         .recipient-chip__avatar {
           width: 24px;
           height: 24px;
           border-radius: 999px;
-          background: #e2e8f0;
+          background: color-mix(in srgb, var(--surface) 80%, black);
           display: inline-flex;
           align-items: center;
           justify-content: center;
           overflow: hidden;
           font-size: 11px;
           font-weight: 500;
-          color: #0f172a;
+          color: var(--text);
         }
 
         .recipient-chip__avatar img {
@@ -713,41 +741,36 @@ class DateIdea extends HTMLElement {
 
         .recipient-chip--selected {
           border-color: var(--second-color);
-          background: #fff1f2;
+          background: color-mix(in srgb, var(--surface) 88%, var(--first-color));
           box-shadow: 0 0 0 2px rgba(207, 15, 71, 0.18);
         }
 
-       @media (max-width: 720px) {
-  .date-layout { padding: 20px 16px; }
-  .date-chooser { padding: 20px 18px 24px; border-radius: 22px; }
+        @media (max-width: 720px) {
+          .date-layout { padding: 20px 16px; }
+          .date-chooser { padding: 20px 18px 24px; border-radius: 22px; }
 
-  /* ✅ SVG + name нэг мөрөнд */
-  .category-row{
-    grid-template-columns: 56px 1fr; /* badge | text */
-    column-gap: 12px;
-    row-gap: 0;
-    align-items: center;
-  }
+          .category-row{
+            grid-template-columns: 56px 1fr; /* badge | text */
+            column-gap: 12px;
+            row-gap: 0;
+            align-items: center;
+          }
 
-  .category-text{
-    margin-bottom: 20px;
-  }
-  .category-badge{
-    width: 52px;
-    height: 52px;
-    border-radius: 18px;
-  }
-     .category-cards { grid-column: 1 / -1; margin-top: 12px; }
+          .category-text{ margin-bottom: 20px; }
 
-  .category-badge svg{
-    translate: 12px;
-  }
+          .category-badge{
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+          }
 
-  .date-modal__dialog { width: calc(100% - 24px); }
-}
+          .category-cards { grid-column: 1 / -1; margin-top: 12px; }
 
+          .category-badge svg{ translate: 12px; }
 
+          .date-modal__dialog { width: calc(100% - 24px); }
         }
+
       </style>
 
       <section class="date-layout" aria-label="Date ideas picker">
@@ -767,7 +790,6 @@ class DateIdea extends HTMLElement {
           <div id="chosen-message" hidden></div>
         </div>
 
-        <!-- MODAL -->
         <div class="date-modal" id="date-modal" hidden>
           <div class="date-modal__backdrop" id="date-modal-backdrop"></div>
           <div class="date-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="date-modal-title">
@@ -801,7 +823,6 @@ class DateIdea extends HTMLElement {
                   <span class="recipient-chip__name recipient-name">Эгшиглэн</span>
                 </button>
 
-                <!-- ✅ Dulam-г 5 болгож засав -->
                 <button type="button" class="recipient-chip" data-recipient-id="5">
                   <span class="recipient-chip__avatar"><img src="avatar/dulam.png" alt="Дулам" /></span>
                   <span class="recipient-chip__name recipient-name">Дулам</span>
@@ -824,10 +845,9 @@ class DateIdea extends HTMLElement {
     `;
   }
 
-  /* ---- CARD SELECTION ---- */
 
   initCardSelection() {
-    this.teardownCardSelection(); // safety if re-rendered
+    this.teardownCardSelection();
 
     this.allCards = this.shadowRoot.querySelectorAll("[data-date-card]");
     this.infoEl = this.shadowRoot.getElementById("chosen-message");
@@ -869,7 +889,6 @@ class DateIdea extends HTMLElement {
     const id = cardEl.getAttribute("data-id");
     const data = this.cardById?.get(String(id || ""));
 
-    // fallback (DB байхгүй үед)
     const titleFallback =
       cardEl.getAttribute("data-title") ||
       cardEl.querySelector("[data-card-title]")?.textContent?.trim() ||
@@ -908,12 +927,9 @@ class DateIdea extends HTMLElement {
       })
     );
 
-    // modal open
     if (data) this.openModalByData(data);
     else this.openModal(cardEl, title); // fallback
   }
-
-  /* ---- MODAL ---- */
 
   initModal() {
     this.modalEl = this.shadowRoot.getElementById("date-modal");
@@ -930,7 +946,7 @@ class DateIdea extends HTMLElement {
     this.modalRecipientsEl = this.shadowRoot.getElementById("date-modal-recipients");
 
     this.modalOpen = false;
-    this.selectedCardForSend = null; // ⭐ data object болно
+    this.selectedCardForSend = null;
     this.selectedRecipient = null;
 
     this.modalBackdropEl?.addEventListener("click", this.closeModal);
@@ -984,7 +1000,6 @@ class DateIdea extends HTMLElement {
     this.selectedCardForSend = null;
   }
 
-  // ✅ DB data-гаар modal нээх
   openModalByData(data) {
     if (!this.modalEl) return;
 
@@ -1009,7 +1024,6 @@ class DateIdea extends HTMLElement {
       });
     }
 
-    // recipient reset
     this.selectedRecipient = null;
     if (this.recipientButtons) {
       this.recipientButtons.forEach((b) => b.classList.remove("recipient-chip--selected"));
@@ -1021,11 +1035,10 @@ class DateIdea extends HTMLElement {
     this.modalSendBtn?.focus();
   }
 
-  // (хуучин DOM-с уншдаг fallback modal) — хүсвэл авч хаяж болно
   openModal(card, titleFromClick) {
     if (!this.modalEl) return;
 
-    this.selectedCardForSend = null; // fallback-д DOM ашиглахгүй, гэхдээ алдаа гаргахгүй байлгахын тулд null
+    this.selectedCardForSend = null;
 
     const title =
       titleFromClick ||
@@ -1103,16 +1116,13 @@ class DateIdea extends HTMLElement {
   }
 
   handleSendClick() {
-    // ⭐ одоо selectedCardForSend = DB data object
     const data = this.selectedCardForSend;
 
-    // ХҮН СОНГОГДООГҮЙ БОЛ ЮУ Ч ХИЙХГҮЙ
     if (!this.selectedRecipient) {
       if (this.modalSendBtn) this.modalSendBtn.disabled = true;
       return;
     }
 
-    // Хэрвээ ямар нэг шалтгаанаар data байхгүй бол шууд хаая (fallback modal дээр байж болно)
     if (!data) {
       this.closeModal();
       return;

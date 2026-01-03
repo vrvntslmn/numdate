@@ -8,474 +8,642 @@ class Home extends HTMLElement {
         this.likedIds = new Set();
 
     }
-async loadLikedIds() {
-  try {
-    const res = await fetch("/api/likes/me"); // ✅ likes collection-оос
-    if (!res.ok) throw new Error("failed to load likes");
-    const data = await res.json(); // { ids: [...] }
-    this.likedIds = new Set((data.ids || []).map(String));
-  } catch (e) {
-    console.warn("loadLikedIds failed:", e);
-    this.likedIds = new Set();
-  }
-}
+    async loadLikedIds() {
+        try {
+            const res = await fetch("/api/likes/me"); // ✅ likes collection-оос
+            if (!res.ok) throw new Error("failed to load likes");
+            const data = await res.json(); // { ids: [...] }
+            this.likedIds = new Set((data.ids || []).map(String));
+        } catch (e) {
+            console.warn("loadLikedIds failed:", e);
+            this.likedIds = new Set();
+        }
+    }
 
 
-async loadMe() {
-  try {
-    const res = await fetch("/api/profile"); // эсвэл /api/me байвал тэрийгээ
-    if (!res.ok) throw new Error("failed to load me");
-    this.me = await res.json(); // { userId: "...", ... }
-  } catch (e) {
-    console.warn("loadMe failed:", e);
-    this.me = null;
-  }
-}
+    async loadMe() {
+        try {
+            const res = await fetch("/api/profile"); // эсвэл /api/me байвал тэрийгээ
+            if (!res.ok) throw new Error("failed to load me");
+            this.me = await res.json(); // { userId: "...", ... }
+        } catch (e) {
+            console.warn("loadMe failed:", e);
+            this.me = null;
+        }
+    }
 
-removeMe(list) {
-  const myId = this.me?.userId ? String(this.me.userId) : null;
-  if (!myId) return list; // me олдохгүй бол буцаана
-  return list.filter(p => String(p.userId) !== myId);
-}
+    removeMe(list) {
+        const myId = this.me?.userId ? String(this.me.userId) : null;
+        if (!myId) return list; // me олдохгүй бол буцаана
+        return list.filter(p => String(p.userId) !== myId);
+    }
 
-getProfileId(profile) {
-  return profile?.userId ? String(profile.userId) : null;
-}
+    getProfileId(profile) {
+        return profile?.userId ? String(profile.userId) : null;
+    }
 
-markLiked(profile) {
-  const id = this.getProfileId(profile);
-  if (id) this.likedIds.add(id);
-}
+    markLiked(profile) {
+        const id = this.getProfileId(profile);
+        if (id) this.likedIds.add(id);
+    }
 
-removeLiked(list) {
-  return list.filter(p => {
-    const id = this.getProfileId(p);
-    if (!id) return true;           
-    return !this.likedIds.has(id);
-  });
-}
+    removeLiked(list) {
+        return list.filter(p => {
+            const id = this.getProfileId(p);
+            if (!id) return true;
+            return !this.likedIds.has(id);
+        });
+    }
 
 
     connectedCallback() {
-        
+
         this.innerHTML = `
-    <style>
-      
-        main>div {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 200px;
-            margin-top: 10px;
-        }
+        <style>
+            main>div {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 200px;
+                margin-top: 10px;
+            }
 
-        main {
-            min-height: calc(100vh - 55px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+            main {
+                min-height: calc(100vh - 55px);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
 
-        .profile {
-            width: 350px;
-            height: 80vh;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            position: relative;
-            background: #000;
-        }
+            .profile {
+                width: 350px;
+                height: 80vh;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                position: relative;
+                background: #000;
+            }
 
-        .profile img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-        }
+            .profile img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                z-index: 1;
+            }
 
-        .profile::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 45%;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
-            z-index: 2;
-        }
+            .profile::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 45%;
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+                z-index: 2;
+            }
 
-        .profile h1,
-        .profile p {
-            position: absolute;
-            left: 16px;
-            color: #fff;
-            margin: 0;
-            z-index: 3;
-            font-family: 'Yanone Kaffeesatz', sans-serif;
-        }
+            .profile h1,
+            .profile p {
+                position: absolute;
+                left: 16px;
+                color: #fff;
+                margin: 0;
+                z-index: 3;
+                font-family: 'Yanone Kaffeesatz', sans-serif;
+            }
 
-        .profile h1 {
-            bottom: 80px;
-            font-size: 22px;
-            font-weight: 600;
-        }
+            .profile h1 {
+                bottom: 80px;
+                font-size: 22px;
+                font-weight: 600;
+            }
 
-        .profile p {
-            bottom: 60px;
-            font-size: 18px;
-        }
+            .profile p {
+                bottom: 60px;
+                font-size: 18px;
+            }
 
-        .profile .see-more-btn {
-            position: absolute;
-            bottom: 64px;         
-            right: 2px;
-            transform: translateX(-50%);
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            border-radius: 0;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            z-index: 3;
-            font-family: 'Yanone Kaffeesatz', sans-serif;
-            text-transform: uppercase;
-        }
-        .profile .see-more-btn::after {
-            content: "▾";
-            font-size: 0.9em;
-        }
+            .profile .see-more-btn {
+                position: absolute;
+                bottom: 64px;
+                right: 2px;
+                transform: translateX(-50%);
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                border-radius: 0;
+                color: #ffffff;
+                font-size: 14px;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                z-index: 3;
+                font-family: 'Yanone Kaffeesatz', sans-serif;
+                text-transform: uppercase;
+            }
 
-        .swipe .buttons {
-            gap: 20px;
-            margin-top: -25px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            z-index: 4;
-        }
+            .profile .see-more-btn::after {
+                content: "▾";
+                font-size: 0.9em;
+            }
 
-        .buttons .other_button {
-            background-color: #ffffff;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px #d97c9dff;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+            .swipe .buttons {
+                gap: 20px;
+                margin-top: -25px;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+                z-index: 4;
+            }
 
-        .buttons .other_button svg path,
-        .buttons .other_button svg polyline {
-            stroke: #f50057;
-            fill: none;
-        }
+            .buttons .other_button {
+                background-color: #ffffff;
+                color: #f50057;
+                border: none;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 8px #d97c9dff;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
 
-        .buttons .other_button_x {
-            background-color: #ffffff;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px #d97c9dff;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+            .buttons .other_button svg path,
+            .buttons .other_button svg polyline {
+                stroke: currentColor;
+            }
 
-        .buttons .other_button_x svg path,
-        .buttons .other_button_x svg polyline {
-            stroke: #f50057;
-            fill: #f50057; 
-        }
+            .buttons .other_button_x {
+                background-color: #ffffff;
+                color: #f50057;
+                border: none;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 8px #d97c9dff;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
 
-
-        .buttons .heart_button {
-            background-color: #f50057;
-            border: none;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            transition: transform 0.2s;
-            margin-top: -10px;
-        }
-
-        .buttons button:hover {
-            transform: scale(1.1);
-        }
-
-        .catogeries {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            width: 380px;
-            align-items: stretch;
-            max-height: 80vh;
-            overflow-y: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .catogeries::-webkit-scrollbar {
-            display: none;
-        }
+            .buttons .other_button_x svg path,
+            .buttons .other_button_x svg polyline {
+                stroke: currentColor;
+                fill: #f50057;
+            }
 
 
-        .catogeries a {
-            text-decoration: none;
-        }
+            .buttons .heart_button {
+                background-color: #f50057;
+                border: none;
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                cursor: pointer;
+                transition: transform 0.2s;
+                margin-top: -10px;
+            }
 
-        .catogeries button {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: none;
-            padding: 20px 30px;
-            border-radius: 10px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 3px 6px #ffd8e5ff;
-            transition: background 0.3s, transform 0.2s;
-            text-transform: uppercase;
-        }
-        .catogeries button:hover {
-            background-color: #ffd8e5ff;
-            transform: translateY(-2px);
-        }
+            .buttons button:hover {
+                transform: scale(1.1);
+            }
+            @media (max-width: 1300px) {
+                main>div {
+                    gap: 100px;
+                }
+            }
 
-        .catogeries button h1 {
-            font-size: 20px;
-            font-weight: 500;
-            margin: 0;
-        }
+            @media (max-width: 900px) {
+                main>div {
+                    flex-direction: column;
+                    gap: 30px;
+                }
+            }
 
-        .filter {
-            display: block;
-            width: fit-content;
-            margin: 24px auto 0;
-            padding: 10px 40px;
-            border-radius: 999px;
-            border: 2px solid #f50057;
-            background-color: #f50057;
-            color: #ffffff;
+            .catogeries {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                width: 380px;
+                align-items: stretch;
+                max-height: 80vh;
+                overflow-y: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
 
-            font-family: 'Yanone Kaffeesatz', sans-serif;
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            text-decoration: none;
-
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            transition: background 0.2s, color 0.2s,
-                transform 0.15s, box-shadow 0.15s;
-        }
-
-        .filter:hover {
-            background-color: #f50057;
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(245, 0, 87, 0.35);
-        }
-
-        .filter:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 10px rgba(245, 0, 87, 0.25);
-        }
+            .catogeries::-webkit-scrollbar {
+                display: none;
+            }
 
 
-        .catogeries>div>div button {
-            display: flex;
-            align-items: start;
-            height: 50px;
-            gap: 8px;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            border: 2px solid #f27a91;
-            background: #fff;
-            color: #d93b5f;
-            padding: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
-        }
+            .catogeries a {
+                text-decoration: none;
+            }
 
-        .catogeries>div>div button h2 {
-            font-size: 15px;
-            margin: 0;
-        }
+            .catogeries button {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border: none;
+                padding: 20px 30px;
+                border-radius: 10px;
+                font-size: 20px;
+                cursor: pointer;
+                box-shadow: 0 3px 6px #ffd8e5ff;
+                transition: background 0.3s, transform 0.2s;
+                text-transform: uppercase;
+            }
 
-        .catogeries>div>div button.active {
-            background: #d93b5f;
-            color: #fff;
-            border-color: #d93b5f;
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(217, 59, 95, 0.18);
-        }
+            .catogeries button:hover {
+                background-color: #ffd8e5ff;
+                transform: translateY(-2px);
+            }
 
-        .dropdown {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
+            .catogeries button h1 {
+                font-size: 20px;
+                font-weight: 500;
+                margin: 0;
+            }
 
-        .dropbtn {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #ffffff;
-            color: #f50057;
-            border: none;
-            padding: 20px 30px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 2px solid #f50057;
-            box-shadow: 0 3px 6px #f50057;
-            font-size: 20px;
-            transition: background 0.3s, transform 0.2s;
-        }
-        .dropbtn h1{
-            color: #f50057;
-        }
+            .filter {
+                display: block;
+                width: fit-content;
+                margin: 24px auto 0;
+                padding: 10px 40px;
+                border-radius: 999px;
+                border: 2px solid #f50057;
+                background-color: #f50057;
+                color: #ffffff;
 
-        .dropbtn:hover {
-            background-color: #ffd3e1ff;
-            transform: translateY(-2px);
-        }
+                font-family: 'Yanone Kaffeesatz', sans-serif;
+                font-size: 20px;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                text-decoration: none;
 
-        .dropbtn>div {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                transition: background 0.2s, color 0.2s,
+                    transform 0.15s, box-shadow 0.15s;
+            }
 
-        .dropdown-content {
-            display: none;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 12px;
-        }
+            .filter:hover {
+                background-color: #f50057;
+                color: #ffffff;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 18px rgba(245, 0, 87, 0.35);
+            }
 
-        .dropdown-content button svg {
-            fill: #f50057;
-        }
+            .filter:active {
+                transform: translateY(0);
+                box-shadow: 0 4px 10px rgba(245, 0, 87, 0.25);
+            }
 
-        .dropdown.open .dropdown-content {
-            display: flex;
-        }
 
-        .dropdown-content button {
-            width: 110px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border-radius: 8px;
-            border: 2px solid #f27a91;
-            background: #fff;
-            color: #f50057;
-            font-size: 14px;
-            padding: 5px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
-            cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
-        }
+            .catogeries>div>div button {
+                display: flex;
+                align-items: start;
+                height: 50px;
+                gap: 8px;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                border: 2px solid #f27a91;
+                color: #d93b5f;
+                padding: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+            }
 
-        .dropdown-content button h2 {
-            margin: 0;
-        }
+            .catogeries>div>div button h2 {
+                font-size: 15px;
+                margin: 0;
+            }
 
-        .dropdown-content button:hover {
-            background: #ffe0e9;
-        }
+            .catogeries>div>div button.active {
+                background: #d93b5f;
+                color: #fff;
+                border-color: #d93b5f;
+                transform: translateY(-4px);
+                box-shadow: 0 10px 20px rgba(217, 59, 95, 0.18);
+            }
 
-        .dropdown-content button.selected {
-            background: #f50057;
-            color: #ffffff;
-            border-color: #f50057;
-        }
-        .dropdown-content button.selected:hover {
-            transform: translateY(-2px);
-        }
-        .dropdown-content button.selected svg {
-            fill: white;
-        }
+            .dropdown {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+            }
 
-        .catogeries a button,
-        .catogeries .filter {
-            width: 100%;
-        }
+            .dropbtn {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background-color: #ffffff;
+                color: #f50057;
+                border: none;
+                padding: 20px 30px;
+                border-radius: 6px;
+                cursor: pointer;
+                border: 2px solid #f50057;
+                box-shadow: 0 3px 6px #f50057;
+                font-size: 20px;
+                transition: background 0.3s, transform 0.2s;
+            }
 
-        .dropdown-content-school {
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 12px;
-        }
+            .dropbtn h1 {
+                color: #f50057;
+            }
 
-        .dropdown-content-school button {
-            width: 100%;
-            height: auto;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 2px solid #f27a91;
-            background: #fff;
-            color: #f50057;
-            font-size: 14px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
-            cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
-        }
+            com-home .dropbtn:hover {
+                background-color: #ffffff;
+                color: #f50057;
+                transform: translateY(-2px);
+            }
 
-        .dropdown-content-school button h2 {
-            margin: 0;
-        }
 
-        .dropdown-content-school button:hover {
-            background: #ffe0e9;
-            transform: translateY(-2px);
-        }
+            .dropbtn>div {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
 
-        .dropdown-content-school button.selected {
-            background: #f50057;
-            color: #fff;
-            border-color: #f50057;
-        }
+            .dropdown-content {
+                display: none;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-top: 12px;
+            }
 
-        .dropdown.open .dropdown-content-school {
-            display: flex;
-        }
-    </style>
+            .dropdown-content button svg {
+                fill: #f50057;
+            }
+
+            .dropdown.open .dropdown-content {
+                display: flex;
+            }
+
+            .dropdown-content button {
+                width: 110px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                border-radius: 8px;
+                border: 2px solid #f27a91;
+                background: #fff;
+                color: #f50057;
+                font-size: 14px;
+                padding: 5px;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+                cursor: pointer;
+                transition: background 0.3s, transform 0.2s;
+            }
+
+            .dropdown-content button h2 {
+                margin: 0;
+            }
+
+            .dropdown-content button:hover {
+                background: #ffe0e9;
+            }
+
+            .dropdown-content button.selected {
+                background: #f50057;
+                color: #ffffff;
+                border-color: #f50057;
+            }
+
+            .dropdown-content button.selected:hover {
+                transform: translateY(-2px);
+            }
+
+            .dropdown-content button.selected svg {
+                fill: white;
+            }
+
+            .catogeries a button,
+            .catogeries .filter {
+                width: 100%;
+            }
+
+            .dropdown-content-school {
+                display: none;
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 12px;
+            }
+
+            com-home .dropdown-content-school button {
+                width: 100%;
+                height: auto;
+                display: flex;
+                justify-content: flex-start;
+                text-align: left;
+                padding: 10px 15px;
+                border-radius: 8px;
+                border: 2px solid #f27a91;
+                background: #fff;
+                color: #f50057;
+                font-size: 14px;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+                cursor: pointer;
+                transition: background 0.3s, transform 0.2s;
+            }
+
+
+            .dropdown-content-school button h2 {
+                margin: 0;
+                text-align: left;
+            }
+
+            .dropdown-content-school button:hover {
+                background: #ffe0e9;
+                transform: translateY(-2px);
+            }
+
+            .dropdown-content-school button.selected {
+                background: #f50057;
+                color: #fff;
+                border-color: #f50057;
+            }
+
+            .dropdown.open .dropdown-content-school {
+                display: flex;
+            }
+
+            com-home .dropbtn {
+                background: #ffffff;
+                color: #f50057;
+                border: 1px solid #ffffff;
+                box-shadow: 0 2px 2px rgba(0, 0, 0, .10);
+            }
+
+            com-home .dropdown.has-selection .dropbtn {
+                background: #f50057;
+                color: #ffffff;
+                border-color: #f50057;
+            }
+
+            com-home .dropdown.has-selection .dropbtn h1,
+            com-home .dropdown.has-selection .dropbtn svg {
+                color: #ffffff;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                com-home {
+                    background: #0b0f14;
+                    /* messenger-ish dark */
+                    color: #e7eaf0;
+                }
+
+                com-home main {
+                    background: transparent;
+                }
+
+                com-home .profile {
+                    background: #0b0f14;
+                    box-shadow: 0 18px 60px rgba(0, 0, 0, .55);
+                }
+
+                com-home .profile h1,
+                com-home .profile p,
+                com-home .see-more-btn {
+                    color: #ffffff;
+                }
+
+                com-home .catogeries button {
+                    background: #141a22;
+                    border: 1px solid #222b36;
+                    color: #e7eaf0;
+                    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+                }
+
+                com-home .catogeries button:hover {
+                    background: #192231;
+                }
+
+                com-home .dropbtn {
+                    background: #141a22;
+                    color: #e7eaf0;
+                    border: 1px solid #2a3442;
+                    box-shadow: 0 10px 22px rgba(0, 0, 0, .35);
+                }
+
+                com-home .dropdown.has-selection .dropbtn {
+                    background: #ee0067;
+                    border-color: #ee0067;
+                    color: #ffffff;
+                }
+
+                com-home .dropdown.has-selection .dropbtn h1,
+                com-home .dropdown.has-selection .dropbtn svg {
+                    color: #ffffff;
+                }
+
+                com-home .dropbtn h1 {
+                    color: #e7eaf0;
+                }
+
+                com-home .dropbtn svg {
+                    color: #a9b4c2;
+                }
+
+                com-home .dropdown-content button,
+                com-home .dropdown-content-school button {
+                    background: #10161f;
+                    color: #e7eaf0;
+                    border: 1px solid #222b36;
+                    box-shadow: 0 6px 14px rgba(0, 0, 0, .4);
+                }
+
+                com-home .dropdown-content button h2,
+                com-home .dropdown-content-school button h2 {
+                    color: #e7eaf0;
+                }
+
+                com-home .dropdown-content button svg {
+                    fill: #a9b4c2;
+                }
+
+                com-home .dropdown-content button:hover,
+                com-home .dropdown-content-school button:hover {
+                    background: #141a22;
+                }
+                com-home .dropdown-content button.selected,
+                com-home .dropdown-content-school button.selected {
+                    background: #ee0067;
+                    border-color: #ee0067;
+                    color: #ffffff;
+                }
+
+                com-home .dropdown-content button.selected h2 {
+                    color: #ffffff;
+                }
+
+                com-home .dropdown-content button.selected svg {
+                    fill: #ffffff;
+                }
+
+                com-home .filter {
+                    background: #ee0067;
+                    border-color: #ee0067;
+                    color: #fff;
+                    box-shadow: 0 12px 26px rgba(238, 0, 103, 0.25);
+                }
+
+                com-home .buttons .other_button,
+                com-home .buttons .other_button_x {
+                    background: #141a22;
+                    border: 1px solid #2a3442;
+                    box-shadow: 0 10px 22px rgba(0, 0, 0, .45);
+                    color: #ee0067;
+                }
+                com-home .buttons .other_button svg path,
+                com-home .buttons .other_button svg polyline {
+                    stroke: #ee0067;
+                }
+
+                com-home .buttons .other_button_x svg path,
+                com-home .buttons .other_button_x svg polyline {
+                    fill: #ee0067;
+                    stroke: #ee0067;
+                }
+                com-home .buttons .other_button:hover,
+                com-home .buttons .other_button_x:hover {
+                    background: #192231;
+                    transform: scale(1.08);
+                }
+                body[data-theme="dark"] com-home {
+                    background: #0b0f14;
+                    color: #e7eaf0;
+                }
+            }
+        </style>
         <main>
         <div>
             <section class="swipe">
@@ -489,7 +657,7 @@ removeLiked(list) {
                 </div>
                 <div class="buttons">
                     <button class="other_button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 64 64" stroke-width="8" stroke="#000000" fill="none"><path d="M54.89,26.73A23.52,23.52,0,0,1,15.6,49" stroke-linecap="round"/><path d="M9,37.17a23.75,23.75,0,0,1-.53-5A23.51,23.51,0,0,1,48.3,15.2" stroke-linecap="round"/><polyline points="37.73 16.24 48.62 15.44 47.77 5.24" stroke-linecap="round"/><polyline points="25.91 47.76 15.03 48.56 15.88 58.76" stroke-linecap="round"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 64 64" stroke-width="8" stroke="currentColor" fill="none"><path d="M54.89,26.73A23.52,23.52,0,0,1,15.6,49" stroke-linecap="round"/><path d="M9,37.17a23.75,23.75,0,0,1-.53-5A23.51,23.51,0,0,1,48.3,15.2" stroke-linecap="round"/><polyline points="37.73 16.24 48.62 15.44 47.77 5.24" stroke-linecap="round"/><polyline points="25.91 47.76 15.03 48.56 15.88 58.76" stroke-linecap="round"/></svg>
                     </button>
                     <button class="heart_button">
                         <svg class="button_icon" xmlns="http://www.w3.org/2000/svg" width="40px" height="40px"
@@ -500,7 +668,7 @@ removeLiked(list) {
                     </button>
                     <button class="other_button_x">
                         <svg class="button_icon" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
-                            viewBox="0 0 32 32" stroke="white" fill="white">
+                            viewBox="0 0 32 32" stroke="currentColor" fill="none">
                             <path
                                 d="M18.8,16l5.5-5.5c0.8-0.8,0.8-2,0-2.8l0,0C24,7.3,23.5,7,23,7c-0.5,0-1,0.2-1.4,0.6L16,13.2l-5.5-5.5  c-0.8-0.8-2.1-0.8-2.8,0C7.3,8,7,8.5,7,8.5s0.2,1,0.6,1.4l5.5,5.5l-5.5,5.5C7.3,21.9,7,22.4,7,23c0,0.5,0.2,1,0.6,1.4  C8,24.8,8.5,25,9,25c0.5,0,1-0.2,1.4-0.6l5.5-5.5l5.5,5.5c0.8,0.8,2.1,0.8,2.8,0c0.8-0.8,0.8-2.1,0-2.8L18.8,16z" />
                         </svg>
@@ -925,19 +1093,19 @@ removeLiked(list) {
         this.initializeComponents();
     }
 
-  async initializeComponents() {
-  await this.loadMe();
-  await this.loadLikedIds();      
-  await this.fetchProfiles();      
+    async initializeComponents() {
+        await this.loadMe();
+        await this.loadLikedIds();
+        await this.fetchProfiles();
 
-  this.dropdownFilter = new DropdownFilter(this);
-  this.initializeDropdownColors();
-  this.profileSwipe = new ProfileSwipe(this);
-  this.setupEventListeners();
+        this.dropdownFilter = new DropdownFilter(this);
+        this.initializeDropdownColors();
+        this.profileSwipe = new ProfileSwipe(this);
+        this.setupEventListeners();
 
-  // ✅ эхний профайлыг шууд update хийнэ
-  this.profileSwipe.updateProfile();
-}
+        // ✅ эхний профайлыг шууд update хийнэ
+        this.profileSwipe.updateProfile();
+    }
 
 
 
@@ -947,22 +1115,22 @@ removeLiked(list) {
             this.dropdownFilter.updateDropdownColor(dropdown);
         });
     }
-async fetchProfiles() {
-  try {
-    const res = await fetch("/api/profiles");
-    const data = await res.json();
+    async fetchProfiles() {
+        try {
+            const res = await fetch("/api/profiles");
+            const data = await res.json();
 
-    const withoutMe = this.removeMe(data);          
-    this.allProfiles = this.removeLiked(withoutMe); 
-    this.filteredProfiles = [...this.allProfiles];
-  } catch (error) {
-    console.error("Error fetching profiles:", error);
+            const withoutMe = this.removeMe(data);
+            this.allProfiles = this.removeLiked(withoutMe);
+            this.filteredProfiles = [...this.allProfiles];
+        } catch (error) {
+            console.error("Error fetching profiles:", error);
 
-    const withoutMe = this.removeMe(this.getDummyProfiles());
-    this.allProfiles = this.removeLiked(withoutMe);
-    this.filteredProfiles = [...this.allProfiles];
-  }
-}
+            const withoutMe = this.removeMe(this.getDummyProfiles());
+            this.allProfiles = this.removeLiked(withoutMe);
+            this.filteredProfiles = [...this.allProfiles];
+        }
+    }
 
 
 
@@ -1035,88 +1203,88 @@ async fetchProfiles() {
         }
     }
 
-   applyFilters(filters) {
-  console.log('Filtering with:', filters);
+    applyFilters(filters) {
+        console.log('Filtering with:', filters);
 
-  if (!this.allProfiles.length) {
-    console.warn('No profiles available');
-    return;
-  }
-
-  // 1) filters-ээр шүүх
-  let result = this.allProfiles.filter(profile => {
-    for (const [category, selectedValues] of Object.entries(filters)) {
-      if (!selectedValues || selectedValues.length === 0) continue;
-
-      let profileValue;
-
-      switch (category) {
-        case "Орд":
-          profileValue = profile.about?.zodiac;
-          break;
-
-        case "MBTI":
-          profileValue = profile.about?.mbti;
-          break;
-
-        case "Relationship goals":
-          profileValue = profile.relationshipGoal;
-          break;
-
-        case "Love language":
-          profileValue = profile.loveLanguage;
-          break;
-
-        case "Cалбар сургууль":
-          profileValue = profile.school;
-          break;
-
-        case "Түвшин":
-          profileValue = String(profile.year);
-          break;
-
-        case "Сонирхол": {
-          const interests = profile.interests || [];
-          const hasMatchingInterest = selectedValues.some(interest =>
-            interests.includes(interest)
-          );
-          if (!hasMatchingInterest) return false;
-          continue;
+        if (!this.allProfiles.length) {
+            console.warn('No profiles available');
+            return;
         }
 
-        default:
-          continue;
-      }
+        // 1) filters-ээр шүүх
+        let result = this.allProfiles.filter(profile => {
+            for (const [category, selectedValues] of Object.entries(filters)) {
+                if (!selectedValues || selectedValues.length === 0) continue;
 
-      if (!profileValue || !selectedValues.includes(profileValue)) {
-        return false;
-      }
+                let profileValue;
+
+                switch (category) {
+                    case "Орд":
+                        profileValue = profile.about?.zodiac;
+                        break;
+
+                    case "MBTI":
+                        profileValue = profile.about?.mbti;
+                        break;
+
+                    case "Relationship goals":
+                        profileValue = profile.relationshipGoal;
+                        break;
+
+                    case "Love language":
+                        profileValue = profile.loveLanguage;
+                        break;
+
+                    case "Cалбар сургууль":
+                        profileValue = profile.school;
+                        break;
+
+                    case "Түвшин":
+                        profileValue = String(profile.year);
+                        break;
+
+                    case "Сонирхол": {
+                        const interests = profile.interests || [];
+                        const hasMatchingInterest = selectedValues.some(interest =>
+                            interests.includes(interest)
+                        );
+                        if (!hasMatchingInterest) return false;
+                        continue;
+                    }
+
+                    default:
+                        continue;
+                }
+
+                if (!profileValue || !selectedValues.includes(profileValue)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        // 2) ✅ LIKE дарсан хүмүүсийг хасах (updateProfile-оос өмнө!)
+        result = this.removeLiked(result);
+
+        // 3) state-д оноох
+        this.filteredProfiles = result;
+
+        console.log('Found profiles (after liked removed):', this.filteredProfiles.length);
+
+        // 4) UI update
+        if (this.profileSwipe) {
+            this.profileSwipe.currentProfileIndex = 0;
+            this.profileSwipe.updateProfile();
+        }
+
+        // 5) Alert (liked хасагдсаны дараах үр дүнгээр)
+        if (!this.filteredProfiles.length && Object.keys(filters).length > 0) {
+            setTimeout(() => {
+                alert("Тохирох илэрц олдсонгүй");
+            }, 100);
+        }
     }
-
-    return true;
-  });
-
-  // 2) ✅ LIKE дарсан хүмүүсийг хасах (updateProfile-оос өмнө!)
-  result = this.removeLiked(result);
-
-  // 3) state-д оноох
-  this.filteredProfiles = result;
-
-  console.log('Found profiles (after liked removed):', this.filteredProfiles.length);
-
-  // 4) UI update
-  if (this.profileSwipe) {
-    this.profileSwipe.currentProfileIndex = 0;
-    this.profileSwipe.updateProfile();
-  }
-
-  // 5) Alert (liked хасагдсаны дараах үр дүнгээр)
-  if (!this.filteredProfiles.length && Object.keys(filters).length > 0) {
-    setTimeout(() => {
-      alert("Тохирох илэрц олдсонгүй");
-    }, 100);
-  }
-}
 
 }
 
@@ -1145,53 +1313,53 @@ class ProfileSwipe {
         this.checkRefreshLimit();
     }
 
-// ✅ like / pass-ийг backend руу хадгална
-// ✅ like / pass-ийг backend руу хадгална
-async saveSwipe(action, profile) {
-  if (!profile) return;
+    // ✅ like / pass-ийг backend руу хадгална
+    // ✅ like / pass-ийг backend руу хадгална
+    async saveSwipe(action, profile) {
+        if (!profile) return;
 
-  const isRealUser = !!profile.userId; // profiles API-с ирсэн бодит user
-  const targetUserId = isRealUser
-    ? String(profile.userId) // ObjectId string байх ёстой
-    : `demo-${String(profile.name || "user").toLowerCase().replace(/\s+/g, "-")}`;
+        const isRealUser = !!profile.userId; // profiles API-с ирсэн бодит user
+        const targetUserId = isRealUser
+            ? String(profile.userId) // ObjectId string байх ёстой
+            : `demo-${String(profile.name || "user").toLowerCase().replace(/\s+/g, "-")}`;
 
-  try {
-    // 1) LIKE үед likes collection руу хадгална (зөвхөн real user дээр)
-    if (action === "like" && isRealUser) {
-      const likeRes = await fetch("/api/like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toUserId: targetUserId }),
-      });
+        try {
+            // 1) LIKE үед likes collection руу хадгална (зөвхөн real user дээр)
+            if (action === "like" && isRealUser) {
+                const likeRes = await fetch("/api/like", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ toUserId: targetUserId }),
+                });
 
-      // алдаа бол console-д харуулъя
-      if (!likeRes.ok) {
-        const txt = await likeRes.text().catch(() => "");
-        throw new Error(`POST /api/like failed: ${likeRes.status} ${txt}`);
-      }
+                // алдаа бол console-д харуулъя
+                if (!likeRes.ok) {
+                    const txt = await likeRes.text().catch(() => "");
+                    throw new Error(`POST /api/like failed: ${likeRes.status} ${txt}`);
+                }
+            }
+
+            // 2) Swipe log (like + pass хоёул)
+            const swipeRes = await fetch("/api/swipes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action,                // "like" | "pass"
+                    targetUserId,          // string (objectId string эсвэл demo-xxx)
+                    targetName: profile.name || null,
+                    at: new Date().toISOString(),
+                }),
+            });
+
+            if (!swipeRes.ok) {
+                const txt = await swipeRes.text().catch(() => "");
+                throw new Error(`POST /api/swipes failed: ${swipeRes.status} ${txt}`);
+            }
+
+        } catch (err) {
+            console.warn("❌ saveSwipe failed:", err);
+        }
     }
-
-    // 2) Swipe log (like + pass хоёул)
-    const swipeRes = await fetch("/api/swipes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action,                // "like" | "pass"
-        targetUserId,          // string (objectId string эсвэл demo-xxx)
-        targetName: profile.name || null,
-        at: new Date().toISOString(),
-      }),
-    });
-
-    if (!swipeRes.ok) {
-      const txt = await swipeRes.text().catch(() => "");
-      throw new Error(`POST /api/swipes failed: ${swipeRes.status} ${txt}`);
-    }
-
-  } catch (err) {
-    console.warn("❌ saveSwipe failed:", err);
-  }
-}
 
 
 
@@ -1311,60 +1479,60 @@ async saveSwipe(action, profile) {
         alert('Өдөрт зөвхөн 1 удаа refresh хийж болно. Маргааш дахин оролдоно уу!');
     }
 
- like() {
-  const currentProfile = this.getCurrentProfile();
-  if (!currentProfile) return;
+    like() {
+        const currentProfile = this.getCurrentProfile();
+        if (!currentProfile) return;
 
-  // ✅ LOCAL likedIds-д хадгална (ингэснээр дахиж харагдахгүй)
-  this.home.markLiked(currentProfile);
+        // ✅ LOCAL likedIds-д хадгална (ингэснээр дахиж харагдахгүй)
+        this.home.markLiked(currentProfile);
 
-  // ✅ backend руу хадгална
-  this.saveSwipe("like", currentProfile);
+        // ✅ backend руу хадгална
+        this.saveSwipe("like", currentProfile);
 
-  // ✅ яг одоо харагдаж байгаа list-ээс нь ч бас хасна
-  this.home.allProfiles = this.home.removeLiked(this.home.allProfiles);
-  this.home.filteredProfiles = this.home.removeLiked(this.home.filteredProfiles);
+        // ✅ яг одоо харагдаж байгаа list-ээс нь ч бас хасна
+        this.home.allProfiles = this.home.removeLiked(this.home.allProfiles);
+        this.home.filteredProfiles = this.home.removeLiked(this.home.filteredProfiles);
 
-  this.heartButton.style.transform = 'scale(1.2)';
-  this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
+        this.heartButton.style.transform = 'scale(1.2)';
+        this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
 
-  setTimeout(() => {
-    this.heartButton.style.transform = 'scale(1)';
-    this.profileElement.style.transform = 'translateX(0) rotate(0)';
+        setTimeout(() => {
+            this.heartButton.style.transform = 'scale(1)';
+            this.profileElement.style.transform = 'translateX(0) rotate(0)';
 
-    // ✅ index зөв болгоно (хасагдсан тул index өөрчлөгдөнө)
-    if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
-      this.currentProfileIndex = 0;
+            // ✅ index зөв болгоно (хасагдсан тул index өөрчлөгдөнө)
+            if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+                this.currentProfileIndex = 0;
+            }
+
+            this.updateProfile();
+        }, 300);
     }
-
-    this.updateProfile();
-  }, 300);
-}
 
 
 
     pass() {
-    const currentProfile = this.getCurrentProfile();
-    if (!currentProfile) return;
+        const currentProfile = this.getCurrentProfile();
+        if (!currentProfile) return;
 
-    // ✅ DB-д хадгална
-    this.saveSwipe("pass", currentProfile);
+        // ✅ DB-д хадгална
+        this.saveSwipe("pass", currentProfile);
 
-    this.closeButton.style.transform = 'rotate(90deg)';
-    this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
+        this.closeButton.style.transform = 'rotate(90deg)';
+        this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
 
-    setTimeout(() => {
-        this.closeButton.style.transform = 'rotate(0deg)';
-        this.profileElement.style.transform = 'translateX(0) rotate(0)';
+        setTimeout(() => {
+            this.closeButton.style.transform = 'rotate(0deg)';
+            this.profileElement.style.transform = 'translateX(0) rotate(0)';
 
-        console.log('Passed:', currentProfile.name);
-        this.currentProfileIndex++;
-        if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
-            this.currentProfileIndex = 0;
-        }
-        this.updateProfile();
-    }, 300);
-}
+            console.log('Passed:', currentProfile.name);
+            this.currentProfileIndex++;
+            if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+                this.currentProfileIndex = 0;
+            }
+            this.updateProfile();
+        }, 300);
+    }
 
 
     attachEventListeners() {
@@ -1449,23 +1617,11 @@ class DropdownFilter {
     }
 
     updateDropdownColor(dropdown) {
-        const dropbtn = dropdown.querySelector('.dropbtn');
-        const selectedButtons = dropdown.querySelectorAll('button.selected');
+        const hasSelected = dropdown.querySelectorAll('button.selected').length > 0;
 
-        if (selectedButtons.length > 0) {
-            dropbtn.style.backgroundColor = '#f50057';
-            dropbtn.style.color = '#ffffff';
-            dropbtn.style.borderColor = '#f50057';
-            dropbtn.querySelector('h1').style.color = '#ffffff';
-            dropbtn.querySelector('svg').style.color = '#ffffff';
-        } else {
-            dropbtn.style.backgroundColor = '#ffffff';
-            dropbtn.style.color = '#f50057';
-            dropbtn.style.borderColor = '#f50057';
-            dropbtn.querySelector('h1').style.color = '#f50057';
-            dropbtn.querySelector('svg').style.color = 'currentColor';
-        }
+        dropdown.classList.toggle('has-selection', hasSelected);
     }
+
 
     setupClickOutside() {
         document.addEventListener('click', () => {
@@ -1492,5 +1648,5 @@ class DropdownFilter {
         return filters;
     }
 }
-  
+
 window.customElements.define('com-home', Home);
