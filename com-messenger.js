@@ -1616,9 +1616,12 @@ class ComMessenger extends HTMLElement {
       });
 
       if (!res.ok) {
-        this.els.chatBody.innerHTML = `<div style="padding:16px;">Failed to load messages</div>`;
+        const t = await res.text();
+        console.error("loadMessages failed:", res.status, t);
+        this.els.chatBody.innerHTML = `<div style="padding:16px;">Failed to load messages (${res.status})</div>`;
         return;
       }
+
 
       const msgs = await res.json();
       this.els.chatBody.innerHTML = "";
