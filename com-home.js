@@ -5,9 +5,59 @@ class Home extends HTMLElement {
         this.filteredProfiles = [];
         this.profileSwipe = null;
         this.dropdownFilter = null;
+        this.likedIds = new Set();
+
     }
+async loadLikedIds() {
+  try {
+    const res = await fetch("/api/likes/me"); // ✅ likes collection-оос
+    if (!res.ok) throw new Error("failed to load likes");
+    const data = await res.json(); // { ids: [...] }
+    this.likedIds = new Set((data.ids || []).map(String));
+  } catch (e) {
+    console.warn("loadLikedIds failed:", e);
+    this.likedIds = new Set();
+  }
+}
+
+
+async loadMe() {
+  try {
+    const res = await fetch("/api/profile"); // эсвэл /api/me байвал тэрийгээ
+    if (!res.ok) throw new Error("failed to load me");
+    this.me = await res.json(); // { userId: "...", ... }
+  } catch (e) {
+    console.warn("loadMe failed:", e);
+    this.me = null;
+  }
+}
+
+removeMe(list) {
+  const myId = this.me?.userId ? String(this.me.userId) : null;
+  if (!myId) return list; // me олдохгүй бол буцаана
+  return list.filter(p => String(p.userId) !== myId);
+}
+
+getProfileId(profile) {
+  return profile?.userId ? String(profile.userId) : null;
+}
+
+markLiked(profile) {
+  const id = this.getProfileId(profile);
+  if (id) this.likedIds.add(id);
+}
+
+removeLiked(list) {
+  return list.filter(p => {
+    const id = this.getProfileId(p);
+    if (!id) return true;           
+    return !this.likedIds.has(id);
+  });
+}
+
 
     connectedCallback() {
+        
         this.innerHTML = `
     <style>
       
@@ -875,14 +925,21 @@ class Home extends HTMLElement {
         this.initializeComponents();
     }
 
-    initializeComponents() {
+  async initializeComponents() {
+  await this.loadMe();
+  await this.loadLikedIds();      
+  await this.fetchProfiles();      
 
-        this.fetchProfiles();
-        this.dropdownFilter = new DropdownFilter(this);
-        this.initializeDropdownColors();
-        this.profileSwipe = new ProfileSwipe(this);
-        this.setupEventListeners();
-    }
+  this.dropdownFilter = new DropdownFilter(this);
+  this.initializeDropdownColors();
+  this.profileSwipe = new ProfileSwipe(this);
+  this.setupEventListeners();
+
+  // ✅ эхний профайлыг шууд update хийнэ
+  this.profileSwipe.updateProfile();
+}
+
+
 
     initializeDropdownColors() {
         const dropdowns = this.querySelectorAll('.dropdown');
@@ -890,26 +947,24 @@ class Home extends HTMLElement {
             this.dropdownFilter.updateDropdownColor(dropdown);
         });
     }
+async fetchProfiles() {
+  try {
+    const res = await fetch("/api/profiles");
+    const data = await res.json();
 
-    fetchProfiles() {
-        fetch('/api/profiles')
-            .then(res => res.json())
-            .then(data => {
-                this.allProfiles = data;
-                this.filteredProfiles = [...data];
-                if (this.profileSwipe) {
-                    this.profileSwipe.updateProfile();
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching profiles:', error);
-                this.allProfiles = this.getDummyProfiles();
-                this.filteredProfiles = [...this.allProfiles];
-                if (this.profileSwipe) {
-                    this.profileSwipe.updateProfile();
-                }
-            });
-    }
+    const withoutMe = this.removeMe(data);          
+    this.allProfiles = this.removeLiked(withoutMe); 
+    this.filteredProfiles = [...this.allProfiles];
+  } catch (error) {
+    console.error("Error fetching profiles:", error);
+
+    const withoutMe = this.removeMe(this.getDummyProfiles());
+    this.allProfiles = this.removeLiked(withoutMe);
+    this.filteredProfiles = [...this.allProfiles];
+  }
+}
+
+
 
     getDummyProfiles() {
         return [
@@ -980,71 +1035,89 @@ class Home extends HTMLElement {
         }
     }
 
-    applyFilters(filters) {
-        console.log('Filtering with:', filters);
+   applyFilters(filters) {
+  console.log('Filtering with:', filters);
 
-        if (!this.allProfiles.length) {
-            console.warn('No profiles available');
-            return;
+  if (!this.allProfiles.length) {
+    console.warn('No profiles available');
+    return;
+  }
+
+  // 1) filters-ээр шүүх
+  let result = this.allProfiles.filter(profile => {
+    for (const [category, selectedValues] of Object.entries(filters)) {
+      if (!selectedValues || selectedValues.length === 0) continue;
+
+      let profileValue;
+
+      switch (category) {
+        case "Орд":
+          profileValue = profile.about?.zodiac;
+          break;
+
+        case "MBTI":
+          profileValue = profile.about?.mbti;
+          break;
+
+        case "Relationship goals":
+          profileValue = profile.relationshipGoal;
+          break;
+
+        case "Love language":
+          profileValue = profile.loveLanguage;
+          break;
+
+        case "Cалбар сургууль":
+          profileValue = profile.school;
+          break;
+
+        case "Түвшин":
+          profileValue = String(profile.year);
+          break;
+
+        case "Сонирхол": {
+          const interests = profile.interests || [];
+          const hasMatchingInterest = selectedValues.some(interest =>
+            interests.includes(interest)
+          );
+          if (!hasMatchingInterest) return false;
+          continue;
         }
 
-        this.filteredProfiles = this.allProfiles.filter(profile => {
-            for (const [category, selectedValues] of Object.entries(filters)) {
-                if (!selectedValues || selectedValues.length === 0) continue;
+        default:
+          continue;
+      }
 
-                let profileValue;
-
-                switch (category) {
-                    case "Орд":
-                        profileValue = profile.about?.zodiac;
-                        break;
-                    case "MBTI":
-                        profileValue = profile.about?.mbti;
-                        break;
-                    case "Relationship goals":
-                        profileValue = profile.relationshipGoal;
-                        break;
-                    case "Love language":
-                        profileValue = profile.loveLanguage;
-                        break;
-                    case "Cалбар сургууль":
-                        profileValue = profile.school;
-                        break;
-                    case "Түвшин":
-                        profileValue = String(profile.year);
-                        break;
-                    case "Сонирхол":
-                        const interests = profile.interests || [];
-                        const hasMatchingInterest = selectedValues.some(interest =>
-                            interests.includes(interest)
-                        );
-                        if (!hasMatchingInterest) return false;
-                        continue;
-                    default:
-                        continue;
-                }
-
-                if (!profileValue || !selectedValues.includes(profileValue)) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        console.log('Found profiles:', this.filteredProfiles.length);
-
-        if (this.profileSwipe) {
-            this.profileSwipe.currentProfileIndex = 0;
-            this.profileSwipe.updateProfile();
-        }
-
-        if (!this.filteredProfiles.length && Object.keys(filters).length > 0) {
-            setTimeout(() => {
-                alert("Тохирох илэрц олдсонгүй");
-            }, 100);
-        }
+      if (!profileValue || !selectedValues.includes(profileValue)) {
+        return false;
+      }
     }
+
+    return true;
+  });
+
+  // 2) ✅ LIKE дарсан хүмүүсийг хасах (updateProfile-оос өмнө!)
+  result = this.removeLiked(result);
+
+  // 3) state-д оноох
+  this.filteredProfiles = result;
+
+  console.log('Found profiles (after liked removed):', this.filteredProfiles.length);
+
+  // 4) UI update
+  if (this.profileSwipe) {
+    this.profileSwipe.currentProfileIndex = 0;
+    this.profileSwipe.updateProfile();
+  }
+
+  // 5) Alert (liked хасагдсаны дараах үр дүнгээр)
+  if (!this.filteredProfiles.length && Object.keys(filters).length > 0) {
+    setTimeout(() => {
+      alert("Тохирох илэрц олдсонгүй");
+    }, 100);
+  }
+}
+
 }
 
 class ProfileSwipe {
@@ -1073,41 +1146,53 @@ class ProfileSwipe {
     }
 
 // ✅ like / pass-ийг backend руу хадгална
+// ✅ like / pass-ийг backend руу хадгална
 async saveSwipe(action, profile) {
-    if (!profile) return;
+  if (!profile) return;
 
-    // api/profiles-аас ирсэн бол userId байна
-    // dummy profile бол fallback id үүсгэнэ
-    const targetUserId =
-        profile.userId ||
-        `demo-${profile.name.toLowerCase().replace(/\s+/g, "-")}`;
+  const isRealUser = !!profile.userId; // profiles API-с ирсэн бодит user
+  const targetUserId = isRealUser
+    ? String(profile.userId) // ObjectId string байх ёстой
+    : `demo-${String(profile.name || "user").toLowerCase().replace(/\s+/g, "-")}`;
 
-    try {
-        // 1️⃣ LIKE үед → likes + match logic
-        if (action === "like" && profile.userId) {
-            await fetch("/api/like", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ toUserId: profile.userId }),
-            });
-        }
+  try {
+    // 1) LIKE үед likes collection руу хадгална (зөвхөн real user дээр)
+    if (action === "like" && isRealUser) {
+      const likeRes = await fetch("/api/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toUserId: targetUserId }),
+      });
 
-        // 2️⃣ Swipe log (like + pass аль аль нь)
-        await fetch("/api/swipes", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                action,
-                targetUserId,
-                targetName: profile.name,
-                at: new Date().toISOString(),
-            }),
-        });
-
-    } catch (err) {
-        console.warn("❌ saveSwipe failed:", err);
+      // алдаа бол console-д харуулъя
+      if (!likeRes.ok) {
+        const txt = await likeRes.text().catch(() => "");
+        throw new Error(`POST /api/like failed: ${likeRes.status} ${txt}`);
+      }
     }
+
+    // 2) Swipe log (like + pass хоёул)
+    const swipeRes = await fetch("/api/swipes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action,                // "like" | "pass"
+        targetUserId,          // string (objectId string эсвэл demo-xxx)
+        targetName: profile.name || null,
+        at: new Date().toISOString(),
+      }),
+    });
+
+    if (!swipeRes.ok) {
+      const txt = await swipeRes.text().catch(() => "");
+      throw new Error(`POST /api/swipes failed: ${swipeRes.status} ${txt}`);
+    }
+
+  } catch (err) {
+    console.warn("❌ saveSwipe failed:", err);
+  }
 }
+
 
 
 
@@ -1227,27 +1312,35 @@ async saveSwipe(action, profile) {
     }
 
  like() {
-    const currentProfile = this.getCurrentProfile();
-    if (!currentProfile) return;
+  const currentProfile = this.getCurrentProfile();
+  if (!currentProfile) return;
 
-    // ✅ DB-д хадгална
-    this.saveSwipe("like", currentProfile);
+  // ✅ LOCAL likedIds-д хадгална (ингэснээр дахиж харагдахгүй)
+  this.home.markLiked(currentProfile);
 
-    this.heartButton.style.transform = 'scale(1.2)';
-    this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
+  // ✅ backend руу хадгална
+  this.saveSwipe("like", currentProfile);
 
-    setTimeout(() => {
-        this.heartButton.style.transform = 'scale(1)';
-        this.profileElement.style.transform = 'translateX(0) rotate(0)';
+  // ✅ яг одоо харагдаж байгаа list-ээс нь ч бас хасна
+  this.home.allProfiles = this.home.removeLiked(this.home.allProfiles);
+  this.home.filteredProfiles = this.home.removeLiked(this.home.filteredProfiles);
 
-        console.log('Liked:', currentProfile.name);
-        this.currentProfileIndex++;
-        if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
-            this.currentProfileIndex = 0;
-        }
-        this.updateProfile();
-    }, 300);
+  this.heartButton.style.transform = 'scale(1.2)';
+  this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
+
+  setTimeout(() => {
+    this.heartButton.style.transform = 'scale(1)';
+    this.profileElement.style.transform = 'translateX(0) rotate(0)';
+
+    // ✅ index зөв болгоно (хасагдсан тул index өөрчлөгдөнө)
+    if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+      this.currentProfileIndex = 0;
+    }
+
+    this.updateProfile();
+  }, 300);
 }
+
 
 
     pass() {
