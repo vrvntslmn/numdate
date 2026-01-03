@@ -257,25 +257,21 @@ class App extends HTMLElement {
           align-items: center;
         }
 
-        .prof.has(input[checked]){
-            display: block;
+        header nav ul .prof input{
+          display: none;
         }
 
-          header nav ul .prof input{
-            display: none;
-          }
-
           /* notif panel */
-          com-profSet{
-            height: 90%;
-            background-color: white;
-            border-radius: var(--brderRad-m);
-            box-shadow: var(--box-shadow);
-            position: absolute;
-            right: 0;
-            top: var(--header-height);
-            z-index: 20;
-          }
+        com-profSet{
+          height: 90%;
+          background-color: white;
+          border-radius: var(--brderRad-m);
+          box-shadow: var(--box-shadow);
+          position: absolute;
+          right: 0;
+          top: var(--header-height);
+          z-index: 20;
+        }
 
 
         com-match{

@@ -6,18 +6,12 @@ class ComProfSet extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
         this.bindEvents();
     }
 
     render() {
         this.innerHTML = `
             <style>
-                com-profset {
-                    display: block;
-                    font-family: "Roboto Condensed", system-ui, -apple-system, "Segoe UI", sans-serif;
-                }
-
                 a {
                     text-decoration: none;
                     color: inherit;
@@ -41,11 +35,6 @@ class ComProfSet extends HTMLElement {
                     color: #E03A3A;
                 }
 
-                h4 {
-                    margin: 0;
-                    font-size: 14px;
-                    font-weight: 500;
-                }
             </style>
 
             <a href="#profile">
@@ -67,7 +56,16 @@ class ComProfSet extends HTMLElement {
     bindEvents() {
         const logoutEl = this.querySelector('.logout');
         const deleteEl = this.querySelector('.delete');
+        const input = document.getElementById('prof');
 
+        if (input){
+            input.addEventListener('click', () =>{
+                if(input.checked)
+                    this.render();
+                else this.innerHTML = ``;
+            });
+            
+        }
         if (logoutEl) {
             logoutEl.addEventListener('click', () => {
                 api.logout()
