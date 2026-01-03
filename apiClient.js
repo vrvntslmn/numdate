@@ -76,4 +76,29 @@ export const api = {
   getRecipients() {
     return request("/api/recipients");
   },
+     // ✅ Others profile (See more)
+  getProfileByUserId(userId) {
+    return request(`/api/profile/${encodeURIComponent(userId)}`);
+  },
+
+  // (optional) If you decide to use profileId instead of userId
+  getProfileById(profileId) {
+    return request(`/api/profiles/${encodeURIComponent(profileId)}`);
+  },
+
+  // ✅ Like someone
+  like(toUserId) {
+    return request("/api/like", {
+      method: "POST",
+      body: { toUserId },
+    });
+  },
+
+  // ✅ (optional) Matches notifications
+  getMatchNotifications() {
+    return request("/api/notifications/matches");
+  },
+
+
+
 };

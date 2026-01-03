@@ -13,6 +13,8 @@ import './com-router.js';
 import './com-auth.js';
 import './com-othersprofile.js';
 import './nm-mini-profile.js';
+import './apiClient.js';
+
 
 
 class App extends HTMLElement {

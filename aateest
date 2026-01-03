@@ -1,0 +1,610 @@
+class Home extends HTMLElement {
+  constructor() {
+    super();
+    this.allProfiles = [];
+    this.filteredProfiles = [];
+    this.profileSwipe = null;
+    this.dropdownFilter = null;
+
+    // ✅ Эндээс dropdown-уудыг хүссэнээрээ өөрчилнө
+    this.filterConfig = [
+      {
+        title: "Орд",
+        type: "grid",
+        options: ["Хумх", "Загас", "Хонь", "Үхэр", "Ихэр", "Мэлхий", "Арслан", "Охин", "Жинлүүр", "Хилэнц", "Нум", "Матар"],
+      },
+      {
+        title: "MBTI",
+        type: "grid",
+        options: ["INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP", "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP"],
+      },
+      {
+        title: "Relationship goals",
+        type: "grid",
+        options: ["Long-term", "Short-term fun", "Short-term, open to long", "Friends", "Just have fun", "Not sure"],
+      },
+      {
+        title: "Love language",
+        type: "grid",
+        options: ["Words of Affirmation", "Receiving Gifts", "Quality Time", "Acts of Service", "Physical Touch", "Shared Experiences"],
+      },
+      {
+        title: "Cалбар сургууль",
+        type: "list",
+        options: [
+          "Бизнесийн сургууль",
+          "Инженер, технологийн сургууль",
+          "Мэдээллийн технологи, электроникийн сургууль",
+          "Улс төр судлал, олон улсын харилцаа, нийтийн удирдлагын сургууль",
+          "Хууль зүйн сургууль",
+          "Шинжлэх ухааны сургууль",
+        ],
+      },
+      {
+        title: "Түвшин",
+        type: "grid",
+        options: ["1", "2", "3", "4", "5", "6+"],
+      },
+      {
+        title: "Сонирхол",
+        type: "grid",
+        options: ["Урлаг", "Спорт", "Хөгжим", "Компьютер", "Аялал", "Ном", "Шатар", "Гоо сайхан", "Гэрэл зураг", "Хувцас", "Кино", "Хичээл"],
+      },
+    ];
+  }
+
+  connectedCallback() {
+    this.render();
+    this.initializeComponents();
+  }
+
+  render() {
+    this.innerHTML = `
+      <style>
+        main>div { display:flex; flex-wrap:wrap; justify-content:center; gap:200px; margin-top:10px; }
+        main { min-height:calc(100vh - 55px); display:flex; justify-content:center; align-items:center; }
+
+        .profile { width:350px; height:80vh; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.15); position:relative; background:#000; }
+        .profile img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:1; }
+        .profile::after { content:""; position:absolute; left:0; right:0; bottom:0; height:45%; background:linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.6) 100%); z-index:2; }
+        .profile h1, .profile p { position:absolute; left:16px; color:#fff; margin:0; z-index:3; font-family:'Yanone Kaffeesatz', sans-serif; }
+        .profile h1 { bottom:80px; font-size:22px; font-weight:600; }
+        .profile p { bottom:60px; font-size:18px; }
+
+        .profile .see-more-btn {
+          position:absolute; bottom:64px; right:2px; transform:translateX(-50%);
+          background:transparent; border:none; padding:0; color:#fff; font-size:14px;
+          display:inline-flex; align-items:center; gap:4px; cursor:pointer; z-index:3;
+          font-family:'Yanone Kaffeesatz', sans-serif; text-transform:uppercase; text-decoration:none;
+        }
+        .profile .see-more-btn::after { content:"▾"; font-size:.9em; }
+
+        .swipe .buttons { margin-top:-25px; position:relative; display:flex; justify-content:center; gap:20px; z-index:4; }
+
+        .buttons .other_button, .buttons .other_button_x {
+          background:#fff; border:none; width:60px; height:60px; border-radius:50%;
+          display:flex; align-items:center; justify-content:center;
+          box-shadow:0 2px 8px #d97c9dff; cursor:pointer; transition:transform .2s;
+        }
+        .buttons .other_button svg path, .buttons .other_button svg polyline { stroke:#f50057; fill:none; }
+        .buttons .other_button_x svg path, .buttons .other_button_x svg polyline { stroke:#f50057; fill:#f50057; }
+
+        .buttons .heart_button {
+          background:#f50057; border:none; width:80px; height:80px; border-radius:50%;
+          display:flex; align-items:center; justify-content:center;
+          box-shadow:0 4px 8px rgba(0,0,0,.2); cursor:pointer; transition:transform .2s;
+          margin-top:-10px;
+        }
+        .buttons button:hover { transform:scale(1.1); }
+
+        .catogeries {
+          display:flex; flex-direction:column; gap:16px; width:380px;
+          max-height:80vh; overflow-y:auto; scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .catogeries::-webkit-scrollbar { display:none; }
+        .catogeries a { text-decoration:none; }
+
+        .filter {
+          width:100%;
+          display:block; margin:0 auto; padding:10px 40px;
+          border-radius:999px; border:2px solid #f50057; background:#f50057; color:#fff;
+          font-family:'Yanone Kaffeesatz', sans-serif; font-size:20px; font-weight:600;
+          letter-spacing:.08em; text-transform:uppercase; text-decoration:none; cursor:pointer;
+          box-shadow:0 4px 10px rgba(0,0,0,.15);
+        }
+
+        .dropdown { position:relative; display:flex; flex-direction:column; }
+        .dropbtn {
+          width:100%; display:flex; justify-content:space-between; align-items:center;
+          background:#fff; color:#f50057; border:none; padding:20px 30px; border-radius:6px;
+          cursor:pointer; border:2px solid #f50057; box-shadow:0 3px 6px #f50057;
+          font-size:20px;
+        }
+        .dropbtn h1 { color:#f50057; margin:0; font-size:20px; font-weight:500; }
+        .dropbtn:hover { background:#ffd3e1ff; transform:translateY(-2px); }
+
+        .dropdown-content { display:none; justify-content:space-around; flex-wrap:wrap; gap:12px; margin-top:12px; }
+        .dropdown.open .dropdown-content { display:flex; }
+
+        .dropdown-content button {
+          width:110px; height:50px; display:flex; align-items:center; justify-content:center; gap:8px;
+          border-radius:8px; border:2px solid #f27a91; background:#fff; color:#f50057;
+          font-size:14px; padding:5px; box-shadow:0 6px 12px rgba(0,0,0,.06);
+          cursor:pointer;
+        }
+        .dropdown-content button h2 { margin:0; font-size:15px; }
+        .dropdown-content button:hover { background:#ffe0e9; }
+        .dropdown-content button.selected { background:#f50057; color:#fff; border-color:#f50057; }
+
+        .dropdown-content-school { display:none; flex-direction:column; gap:12px; margin-top:12px; }
+        .dropdown.open .dropdown-content-school { display:flex; }
+        .dropdown-content-school button {
+          width:100%; padding:10px 15px; border-radius:8px; border:2px solid #f27a91;
+          background:#fff; color:#f50057; cursor:pointer; box-shadow:0 6px 12px rgba(0,0,0,.06);
+          text-align:left;
+        }
+        .dropdown-content-school button.selected { background:#f50057; color:#fff; border-color:#f50057; }
+      </style>
+
+      <main>
+        <div>
+          <section class="swipe">
+            <div class="profile">
+              <img src="img/image.jpeg" alt="profile">
+              <h1>Loading...</h1>
+              <p></p>
+              <a href="#othersprofile" class="see-more-btn">See more</a>
+            </div>
+
+            <div class="buttons">
+              <button class="other_button" title="Refresh">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 64 64" stroke-width="8" stroke="#000000" fill="none">
+                  <path d="M54.89,26.73A23.52,23.52,0,0,1,15.6,49" stroke-linecap="round"/>
+                  <path d="M9,37.17a23.75,23.75,0,0,1-.53-5A23.51,23.51,0,0,1,48.3,15.2" stroke-linecap="round"/>
+                  <polyline points="37.73 16.24 48.62 15.44 47.77 5.24" stroke-linecap="round"/>
+                  <polyline points="25.91 47.76 15.03 48.56 15.88 58.76" stroke-linecap="round"/>
+                </svg>
+              </button>
+
+              <button class="heart_button" title="Like">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24" stroke="white" fill="white">
+                  <path d="M20.808,11.079C19.829,16.132,12,20.5,12,20.5s-7.829-4.368-8.808-9.421C2.227,6.1,5.066,3.5,8,3.5a4.444,4.444,0,0,1,4,2,4.444,4.444,0,0,1,4-2C18.934,3.5,21.773,6.1,20.808,11.079Z"/>
+                </svg>
+              </button>
+
+              <button class="other_button_x" title="Pass">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 32 32" stroke="white" fill="white">
+                  <path d="M18.8,16l5.5-5.5c0.8-0.8,0.8-2,0-2.8l0,0C24,7.3,23.5,7,23,7c-0.5,0-1,0.2-1.4,0.6L16,13.2l-5.5-5.5c-0.8-0.8-2.1-0.8-2.8,0C7.3,8,7,8.5,7,8.5s0.2,1,0.6,1.4l5.5,5.5l-5.5,5.5C7.3,21.9,7,22.4,7,23c0,0.5,0.2,1,0.6,1.4C8,24.8,8.5,25,9,25c0.5,0,1-0.2,1.4-0.6l5.5-5.5l5.5,5.5c0.8,0.8,2.1,0.8,2.8,0c0.8-0.8,0.8-2.1,0-2.8L18.8,16z"/>
+                </svg>
+              </button>
+            </div>
+          </section>
+
+          <div>
+            <section class="catogeries">
+              ${this.renderFilters()}
+              <a href="#" class="filter">Хайх</a>
+            </section>
+          </div>
+        </div>
+      </main>
+    `;
+  }
+
+  renderFilters() {
+    return this.filterConfig
+      .map((f) => {
+        const isSchoolList = f.type === "list";
+        const contentClass = isSchoolList ? "dropdown-content-school" : "dropdown-content";
+
+        const buttonsHTML = f.options
+          .map((opt) => {
+            return `<button type="button"><h2>${opt}</h2></button>`;
+          })
+          .join("");
+
+        return `
+          <div class="dropdown" data-title="${f.title}">
+            <button type="button" class="dropbtn">
+              <h1>${f.title}</h1>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M7 10l5 5 5-5H7z" />
+              </svg>
+            </button>
+            <div class="${contentClass}">
+              ${buttonsHTML}
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  initializeComponents() {
+    this.fetchProfiles();
+
+    this.dropdownFilter = new DropdownFilter(this);
+    this.initializeDropdownColors();
+
+    this.profileSwipe = new ProfileSwipe(this);
+    this.setupEventListeners();
+  }
+
+  initializeDropdownColors() {
+    this.querySelectorAll(".dropdown").forEach((d) => this.dropdownFilter.updateDropdownColor(d));
+  }
+
+  fetchProfiles() {
+    fetch("/api/profiles")
+      .then((res) => res.json())
+      .then((data) => {
+        this.allProfiles = data || [];
+        this.filteredProfiles = [...this.allProfiles];
+        this.profileSwipe?.updateProfile();
+      })
+      .catch((err) => {
+        console.error("Error fetching profiles:", err);
+        this.allProfiles = this.getDummyProfiles();
+        this.filteredProfiles = [...this.allProfiles];
+        this.profileSwipe?.updateProfile();
+      });
+  }
+
+  getDummyProfiles() {
+    return [
+      {
+        userId: "demo-jennie",
+        name: "Jennie Kim",
+        age: 28,
+        image: "img/image.jpeg",
+        major: "Программ хангамж",
+        about: { zodiac: "Загас", mbti: "ENFP" },
+        relationshipGoal: "Long-term",
+        loveLanguage: "Quality Time",
+        school: "Инженер, технологийн сургууль",
+        year: 3,
+        interests: ["Хөгжим", "Аялал", "Кино"],
+      },
+      {
+        userId: "demo-alex",
+        name: "Alex Chen",
+        age: 25,
+        image: "img/profile2.jpg",
+        major: "Бизнесийн удирдлага",
+        about: { zodiac: "Хумх", mbti: "ISTJ" },
+        relationshipGoal: "Short-term fun",
+        loveLanguage: "Acts of Service",
+        school: "Бизнесийн сургууль",
+        year: 4,
+        interests: ["Спорт", "Компьютер", "Ном"],
+      },
+      {
+        userId: "demo-emma",
+        name: "Emma Smith",
+        age: 26,
+        image: "img/profile3.jpg",
+        major: "Хууль",
+        about: { zodiac: "Арслан", mbti: "ENFJ" },
+        relationshipGoal: "Long-term",
+        loveLanguage: "Words of Affirmation",
+        school: "Хууль зүйн сургууль",
+        year: 2,
+        interests: ["Ном", "Хувцас", "Кино"],
+      },
+    ];
+  }
+
+  setupEventListeners() {
+    const filterBtn = this.querySelector(".filter");
+    filterBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      const filters = this.dropdownFilter.getSelectedFilters();
+      this.applyFilters(filters);
+    });
+
+    const seeMoreBtn = this.querySelector(".see-more-btn");
+    seeMoreBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      const current = this.profileSwipe?.getCurrentProfile();
+      const userId = current?.userId || "demo-user";
+      window.location.hash = `#othersProfile?userId=${encodeURIComponent(userId)}`;
+    });
+  }
+
+  applyFilters(filters) {
+    this.filteredProfiles = this.allProfiles.filter((profile) => {
+      for (const [category, selectedValues] of Object.entries(filters)) {
+        if (!selectedValues?.length) continue;
+
+        let profileValue;
+        switch (category) {
+          case "Орд":
+            profileValue = profile.about?.zodiac;
+            break;
+          case "MBTI":
+            profileValue = profile.about?.mbti;
+            break;
+          case "Relationship goals":
+            profileValue = profile.relationshipGoal;
+            break;
+          case "Love language":
+            profileValue = profile.loveLanguage;
+            break;
+          case "Cалбар сургууль":
+            profileValue = profile.school;
+            break;
+          case "Түвшин":
+            profileValue = String(profile.year);
+            break;
+          case "Сонирхол": {
+            const interests = profile.interests || [];
+            const ok = selectedValues.some((x) => interests.includes(x));
+            if (!ok) return false;
+            continue;
+          }
+          default:
+            continue;
+        }
+        if (!profileValue || !selectedValues.includes(profileValue)) return false;
+      }
+      return true;
+    });
+
+    if (this.profileSwipe) {
+      this.profileSwipe.currentProfileIndex = 0;
+      this.profileSwipe.updateProfile();
+    }
+
+    if (!this.filteredProfiles.length && Object.keys(filters).length > 0) {
+      setTimeout(() => alert("Тохирох илэрц олдсонгүй"), 100);
+    }
+  }
+}
+
+class ProfileSwipe {
+  constructor(homeComponent) {
+    this.home = homeComponent;
+    this.currentProfileIndex = 0;
+
+    this.profileElement = homeComponent.querySelector(".profile");
+    this.profileImage = homeComponent.querySelector(".profile img");
+    this.profileName = homeComponent.querySelector(".profile h1");
+    this.profileMajor = homeComponent.querySelector(".profile p");
+
+    this.refreshButton = homeComponent.querySelector(".other_button");
+    this.heartButton = homeComponent.querySelector(".heart_button");
+    this.closeButton = homeComponent.querySelector(".other_button_x");
+
+    this.refreshLimit = 1;
+    this.refreshCount = 0;
+    this.lastRefreshDate = null;
+
+    this.init();
+  }
+
+  init() {
+    this.attachEventListeners();
+    this.setupTouchControls();
+    this.checkRefreshLimit();
+    this.updateProfile();
+    this.syncPendingSwipes();
+    window.addEventListener("online", () => this.syncPendingSwipes());
+  }
+
+  getCurrentProfile() {
+    if (!this.home.filteredProfiles.length) {
+      this.profileName.textContent = "Илэрц олдсонгүй";
+      this.profileMajor.textContent = "Та дахин хайх тохиргоог хийннэ үү.";
+      this.profileImage.style.display = "none";
+      return null;
+    }
+    if (this.currentProfileIndex >= this.home.filteredProfiles.length) this.currentProfileIndex = 0;
+    return this.home.filteredProfiles[this.currentProfileIndex];
+  }
+
+  updateProfile() {
+    const p = this.getCurrentProfile();
+    if (!p) return;
+
+    this.profileImage.style.display = "block";
+    this.profileImage.onerror = () => (this.profileImage.src = "img/default-profile.jpg");
+    this.profileImage.src = p.image || "img/image.jpeg";
+
+    this.profileName.textContent = `${p.name}, ${p.age}`;
+    this.profileMajor.textContent = p.major || "";
+  }
+
+ async saveSwipe(action, targetProfile) {
+  const targetUserId = targetProfile.userId;
+
+  // 1) Like үед: likes collection-д оруулах зөв endpoint
+  if (action === "like") {
+    await fetch("/api/like", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ toUserId: targetUserId }),
+    });
+  }
+
+  // 2) Дээрээс нь swipe log хадгалмаар байвал:
+  await fetch("/api/swipes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action,
+      targetUserId,
+      targetName: targetProfile.name,
+      at: new Date().toISOString(),
+    }),
+  });
+}
+
+  async syncPendingSwipes() {
+    const key = "pendingSwipes";
+    const pending = JSON.parse(localStorage.getItem(key) || "[]");
+    if (!pending.length) return;
+
+    const still = [];
+    for (const payload of pending) {
+      try {
+        const res = await fetch("/api/swipes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error("not ok");
+      } catch {
+        still.push(payload);
+      }
+    }
+    localStorage.setItem(key, JSON.stringify(still));
+  }
+
+  nextProfile() {
+    this.currentProfileIndex++;
+    if (this.currentProfileIndex >= this.home.filteredProfiles.length) this.currentProfileIndex = 0;
+    this.updateProfile();
+  }
+
+  like() {
+    const p = this.getCurrentProfile();
+    if (!p) return;
+    this.saveSwipe("like", p);
+    this.nextProfile();
+  }
+
+  pass() {
+    const p = this.getCurrentProfile();
+    if (!p) return;
+    this.saveSwipe("pass", p);
+    this.nextProfile();
+  }
+
+  checkRefreshLimit() {
+    const today = new Date().toDateString();
+    const saved = localStorage.getItem("refreshData");
+    if (saved) {
+      const { date, count } = JSON.parse(saved);
+      if (date === today) this.refreshCount = count;
+      else this.refreshCount = 0;
+    }
+    if (this.refreshCount >= this.refreshLimit) this.disableRefreshButton();
+  }
+
+  disableRefreshButton() {
+    if (!this.refreshButton) return;
+    this.refreshButton.disabled = true;
+    this.refreshButton.style.opacity = "0.5";
+    this.refreshButton.title = "Өдөрт 1 удаа л дарж болно";
+  }
+
+  refresh() {
+    if (this.refreshCount >= this.refreshLimit) {
+      alert("Өдөрт зөвхөн 1 удаа refresh хийж болно. Маргааш дахин оролдоно уу!");
+      return;
+    }
+    this.refreshCount++;
+    localStorage.setItem("refreshData", JSON.stringify({ date: new Date().toDateString(), count: this.refreshCount }));
+    if (this.refreshCount >= this.refreshLimit) this.disableRefreshButton();
+    this.updateProfile();
+  }
+
+  attachEventListeners() {
+    this.refreshButton?.addEventListener("click", () => this.refresh());
+    this.heartButton?.addEventListener("click", () => this.like());
+    this.closeButton?.addEventListener("click", () => this.pass());
+  }
+
+  setupTouchControls() {
+    let startX = 0;
+    this.profileElement?.addEventListener("touchstart", (e) => (startX = e.changedTouches[0].screenX));
+    this.profileElement?.addEventListener("touchend", (e) => {
+      const endX = e.changedTouches[0].screenX;
+      const t = 50;
+      if (endX < startX - t) this.pass();
+      if (endX > startX + t) this.like();
+    });
+  }
+}
+
+class DropdownFilter {
+  constructor(homeComponent) {
+    this.home = homeComponent;
+    this.dropdowns = homeComponent.querySelectorAll(".dropdown");
+    this.init();
+  }
+
+  init() {
+    this.attachEventListeners();
+    this.setupClickOutside();
+  }
+
+  attachEventListeners() {
+    this.dropdowns.forEach((dropdown) => {
+      const dropbtn = dropdown.querySelector(".dropbtn");
+      const content = dropdown.querySelector(".dropdown-content, .dropdown-content-school");
+      if (!dropbtn || !content) return;
+
+      const buttons = content.querySelectorAll("button");
+
+      dropbtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.toggleDropdown(dropdown);
+      });
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          btn.classList.toggle("selected");
+          this.updateDropdownColor(dropdown);
+        });
+      });
+    });
+  }
+
+  toggleDropdown(current) {
+    this.dropdowns.forEach((d) => d !== current && d.classList.remove("open"));
+    current.classList.toggle("open");
+  }
+
+  updateDropdownColor(dropdown) {
+    const dropbtn = dropdown.querySelector(".dropbtn");
+    const selected = dropdown.querySelectorAll("button.selected");
+    const h1 = dropbtn?.querySelector("h1");
+    const svg = dropbtn?.querySelector("svg");
+    if (!dropbtn) return;
+
+    if (selected.length) {
+      dropbtn.style.backgroundColor = "#f50057";
+      dropbtn.style.color = "#fff";
+      dropbtn.style.borderColor = "#f50057";
+      if (h1) h1.style.color = "#fff";
+      if (svg) svg.style.color = "#fff";
+    } else {
+      dropbtn.style.backgroundColor = "#fff";
+      dropbtn.style.color = "#f50057";
+      dropbtn.style.borderColor = "#f50057";
+      if (h1) h1.style.color = "#f50057";
+      if (svg) svg.style.color = "currentColor";
+    }
+  }
+
+  setupClickOutside() {
+    document.addEventListener("click", () => this.dropdowns.forEach((d) => d.classList.remove("open")));
+  }
+
+  getSelectedFilters() {
+    const filters = {};
+    this.dropdowns.forEach((dropdown) => {
+      const title = dropdown.querySelector(".dropbtn h1")?.textContent;
+      const selected = [...dropdown.querySelectorAll("button.selected")]
+        .map((b) => b.querySelector("h2")?.textContent)
+        .filter(Boolean);
+
+      if (title && selected.length) filters[title] = selected;
+    });
+    return filters;
+  }
+}
+
+window.customElements.define("com-home", Home);

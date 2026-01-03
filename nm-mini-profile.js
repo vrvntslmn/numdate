@@ -1,5 +1,27 @@
 class MiniProfile extends HTMLElement {
+  static get observedAttributes() {
+    return ["name", "gender", "img"];
+  }
+
   connectedCallback() {
+    this.render();
+  }
+
+  attributeChangedCallback() {
+    // attribute өөрчлөгдөх бүрт UI шинэчлэгдэнэ
+    if (this.isConnected) this.render();
+  }
+
+  esc(str) {
+    return String(str ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  render() {
     const name = this.getAttribute("name") || "default-name";
     const gender = this.getAttribute("gender") || "gender";
     const img = this.getAttribute("img") || "img/image.jpeg";
@@ -32,15 +54,14 @@ class MiniProfile extends HTMLElement {
           opacity:.7;
           margin: 5px 0 0;
         }
-
         @media (max-width: 520px){
           img{ width:160px; height:160px; }
         }
       </style>
 
-      <img src="${img}" alt="profile">
-      <p class="name">${name}</p>
-      <p class="gender">${gender}</p>
+      <img src="${this.esc(img)}" alt="profile">
+      <p class="name">${this.esc(name)}</p>
+      <p class="gender">${this.esc(gender)}</p>
     `;
   }
 }

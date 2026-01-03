@@ -1072,6 +1072,45 @@ class ProfileSwipe {
         this.checkRefreshLimit();
     }
 
+// ✅ like / pass-ийг backend руу хадгална
+async saveSwipe(action, profile) {
+    if (!profile) return;
+
+    // api/profiles-аас ирсэн бол userId байна
+    // dummy profile бол fallback id үүсгэнэ
+    const targetUserId =
+        profile.userId ||
+        `demo-${profile.name.toLowerCase().replace(/\s+/g, "-")}`;
+
+    try {
+        // 1️⃣ LIKE үед → likes + match logic
+        if (action === "like" && profile.userId) {
+            await fetch("/api/like", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ toUserId: profile.userId }),
+            });
+        }
+
+        // 2️⃣ Swipe log (like + pass аль аль нь)
+        await fetch("/api/swipes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action,
+                targetUserId,
+                targetName: profile.name,
+                at: new Date().toISOString(),
+            }),
+        });
+
+    } catch (err) {
+        console.warn("❌ saveSwipe failed:", err);
+    }
+}
+
+
+
     setupTransitions() {
         this.profileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
         this.refreshButton.style.transition = 'transform 0.3s ease';
@@ -1187,45 +1226,53 @@ class ProfileSwipe {
         alert('Өдөрт зөвхөн 1 удаа refresh хийж болно. Маргааш дахин оролдоно уу!');
     }
 
-    like() {
-        const currentProfile = this.getCurrentProfile();
-        if (!currentProfile) return;
+ like() {
+    const currentProfile = this.getCurrentProfile();
+    if (!currentProfile) return;
 
-        this.heartButton.style.transform = 'scale(1.2)';
-        this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
+    // ✅ DB-д хадгална
+    this.saveSwipe("like", currentProfile);
 
-        setTimeout(() => {
-            this.heartButton.style.transform = 'scale(1)';
-            this.profileElement.style.transform = 'translateX(0) rotate(0)';
+    this.heartButton.style.transform = 'scale(1.2)';
+    this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
 
-            console.log('Liked:', currentProfile.name);
-            this.currentProfileIndex++;
-            if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
-                this.currentProfileIndex = 0;
-            }
-            this.updateProfile();
-        }, 300);
-    }
+    setTimeout(() => {
+        this.heartButton.style.transform = 'scale(1)';
+        this.profileElement.style.transform = 'translateX(0) rotate(0)';
+
+        console.log('Liked:', currentProfile.name);
+        this.currentProfileIndex++;
+        if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+            this.currentProfileIndex = 0;
+        }
+        this.updateProfile();
+    }, 300);
+}
+
 
     pass() {
-        const currentProfile = this.getCurrentProfile();
-        if (!currentProfile) return;
+    const currentProfile = this.getCurrentProfile();
+    if (!currentProfile) return;
 
-        this.closeButton.style.transform = 'rotate(90deg)';
-        this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
+    // ✅ DB-д хадгална
+    this.saveSwipe("pass", currentProfile);
 
-        setTimeout(() => {
-            this.closeButton.style.transform = 'rotate(0deg)';
-            this.profileElement.style.transform = 'translateX(0) rotate(0)';
+    this.closeButton.style.transform = 'rotate(90deg)';
+    this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
 
-            console.log('Passed:', currentProfile.name);
-            this.currentProfileIndex++;
-            if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
-                this.currentProfileIndex = 0;
-            }
-            this.updateProfile();
-        }, 300);
-    }
+    setTimeout(() => {
+        this.closeButton.style.transform = 'rotate(0deg)';
+        this.profileElement.style.transform = 'translateX(0) rotate(0)';
+
+        console.log('Passed:', currentProfile.name);
+        this.currentProfileIndex++;
+        if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+            this.currentProfileIndex = 0;
+        }
+        this.updateProfile();
+    }, 300);
+}
+
 
     attachEventListeners() {
         if (this.refreshButton) {
