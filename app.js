@@ -322,29 +322,6 @@ class App extends HTMLElement {
             right: 10px;
           }
         }
- 
-        header nav ul .prof{
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-        }
- 
-        header nav ul .prof input{
-          display: none;
-        }
- 
-        /* profile settings panel */
-        com-profSet{
-          height: 90%;
-          background-color: white;
-          border-radius: var(--brderRad-m);
-          box-shadow: var(--box-shadow);
-          position: absolute;
-          right: 0;
-          top: var(--header-height);
-          z-index: 20;
-        }
- 
         com-match{
           display: block;
         }
