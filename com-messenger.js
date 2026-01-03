@@ -25,13 +25,17 @@ class ComMessenger extends HTMLElement {
           display: block;
           background: #F5F5F5;
           font-family: 'Yanone Kaffeesatz', sans-serif;
+          --topbar-h: 56px;   
+          --bottombar-h: 56px;  
+          --nav-total: calc(var(--topbar-h) + var(--bottombar-h));
+          --vh: 1vh;
         }
 
         main { padding: 0; max-width: 1400px; margin: 0 auto; }
 
         .chat-app {
           width: 100%;
-          height: calc(100vh - 110px);
+          height: calc((var(--vh) * 100) - var(--nav-total));
           background: #FFFFFF;
           display: flex;
           overflow: hidden;
@@ -717,9 +721,24 @@ class ComMessenger extends HTMLElement {
         .confirm-cancel:hover { background: #EBEBEB; }
 
         @media (max-width: 960px) {
-          .sidebar { display: none; }
-          .emoji-panel { left: 20px; }
+          .chat-app { height: calc(100vh - 90px); }
+
+          .sidebar {
+            display: flex;          /* ❗ өмнө нь none байсан */
+            width: 100%;
+            border-right: none;
+          }
+
+          .chat-panel {
+            display: none;          /* эхлээд чат нуусан */
+            width: 100%;
+          }
+
+          .chat-app.is-chat-open .sidebar { display: none; }
+          .chat-app.is-chat-open .chat-panel { display: flex; }
+
           .details-panel { width: 100%; }
+          .emoji-panel { left: 20px; }
         }
       </style>
 
@@ -973,6 +992,9 @@ class ComMessenger extends HTMLElement {
       searchInput: $("#conversationSearch"),
       emptyState: $("#emptyState"),
       emptyNewMessageBtn: $("#emptyNewMessageBtn"),
+      chatApp: this.shadowRoot.querySelector(".chat-app"),
+      backBtn: this.shadowRoot.querySelector(".back-btn"),
+
 
     };
 
@@ -1058,6 +1080,22 @@ class ComMessenger extends HTMLElement {
         console.error("send error", err);
       }
     });
+    const { backBtn, chatApp } = this.els;
+
+    if (backBtn && chatApp) {
+      backBtn.addEventListener("click", () => {
+        // mobile дээр inbox руу буцаах
+        chatApp.classList.remove("is-chat-open");
+
+        // details panel, emoji зэргийг хаая
+        this.els.detailsPanel?.classList.remove("is-open");
+        this.els.emojiPanel?.classList.remove("is-open");
+        this.closeDateOverlay?.();
+
+        // focus search
+        this.els.searchInput?.focus();
+      });
+    }
 
 
     // Search input – sidebar filter
@@ -1544,6 +1582,9 @@ class ComMessenger extends HTMLElement {
     if (el) this.selectConversationEl(el);
   }
   async selectConversationEl(item) {
+    // mobile дээр chat руу шилжүүлэх
+    this.els.chatApp?.classList.add("is-chat-open");
+
     // active class
     this.els.conversationItems.forEach(i => i.classList.remove("is-active"));
     item.classList.add("is-active");
