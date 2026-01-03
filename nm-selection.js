@@ -34,7 +34,7 @@ class NmSelection extends HTMLElement {
             case 'mbti':
                 this.selection =  NmSelection.MBTI;
                 break;
-            case 'lang':
+            case 'loveLang':
                 this.selection =  NmSelection.LOVE_LANG;
                 break;
             case 'goal':
@@ -100,6 +100,7 @@ class NmSelection extends HTMLElement {
                         padding: 0px 10px;
                         color: var(--first-color);
                         cursor: pointer;
+                        min-width: 15%;
                     }
 
                     & button{

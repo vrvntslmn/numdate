@@ -914,7 +914,6 @@ class Profile extends HTMLElement{
                                 <p></p>
                             </div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
                     </article>
                     <article class='about'>
                         <label>
@@ -953,7 +952,7 @@ class Profile extends HTMLElement{
                                 <p></p>
                             </div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                     </article>
                     <article class='job'>
                         <label>
@@ -978,7 +977,7 @@ class Profile extends HTMLElement{
                             <h5>Ажил</h5>
                             <div><p></p></div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                     </article>
                     <article class='likes'>
                         <label>
@@ -1002,7 +1001,7 @@ class Profile extends HTMLElement{
                             <h5>Дуу</h5>
                             <div><p></p></div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                         <section class="interests">
                             <h5>Сонирхол</h5>
                             <div class="art">                                      
@@ -1022,7 +1021,7 @@ class Profile extends HTMLElement{
                             <div class="travel"><p></p></div>
                             <div class="book"><p></p></div>
                         </section>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                     </article>
                 </div>
             </section>
@@ -1114,7 +1113,6 @@ class Profile extends HTMLElement{
                             font-family: var(--font-body);
                             font-size: var(--font-body);
                             font-weight: 600;
-                            margin-left
                         }
 
                         #exit{
@@ -1345,7 +1343,7 @@ class Profile extends HTMLElement{
                             height: 60%;
                         }
                     </style>
-                    <nm-selection name="${GOAL}" select="goal"></nm-selection>
+                    <nm-selection name="${Profile.GOAL}" select="goal"></nm-selection>
                 `;
                 this.enableExit(edit);
             });
@@ -1382,7 +1380,7 @@ class Profile extends HTMLElement{
                             height: 60%;
                         }
                     </style>
-                    <nm-selection name="" select="zodiac"></nm-selection>
+                    <nm-selection name="" select="${Profile.ZODIAC}"></nm-selection>
                 `;
                 this.enableExit(edit);
             });
@@ -1401,7 +1399,7 @@ class Profile extends HTMLElement{
                             height: 60%;
                         }
                     </style>
-                    <nm-selection name="Сонирхсон харилцаа" select="mbti"></nm-selection>
+                    <nm-selection name="${Profile.MBTI}" select="mbti"></nm-selection>
                 `;
                 this.enableExit(edit);
             });
