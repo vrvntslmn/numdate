@@ -2,11 +2,10 @@ import './com-home.js';
 import './com-dateidea.js';
 import './com-messenger.js';
 import './com-profile.js';
-
-
+ 
 import './com-match.js';
 import './com-notif.js';
-
+ 
 import './com-route.js';
 import './com-routes.js';
 import './com-router.js';
@@ -14,42 +13,93 @@ import './com-auth.js';
 import './com-othersprofile.js';
 import './nm-mini-profile.js';
 import './apiClient.js';
-
-
-
+import './com-profSet.js';
+ 
 class App extends HTMLElement {
   constructor() {
     super();
     this.user = null;
+ 
+    this._notifTimer = null;
+    this._refreshing = false;
   }
-
+ 
   connectedCallback() {
     this.bootstrap();
   }
-
+ 
+  disconnectedCallback() {
+    if (this._notifTimer) clearInterval(this._notifTimer);
+    this._notifTimer = null;
+  }
+ 
   async bootstrap() {
     try {
       const res = await fetch('/api/me', { credentials: 'include' });
-
+ 
       if (!res.ok) {
         this.renderLogin();
         return;
       }
-
+ 
       const data = await res.json();
-
+ 
       if (!data.user) {
         this.renderLogin();
       } else {
         this.user = data.user;
         this.render();
+ 
+        // ✅ render хийсний дараа badge шалгана + polling эхлүүлнэ
+        this.refreshNotifBadge();
+        this._startNotifPolling();
       }
     } catch (err) {
       console.error('bootstrap /api/me error', err);
       this.renderLogin();
     }
   }
-
+ 
+  _startNotifPolling() {
+    if (this._notifTimer) clearInterval(this._notifTimer);
+ 
+    // ✅ 5 секунд тутам refresh
+    this._notifTimer = setInterval(() => {
+      // notif panel нээлттэй үед давхар дуудаж болно, асуудалгүй
+      this.refreshNotifBadge();
+    }, 5000);
+  }
+ 
+  async refreshNotifBadge() {
+    const badge = this.querySelector('#notifBadge');
+    if (!badge) return;
+ 
+    // ✅ олон удаа зэрэг дуудагдахаас хамгаалъя
+    if (this._refreshing) return;
+    this._refreshing = true;
+ 
+    try {
+      const res = await fetch('/api/notifications/unread-count', {
+        credentials: 'include',
+      });
+ 
+      if (!res.ok) {
+        badge.hidden = true;
+        return;
+      }
+ 
+      const data = await res.json();
+      const count = Number(data.count || 0);
+ 
+      // red dot only
+      badge.hidden = count === 0;
+    } catch (e) {
+      badge.hidden = true;
+    } finally {
+      this._refreshing = false;
+    }
+  }
+ 
   render() {
     this.innerHTML = `
       <style>
@@ -68,16 +118,16 @@ class App extends HTMLElement {
           --header-height: 55px;
           --bottom-nav-height: 64px;
         }
-
+ 
         html { width: 100%; }
         body { margin: 0; background-color: #F5F5F5; }
-
+ 
         h1 { color: #F5F5F5; font-family: var(--font-header); }
         h2 { font-family: var(--font-header); font-weight: 400; font-size: 36px; margin: 0; }
         h3 { margin: 0; font-family: var(--font-header); font-size: 36px; }
         h4 { font-family: var(--font-header); font-size: 24px; margin: 0; }
         p  { font-family: var(--font-body); font-weight: 400; }
-
+ 
         .edit-button{
           width: 32px;
           height: 32px;
@@ -86,7 +136,7 @@ class App extends HTMLElement {
           background-size: contain;
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 32'><path fill-rule='evenodd' clip-rule='evenodd' d='M19.4782 0.947093L17.4437 3.19506L26.1083 12.7688L28.1428 10.5209C29.2857 9.25806 29.2857 7.21068 28.1428 5.94789L23.6169 0.947092C22.474 -0.315698 20.621 -0.315697 19.4782 0.947093ZM4.02359 18.2305C3.72599 18.5593 3.91974 19.1223 4.33989 19.1496L4.98994 19.1918C5.36024 19.2158 5.65567 19.5422 5.67741 19.9514L5.79611 22.1845C5.80336 22.3209 5.90184 22.4297 6.02527 22.4377L8.04638 22.5689C8.41668 22.5929 8.71211 22.9193 8.73386 23.3285L8.85256 25.5617C8.85981 25.698 8.95828 25.8069 9.08172 25.8149L11.1028 25.946C11.4731 25.97 11.7686 26.2965 11.7903 26.7056L11.8269 27.394C11.8516 27.8582 12.3611 28.0723 12.6587 27.7434L23.7762 15.4595C23.9667 15.2491 23.9667 14.9078 23.7762 14.6974L15.8436 5.93251C15.6531 5.72205 15.3443 5.72205 15.1538 5.93251L4.02359 18.2305ZM0.716566 22.1597C0.327776 22.1345 -3.77004e-05 22.4761 3.25206e-09 22.9064L0.000735568 31.2514C0.000772011 31.6644 0.303771 31.9991 0.67755 31.9992L8.23013 32C8.61959 32 8.92875 31.6378 8.90591 31.2083L8.80063 29.2276C8.78051 28.849 8.50719 28.547 8.1646 28.5248L6.29474 28.4035C6.18055 28.3961 6.08944 28.2954 6.08273 28.1692L5.97291 26.1032C5.95279 25.7246 5.67947 25.4226 5.33688 25.4004L3.46703 25.2791C3.35283 25.2717 3.26172 25.171 3.25502 25.0448L3.1452 22.9788C3.12508 22.6002 2.85176 22.2982 2.50917 22.276L0.716566 22.1597Z' fill='%23CF0F47'/></svg>");
         }
-
+ 
         header{
           display: flex;
           width: 100%;
@@ -97,12 +147,12 @@ class App extends HTMLElement {
           top: 0;
           z-index: 10;
         }
-
+ 
         header svg.logo{
           margin: 10px;
           margin-right: 0;
         }
-
+ 
         header > div{
           display: flex;
           align-items: center;
@@ -110,7 +160,7 @@ class App extends HTMLElement {
           margin-right: auto;
           color: white;
         }
-
+ 
         header nav{
           display: flex;
           height: var(--header-height);
@@ -118,7 +168,7 @@ class App extends HTMLElement {
           gap: 20px;
           font-family: var(--font-header);
         }
-
+ 
         header nav ul{
           display: flex;
           justify-content: space-around;
@@ -129,7 +179,7 @@ class App extends HTMLElement {
           margin-left: auto;
           align-items: center;
         }
-
+ 
         header nav ul a{
           display: flex;
           gap: 10px;
@@ -143,21 +193,41 @@ class App extends HTMLElement {
           padding: 6px 8px;
           border-radius: 8px;
         }
-
+ 
         header nav ul a:hover{
           color: #ffd8e5ff;
         }
-
+ 
         header nav ul .notif{
           cursor: pointer;
           display: inline-flex;
           align-items: center;
         }
-
+ 
         header nav ul .notif input{
           display: none;
         }
-
+ 
+        /* ✅ badge wrapper */
+        header nav ul .notifWrap{
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+        }
+ 
+        /* ✅ badge red dot */
+        header nav ul .notifBadge{
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 9px;
+          height: 9px;
+          border-radius: 999px;
+          background: #ff2d55;
+          border: 2px solid rgba(255,255,255,0.9);
+          box-sizing: content-box;
+        }
+ 
         /* notif panel */
         com-notif{
           height: 90%;
@@ -169,12 +239,12 @@ class App extends HTMLElement {
           top: var(--header-height);
           z-index: 20;
         }
-
+ 
         /* content area */
         #content{
           min-height: calc(100vh - var(--header-height));
         }
-
+ 
         /* =========================
            MOBILE: Bottom navbar
            ========================= */
@@ -185,17 +255,17 @@ class App extends HTMLElement {
             left: 0;
             right: 0;
           }
-
+ 
           #content{
             padding-bottom: var(--bottom-nav-height);
             padding-top: var(--header-height);
           }
-
+ 
           header > div h1{
             font-size: 25px;
             letter-spacing: 0.06em;
           }
-
+ 
           header nav{
             position: fixed;
             left: 0;
@@ -209,7 +279,7 @@ class App extends HTMLElement {
             display: flex;
             justify-content: center;
           }
-
+ 
           header nav ul{
             width: 100%;
             max-width: 520px;
@@ -218,13 +288,13 @@ class App extends HTMLElement {
             gap: 6px;
             justify-content: space-around;
           }
-
+ 
           header nav ul li{
             flex: 1;
             display: flex;
             justify-content: center;
           }
-
+ 
           header nav ul a{
             width: 100%;
             justify-content: center;
@@ -233,32 +303,53 @@ class App extends HTMLElement {
             padding: 10px 0;
             color: var(--second-color);
           }
-
+ 
           header nav ul a .nav-text{
             display: none;
           }
-
+ 
           header nav ul a svg path{
             stroke: var(--second-color);
           }
-
-          header nav ul label.notif svg path{
+ 
+          header nav ul label.prof svg path{
             fill: var(--second-color);
           }
-
+ 
           com-notif{
             top: auto;
             bottom: var(--bottom-nav-height);
             right: 10px;
           }
         }
-
-        /* ✅ Match overlay visible дээр гарах баталгаа */
+ 
+        header nav ul .prof{
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+        }
+ 
+        header nav ul .prof input{
+          display: none;
+        }
+ 
+        /* profile settings panel */
+        com-profSet{
+          height: 90%;
+          background-color: white;
+          border-radius: var(--brderRad-m);
+          box-shadow: var(--box-shadow);
+          position: absolute;
+          right: 0;
+          top: var(--header-height);
+          z-index: 20;
+        }
+ 
         com-match{
           display: block;
         }
       </style>
-
+ 
       <header>
         <div>
           <svg class="logo" width="54" height="34" viewBox="0 0 54 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -274,7 +365,7 @@ class App extends HTMLElement {
           </svg>
           <h1>NUMDATE</h1>
         </div>
-
+ 
         <nav>
           <ul>
             <li>
@@ -286,7 +377,7 @@ class App extends HTMLElement {
                 <span class="nav-text">Home</span>
               </a>
             </li>
-
+ 
             <li>
               <a href="#dateidea">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -296,7 +387,7 @@ class App extends HTMLElement {
                 <span class="nav-text">Date idea</span>
               </a>
             </li>
-
+ 
             <li>
               <a href="#messenger">
                 <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -306,34 +397,42 @@ class App extends HTMLElement {
                 <span class="nav-text">Messages</span>
               </a>
             </li>
-
+ 
             <li>
-              <a href="#profile">
+              <label class="prof">
                 <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9.35727 13C6.1872 13 3.36807 14.5306 1.57327 16.906C1.18698 17.4172 0.993832 17.6728 1.00015 18.0183C1.00503 18.2852 1.17263 18.6219 1.38264 18.7867C1.65446 19 2.03114 19 2.7845 19H15.93C16.6834 19 17.0601 19 17.3319 18.7867C17.5419 18.6219 17.7095 18.2852 17.7144 18.0183C17.7207 17.6728 17.5276 17.4172 17.1413 16.906C15.3465 14.5306 12.5273 13 9.35727 13Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9.35727 10C11.8426 10 13.8573 7.98528 13.8573 5.5C13.8573 3.01472 11.8426 1 9.35727 1C6.87199 1 4.85727 3.01472 4.85727 5.5C4.85727 7.98528 6.87199 10 9.35727 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-              </a>
+                <input type="checkbox" id="prof">
+              </label>
             </li>
-
+ 
+            <!-- ✅ notif icon + red dot -->
             <li>
               <label class="notif">
-               <svg width="22" height="20" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z" fill="white"></path>
-               </svg>
+                <span class="notifWrap">
+                  <svg width="22" height="20" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0.333496 20.1666V17.8333H3.00016V9.66658C3.00016 8.0527 3.55572 6.62353 4.66683 5.37909C5.77794 4.1152 7.22239 3.28881 9.00016 2.89992V2.08325C9.00016 1.59714 9.18905 1.18881 9.56683 0.858251C9.96683 0.508252 10.4446 0.333252 11.0002 0.333252C11.5557 0.333252 12.0224 0.508252 12.4002 0.858251C12.8002 1.18881 13.0002 1.59714 13.0002 2.08325V2.89992C14.7779 3.28881 16.2224 4.1152 17.3335 5.37909C18.4446 6.62353 19.0002 8.0527 19.0002 9.66658V17.8333H21.6668V20.1666H0.333496ZM11.0002 23.6666C10.2668 23.6666 9.6335 23.443 9.10016 22.9958C8.58905 22.5291 8.3335 21.9749 8.3335 21.3333H13.6668C13.6668 21.9749 13.4002 22.5291 12.8668 22.9958C12.3557 23.443 11.7335 23.6666 11.0002 23.6666ZM5.66683 17.8333H16.3335V9.66658C16.3335 8.38325 15.8113 7.28464 14.7668 6.37075C13.7224 5.45686 12.4668 4.99992 11.0002 4.99992C9.5335 4.99992 8.27794 5.45686 7.2335 6.37075C6.18905 7.28464 5.66683 8.38325 5.66683 9.66658V17.8333Z" fill="white"></path>
+                  </svg>
+ 
+                  <i class="notifBadge" id="notifBadge" hidden></i>
+                </span>
+ 
                 <input type="checkbox" id="notif">
               </label>
             </li>
           </ul>
         </nav>
       </header>
-
+ 
       <com-notif></com-notif>
-
+      <com-profSet></com-profSet>
+ 
       <div id="content">
         <com-home></com-home>
       </div>
-
+ 
       <com-router>
         <com-routes>
           <com-route path="/" com="com-home"></com-route>
@@ -346,10 +445,14 @@ class App extends HTMLElement {
       </com-router>
     `;
   }
-
+ 
   renderLogin() {
+    // polling зогсооно
+    if (this._notifTimer) clearInterval(this._notifTimer);
+    this._notifTimer = null;
+ 
     this.innerHTML = `<com-auth></com-auth>`;
   }
 }
-
+ 
 window.customElements.define('com-app', App);
