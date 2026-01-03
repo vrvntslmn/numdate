@@ -914,7 +914,6 @@ class Profile extends HTMLElement{
                                 <p></p>
                             </div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
                     </article>
                     <article class='about'>
                         <label>
@@ -953,7 +952,7 @@ class Profile extends HTMLElement{
                                 <p></p>
                             </div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                     </article>
                     <article class='job'>
                         <label>
@@ -978,7 +977,7 @@ class Profile extends HTMLElement{
                             <h5>Ажил</h5>
                             <div><p></p></div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                     </article>
                     <article class='likes'>
                         <label>
@@ -1002,7 +1001,7 @@ class Profile extends HTMLElement{
                             <h5>Дуу</h5>
                             <div><p></p></div>
                         </article>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                         <section class="interests">
                             <h5>Сонирхол</h5>
                             <div class="art">                                      
@@ -1022,7 +1021,7 @@ class Profile extends HTMLElement{
                             <div class="travel"><p></p></div>
                             <div class="book"><p></p></div>
                         </section>
-                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
                     </article>
                 </div>
             </section>
@@ -1114,7 +1113,6 @@ class Profile extends HTMLElement{
                             font-family: var(--font-body);
                             font-size: var(--font-body);
                             font-weight: 600;
-                            margin-left
                         }
 
                         #exit{
@@ -1326,87 +1324,12 @@ class Profile extends HTMLElement{
             });
         });
 
-        // const rel = this.querySelector('.relation');
-        // rel.querySelector('button').addEventListener('click', ()=>{
-        //     edit.style.display = 'flex';
-        //     edit.innerHTML = `
-        //     `;
-        // })
-
-        const goal = this.querySelector('.goal');
-
-        if(goal){
-            goal.addEventListener('click', ()=>{
-                edit.style.display = 'grid';
-                edit.innerHTML = `
-                    <style>
-                        nm-selection{
-                            width: 50%;
-                            height: 60%;
-                        }
-                    </style>
-                    <nm-selection name="${GOAL}" select="goal"></nm-selection>
-                `;
-                this.enableExit(edit);
-            });
-        }
-
-        const loveLang = this.querySelector('.loveLang');
-
-        if(loveLang){
-            loveLang.addEventListener('click', ()=>{
-                edit.style.display = 'grid';
-                edit.innerHTML = `
-                    <style>
-                        nm-selection{
-                            width: 50%;
-                            height: 60%;
-                        }
-                    </style>
-                    <nm-selection name="${Profile.LOVELANG}" select="loveLang"></nm-selection>
-                `;
-                this.enableExit(edit);
-            });
-        }
-
-
-        const zodiac = this.querySelector('.zodiac');
-
-        if(zodiac){
-            zodiac.addEventListener('click', ()=>{
-                edit.style.display = 'grid';
-                edit.innerHTML = `
-                    <style>
-                        nm-selection{
-                            width: 50%;
-                            height: 60%;
-                        }
-                    </style>
-                    <nm-selection name="" select="zodiac"></nm-selection>
-                `;
-                this.enableExit(edit);
-            });
-        }
-
-
-        const mbti = this.querySelector('.mbti');
-
-        if(mbti){
-            mbti.addEventListener('click', ()=>{
-                edit.style.display = 'grid';
-                edit.innerHTML = `
-                    <style>
-                        nm-selection{
-                            width: 50%;
-                            height: 60%;
-                        }
-                    </style>
-                    <nm-selection name="Сонирхсон харилцаа" select="mbti"></nm-selection>
-                `;
-                this.enableExit(edit);
-            });
-        }
-
+        const rel = this.querySelector('.relation');
+        rel.querySelector('button').addEventListener('click', ()=>{
+            edit.style.display = 'flex';
+            edit.innerHTML = `
+            `;
+        })
 
         if (this.profile) this.loadUser();
     }
