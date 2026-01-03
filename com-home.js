@@ -1,11 +1,16 @@
 class Home extends HTMLElement {
     constructor() {
         super();
+        this.allProfiles = [];
+        this.filteredProfiles = [];
+        this.profileSwipe = null;
+        this.dropdownFilter = null;
     }
 
     connectedCallback() {
         this.innerHTML = `
     <style>
+      
         main>div {
             display: flex;
             flex-wrap: wrap;
@@ -96,7 +101,7 @@ class Home extends HTMLElement {
             text-transform: uppercase;
         }
         .profile .see-more-btn::after {
-            content: "▾";   /* эсвэл "⌄" гэх мэт өөр сум ашиглаж болно */
+            content: "▾";
             font-size: 0.9em;
         }
 
@@ -127,7 +132,7 @@ class Home extends HTMLElement {
         .buttons .other_button svg path,
         .buttons .other_button svg polyline {
             stroke: #f50057;
-            fill: none; /* эсвэл fill: #f50057; гэж өгч болно, хэрвээ дүүрэн сум хүсвэл */
+            fill: none;
         }
 
         .buttons .other_button_x {
@@ -196,9 +201,7 @@ class Home extends HTMLElement {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            /* background-color: #f50057; */
             border: none;
-            /* color: white; */
             padding: 20px 30px;
             border-radius: 10px;
             font-size: 20px;
@@ -361,7 +364,6 @@ class Home extends HTMLElement {
 
         .dropdown-content button:hover {
             background: #ffe0e9;
-            // color: #f50057;
         }
 
         .dropdown-content button.selected {
@@ -423,20 +425,8 @@ class Home extends HTMLElement {
         .dropdown.open .dropdown-content-school {
             display: flex;
         }
-
-        .selected-count {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.3);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 14px;
-            margin-left: 8px;
-        }
     </style>
         <main>
-        <body>
-
-
         <div>
             <section class="swipe">
                 <div class="profile">
@@ -445,8 +435,7 @@ class Home extends HTMLElement {
                     </div>
                     <h1>Jennie Kim, 28</h1>
                     <p>Программ хангамж</p>
-                   <a href="#othersProfile" class="see-more-btn">See more</a>
-
+                   <a href="#othersprofile" class="see-more-btn">See more</a>
                 </div>
                 <div class="buttons">
                     <button class="other_button">
@@ -463,7 +452,7 @@ class Home extends HTMLElement {
                         <svg class="button_icon" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
                             viewBox="0 0 32 32" stroke="white" fill="white">
                             <path
-                                d="M18.8,16l5.5-5.5c0.8-0.8,0.8-2,0-2.8l0,0C24,7.3,23.5,7,23,7c-0.5,0-1,0.2-1.4,0.6L16,13.2l-5.5-5.5  c-0.8-0.8-2.1-0.8-2.8,0C7.3,8,7,8.5,7,9.1s0.2,1,0.6,1.4l5.5,5.5l-5.5,5.5C7.3,21.9,7,22.4,7,23c0,0.5,0.2,1,0.6,1.4  C8,24.8,8.5,25,9,25c0.5,0,1-0.2,1.4-0.6l5.5-5.5l5.5,5.5c0.8,0.8,2.1,0.8,2.8,0c0.8-0.8,0.8-2.1,0-2.8L18.8,16z" />
+                                d="M18.8,16l5.5-5.5c0.8-0.8,0.8-2,0-2.8l0,0C24,7.3,23.5,7,23,7c-0.5,0-1,0.2-1.4,0.6L16,13.2l-5.5-5.5  c-0.8-0.8-2.1-0.8-2.8,0C7.3,8,7,8.5,7,8.5s0.2,1,0.6,1.4l5.5,5.5l-5.5,5.5C7.3,21.9,7,22.4,7,23c0,0.5,0.2,1,0.6,1.4  C8,24.8,8.5,25,9,25c0.5,0,1-0.2,1.4-0.6l5.5-5.5l5.5,5.5c0.8,0.8,2.1,0.8,2.8,0c0.8-0.8,0.8-2.1,0-2.8L18.8,16z" />
                         </svg>
                     </button>
                 </div>
@@ -651,7 +640,7 @@ class Home extends HTMLElement {
                                         </g>
                                         <g id="Horoscope">
                                             <path
-                                                d="M36,24a9.5,9.5,0,0,0-5,1.5V11a8,8,0,0,0-8-8,8.2,8.2,0,0,0-6,2.7A8.2,8.2,0,0,0,11,3a8,8,0,0,0-8,8v4a2,2,0,0,0,4,0V11a4,4,0,0,1,8,0V34a2,2,0,0,0,4,0V11a4,4,0,0,1,8,0V37a4,4,0,0,1-4,4H21a2,2,0,0,0,0,4h2a8.1,8.1,0,0,0,7.4-5A8.5,8.5,0,0,0,36,42a9,9,0,0,0,0-18Zm0,14a5,5,0,1,1,5-5A5,5,0,0,1,36,38Z" />
+                                                d="M36,24a9.5,9.5,0,0,0-5,1.5V11a8,8,0,0,0-8-8,8.2,8.2,0,0,0-6,2.7A8.2,8.2,0,0,0,11,3a8,8,0,0,0-8,8v4a2,2,0,0,0,4,0V10A2.9,2.9,0,0,1,9,7a2.9,2.9,0,0,1,3,3V34a2,2,0,0,0,4,0V10a3,3,0,0,1,6,0V34a2,2,0,0,0,4,0V10a3,3,0,0,1,6,0V37a4,4,0,0,1-4,4H21a2,2,0,0,0,0,4h2a8.1,8.1,0,0,0,7.4-5A8.5,8.5,0,0,0,36,42a9,9,0,0,0,0-18Zm0,14a5,5,0,1,1,5-5A5,5,0,0,1,36,38Z" />
                                         </g>
                                     </g>
                                 </svg>
@@ -856,187 +845,559 @@ class Home extends HTMLElement {
                             <button>
                                 <h2>Ном</h2>
                             </button>
+                            <button>
+                                <h2>Шатар</h2>
+                            </button>
+                            <button>
+                                <h2>Гоо сайхан</h2>
+                            </button>
+                            <button>
+                                <h2>Гэрэл зураг</h2>
+                            </button>
+                            <button>
+                                <h2>Хувцас</h2>
+                            </button>
+                            <button>
+                                <h2>Кино</h2>
+                            </button>
+                            <button>
+                                <h2>Хичээл</h2>
+                            </button>
                         </div>
                     </div>
                 </section>
                 <a href="#" class="filter">Хайх</a>
-
             </div>
         </div>
     </main>
         `;
-        
-        let profiles = [];
 
-        fetch('/api/userbasics')
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return res.json();
-            })
+        this.initializeComponents();
+    }
+
+    initializeComponents() {
+
+        this.fetchProfiles();
+        this.dropdownFilter = new DropdownFilter(this);
+        this.initializeDropdownColors();
+        this.profileSwipe = new ProfileSwipe(this);
+        this.setupEventListeners();
+    }
+
+    initializeDropdownColors() {
+        const dropdowns = this.querySelectorAll('.dropdown');
+        dropdowns.forEach(dropdown => {
+            this.dropdownFilter.updateDropdownColor(dropdown);
+        });
+    }
+
+    fetchProfiles() {
+        fetch('/api/profiles')
+            .then(res => res.json())
             .then(data => {
-                console.log('Profiles from server:', data);
-                profiles = data;
-                new ProfileSwipe();  
+                this.allProfiles = data;
+                this.filteredProfiles = [...data];
+                if (this.profileSwipe) {
+                    this.profileSwipe.updateProfile();
+                }
             })
-            .catch(err => {
-                console.error('Failed to load profiles:', err);
+            .catch(error => {
+                console.error('Error fetching profiles:', error);
+                this.allProfiles = this.getDummyProfiles();
+                this.filteredProfiles = [...this.allProfiles];
+                if (this.profileSwipe) {
+                    this.profileSwipe.updateProfile();
+                }
             });
+    }
 
-        
-        class ProfileSwipe {
-            constructor() {
-                this.currentProfileIndex = 0;
-                this.profileElement = document.querySelector('.profile');
-                this.profileImage = document.querySelector('.profile img');
-                this.profileName = document.querySelector('.profile h1');
-                this.profileAge = document.querySelector('.profile p');
-                this.refreshButton = document.querySelector('.buttons button:nth-child(1)');
-                this.heartButton = document.querySelector('.buttons button:nth-child(2)');
-                this.closeButton = document.querySelector('.buttons button:nth-child(3)');
-                this.init();
+    getDummyProfiles() {
+        return [
+            {
+                name: "Jennie Kim",
+                age: 28,
+                image: "img/image.jpeg",
+                major: "Программ хангамж",
+                about: { zodiac: "Загас", mbti: "ENFP" },
+                relationshipGoal: "Long-term",
+                loveLanguage: "Quality Time",
+                school: "Инженер, технологийн сургууль",
+                year: 3,
+                interests: ["Хөгжим", "Аялал", "Кино"]
+            },
+            {
+                name: "Alex Chen",
+                age: 25,
+                image: "img/profile2.jpg",
+                major: "Бизнесийн удирдлага",
+                about: { zodiac: "Хумх", mbti: "ISTJ" },
+                relationshipGoal: "Short-term fun",
+                loveLanguage: "Acts of Service",
+                school: "Бизнесийн сургууль",
+                year: 4,
+                interests: ["Спорт", "Компьютер", "Ном"]
+            },
+            {
+                name: "Emma Smith",
+                age: 26,
+                image: "img/profile3.jpg",
+                major: "Хууль",
+                about: { zodiac: "Арслан", mbti: "ENFJ" },
+                relationshipGoal: "Long-term",
+                loveLanguage: "Words of Affirmation",
+                school: "Хууль зүйн сургууль",
+                year: 2,
+                interests: ["Ном", "Хувцас", "Кино"]
             }
+        ];
+    }
 
-            init() {
-                this.setupTransitions();
-                this.attachEventListeners();
-                this.setupKeyboardControls();
-                this.setupTouchControls();
-                this.updateProfile();  // 🔥 show first profile when ready
-            }
-
-            setupTransitions() {
-                this.profileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                this.refreshButton.style.transition = 'transform 0.3s ease';
-                this.heartButton.style.transition = 'transform 0.3s ease';
-                this.closeButton.style.transition = 'transform 0.3s ease';
-            }
-
-            getCurrentProfile() {
-                if (!profiles.length) {
-                    console.warn('No profiles loaded');
-                    return null;
+    setupEventListeners() {
+        const filterButton = this.querySelector('.filter');
+        if (filterButton) {
+            filterButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const selectedFilters = this.dropdownFilter.getSelectedFilters();
+                console.log('Applying filters:', selectedFilters);
+                this.applyFilters(selectedFilters);
+            });
+        }
+        const seeMoreBtn = this.querySelector('.see-more-btn');
+        if (seeMoreBtn) {
+            seeMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const currentProfile = this.profileSwipe.getCurrentProfile();
+                if (currentProfile) {
+                    const userId = currentProfile.userId ||
+                        `user-${currentProfile.name.toLowerCase().replace(/\s+/g, '-')}`;
+                    window.location.hash = `#othersProfile?userId=${userId}`;
+                    console.log('Navigating to profile:', userId);
+                } else {
+                    console.warn('No current profile available');
+                    window.location.hash = '#othersProfile?userId=demo-user';
                 }
+            });
+        }
+    }
 
-                // keep index in range
-                if (this.currentProfileIndex >= profiles.length) {
-                    this.currentProfileIndex = 0;
-                } else if (this.currentProfileIndex < 0) {
-                    this.currentProfileIndex = profiles.length - 1;
-                }
+    applyFilters(filters) {
+        console.log('Filtering with:', filters);
 
-                return profiles[this.currentProfileIndex];
-            }
-
-
-            updateProfile() {
-                const currentProfile = this.getCurrentProfile();
-                if (!currentProfile) return;
-
-                this.profileElement.style.opacity = '0';
-
-                setTimeout(() => {
-                    this.profileImage.src = currentProfile.image;
-                    this.profileName.textContent = `${currentProfile.name}, ${currentProfile.age}`;
-                    this.profileAge.textContent = currentProfile.major || 'Программ хангамж';
-                    this.profileElement.style.opacity = '1';
-                }, 300);
-            }
-
-
-            refresh() {
-                this.refreshButton.style.transform = 'rotate(360deg)';
-                setTimeout(() => {
-                    this.refreshButton.style.transform = 'rotate(0deg)';
-                }, 300);
-                this.updateProfile();
-            }
-
-            like() {
-                const currentProfile = this.getCurrentProfile();
-                if (!currentProfile) return;
-
-                this.heartButton.style.transform = 'scale(1.2)';
-                this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
-
-                setTimeout(() => {
-                    this.heartButton.style.transform = 'scale(1)';
-                    this.profileElement.style.transform = 'translateX(0) rotate(0)';
-
-                    console.log('Liked:', currentProfile.name);
-                    this.currentProfileIndex++;
-                    this.updateProfile();
-                }, 300);
-            }
-
-            pass() {
-                const currentProfile = this.getCurrentProfile();
-                if (!currentProfile) return;
-
-                this.closeButton.style.transform = 'rotate(90deg)';
-                this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
-
-                setTimeout(() => {
-                    this.closeButton.style.transform = 'rotate(0deg)';
-                    this.profileElement.style.transform = 'translateX(0) rotate(0)';
-
-                    console.log('Passed:', currentProfile.name);
-                    this.currentProfileIndex++;
-                    this.updateProfile();
-                }, 300);
-            }
-
-
-            attachEventListeners() {
-                this.refreshButton.addEventListener('click', () => this.refresh());
-                this.heartButton.addEventListener('click', () => this.like());
-                this.closeButton.addEventListener('click', () => this.pass());
-            }
-
-            setupKeyboardControls() {
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'ArrowLeft') {
-                        this.pass();
-                    } else if (e.key === 'ArrowRight') {
-                        this.like();
-                    } else if (e.key === ' ') {
-                        e.preventDefault();
-                        this.refresh();
-                    }
-                });
-            }
-
-            setupTouchControls() {
-                let touchStartX = 0;
-                let touchEndX = 0;
-
-                this.profileElement.addEventListener('touchstart', (e) => {
-                    touchStartX = e.changedTouches[0].screenX;
-                });
-
-                this.profileElement.addEventListener('touchend', (e) => {
-                    touchEndX = e.changedTouches[0].screenX;
-                    this.handleSwipe(touchStartX, touchEndX);
-                });
-            }
-
-            handleSwipe(startX, endX) {
-                const swipeThreshold = 50;
-
-                if (endX < startX - swipeThreshold) {
-                    this.pass();
-                }
-
-                if (endX > startX + swipeThreshold) {
-                    this.like();
-                }
-            }
+        if (!this.allProfiles.length) {
+            console.warn('No profiles available');
+            return;
         }
 
-        // DropdownFilter + filter button code stays the same
+        this.filteredProfiles = this.allProfiles.filter(profile => {
+            for (const [category, selectedValues] of Object.entries(filters)) {
+                if (!selectedValues || selectedValues.length === 0) continue;
 
+                let profileValue;
+
+                switch (category) {
+                    case "Орд":
+                        profileValue = profile.about?.zodiac;
+                        break;
+                    case "MBTI":
+                        profileValue = profile.about?.mbti;
+                        break;
+                    case "Relationship goals":
+                        profileValue = profile.relationshipGoal;
+                        break;
+                    case "Love language":
+                        profileValue = profile.loveLanguage;
+                        break;
+                    case "Cалбар сургууль":
+                        profileValue = profile.school;
+                        break;
+                    case "Түвшин":
+                        profileValue = String(profile.year);
+                        break;
+                    case "Сонирхол":
+                        const interests = profile.interests || [];
+                        const hasMatchingInterest = selectedValues.some(interest =>
+                            interests.includes(interest)
+                        );
+                        if (!hasMatchingInterest) return false;
+                        continue;
+                    default:
+                        continue;
+                }
+
+                if (!profileValue || !selectedValues.includes(profileValue)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        console.log('Found profiles:', this.filteredProfiles.length);
+
+        if (this.profileSwipe) {
+            this.profileSwipe.currentProfileIndex = 0;
+            this.profileSwipe.updateProfile();
+        }
+
+        if (!this.filteredProfiles.length && Object.keys(filters).length > 0) {
+            setTimeout(() => {
+                alert("Тохирох илэрц олдсонгүй");
+            }, 100);
+        }
     }
-};
+}
 
+class ProfileSwipe {
+    constructor(homeComponent) {
+        this.home = homeComponent;
+        this.currentProfileIndex = 0;
+        this.profileElement = homeComponent.querySelector('.profile');
+        this.profileImage = homeComponent.querySelector('.profile img');
+        this.profileName = homeComponent.querySelector('.profile h1');
+        this.profileAge = homeComponent.querySelector('.profile p');
+        this.refreshButton = homeComponent.querySelector('.other_button');
+        this.heartButton = homeComponent.querySelector('.heart_button');
+        this.closeButton = homeComponent.querySelector('.other_button_x');
+        this.refreshLimit = 1;
+        this.refreshCount = 0;
+        this.lastRefreshDate = null;
+
+        this.init();
+    }
+
+    init() {
+        this.setupTransitions();
+        this.attachEventListeners();
+        this.setupTouchControls();
+        this.checkRefreshLimit();
+    }
+
+// ✅ like / pass-ийг backend руу хадгална
+async saveSwipe(action, profile) {
+    if (!profile) return;
+
+    // api/profiles-аас ирсэн бол userId байна
+    // dummy profile бол fallback id үүсгэнэ
+    const targetUserId =
+        profile.userId ||
+        `demo-${profile.name.toLowerCase().replace(/\s+/g, "-")}`;
+
+    try {
+        // 1️⃣ LIKE үед → likes + match logic
+        if (action === "like" && profile.userId) {
+            await fetch("/api/like", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ toUserId: profile.userId }),
+            });
+        }
+
+        // 2️⃣ Swipe log (like + pass аль аль нь)
+        await fetch("/api/swipes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action,
+                targetUserId,
+                targetName: profile.name,
+                at: new Date().toISOString(),
+            }),
+        });
+
+    } catch (err) {
+        console.warn("❌ saveSwipe failed:", err);
+    }
+}
+
+
+
+    setupTransitions() {
+        this.profileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        this.refreshButton.style.transition = 'transform 0.3s ease';
+        this.heartButton.style.transition = 'transform 0.3s ease';
+        this.closeButton.style.transition = 'transform 0.3s ease';
+    }
+
+    getCurrentProfile() {
+        if (!this.home.filteredProfiles.length) {
+            console.warn('No profiles match filters');
+            this.showNoProfilesMessage();
+            return null;
+        }
+
+        if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+            this.currentProfileIndex = 0;
+        }
+
+        return this.home.filteredProfiles[this.currentProfileIndex];
+    }
+    checkRefreshLimit() {
+        const today = new Date().toDateString();
+        const savedData = localStorage.getItem('refreshData');
+
+        if (savedData) {
+            const { date, count } = JSON.parse(savedData);
+            if (date === today) {
+                this.refreshCount = count;
+                this.lastRefreshDate = date;
+            } else {
+                this.refreshCount = 0;
+                this.lastRefreshDate = today;
+                this.saveRefreshData();
+            }
+        } else {
+            this.lastRefreshDate = today;
+            this.saveRefreshData();
+        }
+        if (this.refreshCount >= this.refreshLimit) {
+            this.disableRefreshButton();
+        }
+    }
+    saveRefreshData() {
+        const data = {
+            date: this.lastRefreshDate,
+            count: this.refreshCount
+        };
+        localStorage.setItem('refreshData', JSON.stringify(data));
+    }
+
+    disableRefreshButton() {
+        if (this.refreshButton) {
+            this.refreshButton.style.opacity = '0.5';
+            this.refreshButton.style.cursor = 'not-allowed';
+            this.refreshButton.disabled = true;
+
+            this.refreshButton.title = 'Өдөрт 1 удаа л дарж болно';
+        }
+    }
+    enableRefreshButton() {
+        if (this.refreshButton) {
+            this.refreshButton.style.opacity = '1';
+            this.refreshButton.style.cursor = 'pointer';
+            this.refreshButton.disabled = false;
+            this.refreshButton.title = 'Refresh';
+        }
+    }
+
+    showNoProfilesMessage() {
+        this.profileName.textContent = "Илэрц олдсонгүй";
+        this.profileAge.textContent = "Та дахин хайх тохиргоог хийннэ үү.";
+        this.profileImage.style.display = 'none';
+    }
+
+    updateProfile() {
+        const currentProfile = this.getCurrentProfile();
+        if (!currentProfile) return;
+
+        this.profileElement.style.opacity = '0';
+
+        setTimeout(() => {
+            this.profileImage.onerror = () => {
+                this.profileImage.src = 'img/default-profile.jpg';
+            };
+            this.profileImage.src = currentProfile.image || 'img/image.jpeg';
+            this.profileImage.style.display = 'block';
+            this.profileName.textContent = `${currentProfile.name}, ${currentProfile.age}`;
+            this.profileAge.textContent = currentProfile.major || 'Программ хангамж';
+            this.profileElement.style.opacity = '1';
+        }, 300);
+    }
+
+    refresh() {
+        if (this.refreshCount >= this.refreshLimit) {
+            this.showRefreshLimitAlert();
+            return;
+        }
+
+        this.refreshCount++;
+        this.saveRefreshData();
+
+        if (this.refreshCount >= this.refreshLimit) {
+            this.disableRefreshButton();
+        }
+
+        this.refreshButton.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+            this.refreshButton.style.transform = 'rotate(0deg)';
+            this.updateProfile();
+        }, 300);
+    }
+    showRefreshLimitAlert() {
+        alert('Өдөрт зөвхөн 1 удаа refresh хийж болно. Маргааш дахин оролдоно уу!');
+    }
+
+ like() {
+    const currentProfile = this.getCurrentProfile();
+    if (!currentProfile) return;
+
+    // ✅ DB-д хадгална
+    this.saveSwipe("like", currentProfile);
+
+    this.heartButton.style.transform = 'scale(1.2)';
+    this.profileElement.style.transform = 'translateX(100px) rotate(10deg)';
+
+    setTimeout(() => {
+        this.heartButton.style.transform = 'scale(1)';
+        this.profileElement.style.transform = 'translateX(0) rotate(0)';
+
+        console.log('Liked:', currentProfile.name);
+        this.currentProfileIndex++;
+        if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+            this.currentProfileIndex = 0;
+        }
+        this.updateProfile();
+    }, 300);
+}
+
+
+    pass() {
+    const currentProfile = this.getCurrentProfile();
+    if (!currentProfile) return;
+
+    // ✅ DB-д хадгална
+    this.saveSwipe("pass", currentProfile);
+
+    this.closeButton.style.transform = 'rotate(90deg)';
+    this.profileElement.style.transform = 'translateX(-100px) rotate(-10deg)';
+
+    setTimeout(() => {
+        this.closeButton.style.transform = 'rotate(0deg)';
+        this.profileElement.style.transform = 'translateX(0) rotate(0)';
+
+        console.log('Passed:', currentProfile.name);
+        this.currentProfileIndex++;
+        if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
+            this.currentProfileIndex = 0;
+        }
+        this.updateProfile();
+    }, 300);
+}
+
+
+    attachEventListeners() {
+        if (this.refreshButton) {
+            this.refreshButton.addEventListener('click', () => this.refresh());
+        }
+        if (this.heartButton) {
+            this.heartButton.addEventListener('click', () => this.like());
+        }
+        if (this.closeButton) {
+            this.closeButton.addEventListener('click', () => this.pass());
+        }
+    }
+
+    setupTouchControls() {
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        this.profileElement.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        this.profileElement.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            this.handleSwipe(touchStartX, touchEndX);
+        });
+    }
+
+    handleSwipe(startX, endX) {
+        const swipeThreshold = 50;
+
+        if (endX < startX - swipeThreshold) {
+            this.pass();
+        }
+
+        if (endX > startX + swipeThreshold) {
+            this.like();
+        }
+    }
+}
+class DropdownFilter {
+    constructor(homeComponent) {
+        this.home = homeComponent;
+        this.dropdowns = homeComponent.querySelectorAll('.dropdown');
+        this.init();
+    }
+
+    init() {
+        this.attachEventListeners();
+        this.setupClickOutside();
+    }
+
+    attachEventListeners() {
+        this.dropdowns.forEach(dropdown => {
+            const dropbtn = dropdown.querySelector('.dropbtn');
+            const content = dropdown.querySelector('.dropdown-content, .dropdown-content-school');
+            const buttons = content.querySelectorAll('button');
+
+            dropbtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown(dropdown);
+            });
+
+            buttons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    button.classList.toggle('selected');
+                    this.updateDropdownColor(dropdown);
+                });
+            });
+        });
+    }
+
+    toggleDropdown(currentDropdown) {
+        this.dropdowns.forEach(dropdown => {
+            if (dropdown !== currentDropdown) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        currentDropdown.classList.toggle('open');
+    }
+
+    updateDropdownColor(dropdown) {
+        const dropbtn = dropdown.querySelector('.dropbtn');
+        const selectedButtons = dropdown.querySelectorAll('button.selected');
+
+        if (selectedButtons.length > 0) {
+            dropbtn.style.backgroundColor = '#f50057';
+            dropbtn.style.color = '#ffffff';
+            dropbtn.style.borderColor = '#f50057';
+            dropbtn.querySelector('h1').style.color = '#ffffff';
+            dropbtn.querySelector('svg').style.color = '#ffffff';
+        } else {
+            dropbtn.style.backgroundColor = '#ffffff';
+            dropbtn.style.color = '#f50057';
+            dropbtn.style.borderColor = '#f50057';
+            dropbtn.querySelector('h1').style.color = '#f50057';
+            dropbtn.querySelector('svg').style.color = 'currentColor';
+        }
+    }
+
+    setupClickOutside() {
+        document.addEventListener('click', () => {
+            this.dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('open');
+            });
+        });
+    }
+
+    getSelectedFilters() {
+        const filters = {};
+
+        this.dropdowns.forEach(dropdown => {
+            const dropdownTitle = dropdown.querySelector('.dropbtn h1').textContent;
+            const selectedButtons = dropdown.querySelectorAll('button.selected');
+
+            if (selectedButtons.length > 0) {
+                filters[dropdownTitle] = Array.from(selectedButtons).map(btn =>
+                    btn.querySelector('h2').textContent
+                );
+            }
+        });
+
+        return filters;
+    }
+}
+  
 window.customElements.define('com-home', Home);

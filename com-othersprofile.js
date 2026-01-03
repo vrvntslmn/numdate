@@ -3,11 +3,59 @@ class OthersProfile extends HTMLElement {
     super();
     this._rendered = false;
     this.attachShadow({ mode: "open" });
+    this.currentProfile = null;
   }
 
   connectedCallback() {
     if (this._rendered) return;
     this._rendered = true;
+
+    // Get userId from URL hash or use current profile
+    const urlHash = window.location.hash;
+    console.log('Current URL hash:', urlHash);
+
+    const userId = this.extractUserIdFromHash(urlHash);
+    console.log('Extracted userId:', userId);
+
+    this.fetchProfile(userId);
+  }
+
+  extractUserIdFromHash(hash) {
+    console.log('Processing hash:', hash);
+
+    // Handle cases where hash might not have query params
+    if (!hash.includes('?')) {
+      console.log('No query parameters found, using default');
+      return 'demo-user';
+    }
+
+    const params = new URLSearchParams(hash.split('?')[1]);
+    const userId = params.get('userId');
+    console.log('Found userId in params:', userId);
+
+    return userId || 'demo-user';
+  }
+  fetchProfile(userId) {
+    fetch(`/api/profile/${userId}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(profile => {
+        this.currentProfile = profile;
+        this.render();
+      })
+      .catch(err => {
+        console.error('Error fetching profile:', err);
+        this.renderError();
+      });
+  }
+
+  render() {
+    if (!this.currentProfile) return;
+
+    const profile = this.currentProfile;
+
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -16,8 +64,6 @@ class OthersProfile extends HTMLElement {
             BlinkMacSystemFont, "Segoe UI", sans-serif;
           color: #111;
         }
-
-        /* --- PAGE LAYOUT: 2 CARD, НЭГ МӨРӨНД --- */
         .wrapper {
           max-width: 1160px;
           margin: 36px auto 40px;
@@ -29,7 +75,6 @@ class OthersProfile extends HTMLElement {
           align-items: flex-start;
         }
 
-        /* PROFILE CARD – арай жижгэвтэр */
         .profile-card {
           flex: 0 0 56%;
           background: #ffffff;
@@ -40,10 +85,9 @@ class OthersProfile extends HTMLElement {
           grid-template-columns: minmax(0, 1.05fr) 1px minmax(0, 1fr);
           column-gap: 26px;
           min-height: 500px;
-          position: relative; /* cancel товчийг байрлуулахын тулд */
+          position: relative;
         }
 
-        /* SUBSCRIPTION CARD */
         .subscription {
           flex: 0 0 24%;
           background: #ffffff;
@@ -52,13 +96,11 @@ class OthersProfile extends HTMLElement {
           padding: 18px 22px 16px;
         }
 
-        /* дэлгэц багасах үед доошоо бууна */
         @media (max-width: 1040px) {
           .wrapper {
             flex-direction: column;
             flex-wrap: nowrap;
           }
-
           .profile-card,
           .subscription {
             flex: 0 0 auto;
@@ -72,13 +114,11 @@ class OthersProfile extends HTMLElement {
             row-gap: 20px;
             padding: 18px 16px 20px;
           }
-
           .divider {
             display: none;
           }
         }
 
-        /* BACK / CANCEL BUTTON – баруун дээд буланд */
         .cancal-btn {
           position: absolute;
           top: 12px;
@@ -99,7 +139,6 @@ class OthersProfile extends HTMLElement {
           display: block;
         }
 
-        /* LEFT SIDE – center alignment */
         .profile-left {
           display: flex;
           flex-direction: column;
@@ -150,7 +189,6 @@ class OthersProfile extends HTMLElement {
           border: 2px solid #f1025f;
         }
 
-        /* VOICE LINE – PLAY + LINE + TIME */
         .voice {
           margin-top: 4px;
           width: 100%;
@@ -210,13 +248,11 @@ class OthersProfile extends HTMLElement {
           font-weight: 600;
         }
 
-        /* MIDDLE VERTICAL LINE */
         .divider {
           background: #cf0f47;
           border-radius: 999px;
         }
 
-        /* RIGHT SIDE – Мэдээлэл */
         .profile-right {
           display: flex;
           flex-direction: column;
@@ -251,7 +287,6 @@ class OthersProfile extends HTMLElement {
           height: 22px;
         }
 
-        /* SUBSCRIPTION CARD – FONT-ууд */
         .sub-header {
           display: flex;
           justify-content: center;
@@ -329,9 +364,7 @@ class OthersProfile extends HTMLElement {
       </style>
 
       <div class="wrapper">
-        <!-- BIG PROFILE CARD -->
         <section class="profile-card">
-          <!-- BACK BUTTON -->
           <div class="cancal-btn">
             <button class="cancel-btn">
               <svg width="42px" height="42px" viewBox="0 0 24 24" fill="none"
@@ -345,18 +378,15 @@ class OthersProfile extends HTMLElement {
 
           <div class="profile-left">
             <div class="avatar">
-              <img src="./img/image.jpeg" alt="profile">
+              <img src="${profile.avatar || './img/image.jpeg'}" alt="profile">
             </div>
-            <p class="name">Батцэцэг, <span>19</span></p>
-            <p class="bio">
-              Амьдрал бол аялал.
-            </p>
+            <p class="name">${profile.name}, <span>${profile.age}</span></p>
+            <p class="bio">${profile.bio || 'Амьдрал бол аялал.'}</p>
 
             <div class="photo-row">
-              <img src="./Pastry.jpg" alt="user photo">
-              <img src="./picnic.jpeg" alt="user photo">
-              <img src="./img/image.jpeg" alt="user photo">
-              <img src="./terrarium.png" alt="user photo">
+              ${(profile.photos || [profile.avatar]).slice(0, 4).map(photo =>
+      `<img src="${photo}" alt="user photo">`
+    ).join('')}
             </div>
 
             <div class="voice">
@@ -377,7 +407,7 @@ class OthersProfile extends HTMLElement {
                 <div class="timeline"></div>
                 <span class="time">0.03</span>
               </label>
-              <audio></audio>
+              <audio src="${profile.voiceUrl || ''}"></audio>
             </div>
           </div>
 
@@ -394,7 +424,7 @@ class OthersProfile extends HTMLElement {
                     stroke="black" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
-                <span>Удам</span>
+                <span>Орд: ${profile.about?.zodiac || 'Хумх'}</span>
               </li>
 
               <li class="info-item">
@@ -405,7 +435,7 @@ class OthersProfile extends HTMLElement {
                     stroke="black" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
-                <span>Харилцаа</span>
+                <span>${profile.relationshipGoal || 'Long-term'}</span>
               </li>
 
               <li class="info-item">
@@ -416,17 +446,17 @@ class OthersProfile extends HTMLElement {
                     stroke="black" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
-                <span>Миний тухай</span>
+                <span>Өндөр: ${profile.about?.height || 170}см | MBTI: ${profile.about?.mbti || 'ENFP'}</span>
               </li>
 
               <li class="info-item">
                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M14.6834 9.43925H12.0613C11.1925 9.43925 10.4881 10.1436 10.4881 11.0125C10.4881 11.8813 11.1925 12.5857 12.0613 12.5857H13.1101C13.979 12.5857 14.6834 13.29 14.6834 14.1589C14.6834 15.0278 13.979 15.7321 13.1101 15.7321H10.4881M12.5857 8.39045V9.43925M12.5857 15.7321V16.7809M18.8786 12.5857H18.8891M6.29289 12.5857H6.30338M2.09766 8.60021L2.09766 16.5712C2.09766 17.7459 2.09766 18.3333 2.32628 18.782C2.52739 19.1767 2.84828 19.4976 3.24298 19.6987C3.69168 19.9273 4.27907 19.9273 5.45384 19.9273L19.7176 19.9273C20.8924 19.9273 21.4798 19.9273 21.9285 19.6987C22.3232 19.4976 22.6441 19.1767 22.8452 18.782C23.0738 18.3333 23.0738 17.7459 23.0738 16.5712V8.60021C23.0738 7.42543 23.0738 6.83804 22.8452 6.38934C22.6441 5.99465 22.3232 5.67375 21.9285 5.47265C21.4798 5.24402 20.8924 5.24402 19.7176 5.24402L5.45385 5.24402C4.27907 5.24402 3.69168 5.24402 3.24298 5.47265C2.84828 5.67375 2.52739 5.99465 2.32628 6.38934C2.09766 6.83804 2.09766 7.42543 2.09766 8.60021ZM19.403 12.5857C19.403 12.8753 19.1682 13.1101 18.8786 13.1101C18.589 13.1101 18.3542 12.8753 18.3542 12.5857C18.3542 12.2961 18.589 12.0613 18.8786 12.0613C19.1682 12.0613 19.403 12.2961 19.403 12.5857ZM6.8173 12.5857C6.8173 12.8753 6.58251 13.1101 6.29289 13.1101C6.00327 13.1101 5.76849 12.8753 5.76849 12.5857C5.76849 12.2961 6.00327 12.0613 6.29289 12.0613C6.58251 12.0613 6.8173 12.2961 6.8173 12.5857Z"
-                                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                <span>Ажил</span>
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M14.6834 9.43925H12.0613C11.1925 9.43925 10.4881 10.1436 10.4881 11.0125C10.4881 11.8813 11.1925 12.5857 12.0613 12.5857H13.1101C13.979 12.5857 14.6834 13.29 14.6834 14.1589C14.6834 15.0278 13.979 15.7321 13.1101 15.7321H10.4881M12.5857 8.39045V9.43925M12.5857 15.7321V16.7809M18.8786 12.5857H18.8891M6.29289 12.5857H6.30338M2.09766 8.60021L2.09766 16.5712C2.09766 17.7459 2.09766 18.3333 2.32628 18.782C2.52739 19.1767 2.84828 19.4976 3.24298 19.6987C3.69168 19.9273 4.27907 19.9273 5.45384 19.9273L19.7176 19.9273C20.8924 19.9273 21.4798 19.9273 21.9285 19.6987C22.3232 19.4976 22.6441 19.1767 22.8452 18.782C23.0738 18.3333 23.0738 17.7459 23.0738 16.5712V8.60021C23.0738 7.42543 23.0738 6.83804 22.8452 6.38934C22.6441 5.99465 22.3232 5.67375 21.9285 5.47265C21.4798 5.24402 20.8924 5.24402 19.7176 5.24402L5.45385 5.24402C4.27907 5.24402 3.69168 5.24402 3.24298 5.47265C2.84828 5.67375 2.52739 5.99465 2.32628 6.38934C2.09766 6.83804 2.09766 7.42543 2.09766 8.60021ZM19.403 12.5857C19.403 12.8753 19.1682 13.1101 18.8786 13.1101C18.589 13.1101 18.3542 12.8753 18.3542 12.5857C18.3542 12.2961 18.589 12.0613 18.8786 12.0613C19.1682 12.0613 19.403 12.2961 19.403 12.5857ZM6.8173 12.5857C6.8173 12.8753 6.58251 13.1101 6.29289 13.1101C6.00327 13.1101 5.76849 12.8753 5.76849 12.5857C5.76849 12.2961 6.00327 12.0613 6.29289 12.0613C6.58251 12.0613 6.8173 12.2961 6.8173 12.5857Z"
+                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>${profile.school || 'Сургууль'} | ${profile.major || 'Мэргэжил'}</span>
               </li>
 
               <li class="info-item">
@@ -437,16 +467,15 @@ class OthersProfile extends HTMLElement {
                     stroke="black" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
-                <span>Дуртай</span>
+                <span>${(profile.interests || []).join(', ')}</span>
               </li>
             </ul>
           </div>
         </section>
 
-        <!-- SUBSCRIPTION CARD -->
         <section class="subscription">
           <div class="sub-header">
-            <span>Миний багц:<strong>Free</strong></span>
+            <span>Миний багц: <strong>Free</strong></span>
           </div>
 
           <table class="sub-table">
@@ -488,14 +517,28 @@ class OthersProfile extends HTMLElement {
       </div>
     `;
 
-    // буцах товчны click event
     const cancelBtn = this.shadowRoot.querySelector(".cancel-btn");
     if (cancelBtn) {
       cancelBtn.addEventListener("click", () => {
         window.history.back();
-        
       });
     }
+  }
+
+  renderError() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        .error {
+          text-align: center;
+          padding: 40px;
+          color: #cf0f47;
+        }
+      </style>
+      <div class="error">
+        <h2>Алдаа гарлаа</h2>
+        <p>Профайл ачааллахад алдаа гарлаа.</p>
+      </div>
+    `;
   }
 }
 

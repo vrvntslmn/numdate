@@ -1,11 +1,21 @@
+import {api} from './apiClient.js';
+import './nm-selection.js';
+
+
 class Profile extends HTMLElement{
+    static GOAL = 'Харилцааны хэлбэр';
+    static LOVELANG = 'Хайрын хэл';
+    static ZODIAC = 'Орд';
+    static MBTI = 'MBTI';
+    static MAJOR = 'ХӨТӨЛБӨР';
+    static INTERESTS = 'Сонирхол';
+
     constructor(){
-        super();
+        super(); 
         this.profile = null;
     }
 
     connectedCallback(){
-        this.render();
 
         this.addEventListener('click', (event) => {
             const target = event.target;
@@ -19,21 +29,115 @@ class Profile extends HTMLElement{
             }
         });
 
-        fetch('/api/profile')
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return res.json();
-            })
+        api.getMyProfile()
             .then(data => {
                 console.log('Profiles from server:', data);
-                this.profile = data; 
+                this.profile = data;
+                this.render();
             })
-            .catch(err => {
-                console.error('Failed to load profiles:', err);
-            });
+            .catch(err => console.error('Failed to load profiles:', err)
+        );
+
     }
+
+    loadUser() {
+        const p = this.profile;
+        if (!p) return;
+
+        const {
+            avatar,
+            name,
+            dob,
+            bio,
+            photos: images = [],
+            relationshipGoal,
+            loveLanguage,
+            about = {},
+            likes = {},
+            interests = [],
+            major,
+        } = p;
+
+        let age = null;
+        if (dob) {
+            const birth = new Date(dob);
+            const today = new Date();
+            let a = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
+            age = a;
+        }
+
+        const $  = (sel) => this.querySelector(sel);
+        const $$ = (sel) => this.querySelectorAll(sel);
+
+        const goalEl = $('.goal p');
+        if (goalEl) goalEl.textContent = relationshipGoal || '';
+
+        const loveEl = $('.loveLang p');
+        if (loveEl) loveEl.textContent = loveLanguage || '';
+
+        const majorEl = $('.major p');
+        if (majorEl && major) majorEl.textContent = major;
+        
+        const aboutBlock = $('.about');
+        const hasAbout =
+            about &&
+            (about.height || about.zodiac || about.mbti);
+
+        if (aboutBlock) {
+            if (!hasAbout) {
+                aboutBlock.style.display = 'none';
+                const aboutButton = $('button');
+                if (aboutButton) aboutButton.style.display = 'none';
+            } else {
+                aboutBlock.style.display = 'flex';
+                if (about.height) {
+                    const el = $('.height p');
+                    aboutBlock.querySelector('.height').style.display = 'block';
+                    if (el) el.textContent = about.height;
+                }
+
+                if (about.zodiac) {
+                    const el = $('.zodiac p');
+                    aboutBlock.querySelector('.zodiac').style.display = 'block';
+                    if (el) el.textContent = about.zodiac;
+                }
+                if (about.mbti) {
+                    const el = $('.mbti p');
+                    aboutBlock.querySelector('.mbti').style.display = 'block';
+                    if (el) el.textContent = about.mbti;
+                }
+            }
+        }
+
+
+        const likesEl = $('.likes button');
+        
+        if(!likes || Object.keys(likes).length == 0) if (likesEl) likesEl.style.display = 'none';
+
+        Object.keys(interests).forEach((key) => {
+        const el = $(`.${key} p`);
+        if (el) {
+            el.parentElement.style.display = 'flex';
+            el.textContent = interests[key];
+        }
+        });
+
+        const avatarImg = $('.avatar img');
+        if (avatarImg && avatar) avatarImg.src = avatar;
+
+        const nameEl = $('.name');
+        if (nameEl) nameEl.innerHTML = `${name}, <span>${age}</span>`;
+
+        const bioEl = $('.bio');
+        if (bioEl) bioEl.textContent = bio || '';
+
+        $$('.user-image-container img').forEach((img, i) => {
+            if (images[i]) img.src = images[i];
+        });
+    }
+
 
     render(){
         this.innerHTML = `
@@ -49,7 +153,9 @@ class Profile extends HTMLElement{
                     --brderRad-big: 20px;
                     --brderRad-m: 8px;
                     --brderRad-sm: 2px;
+                    --back-col-white: white;
                     --inputBorder: #D9D9D9;
+                    --subInfoTitle-col: #55565A;
                 }
                 
                 .edit-button{
@@ -87,6 +193,13 @@ class Profile extends HTMLElement{
                     font-family:var(--font-header);
                     font-size: 24px;
                     margin: 0px;
+                }
+
+                h5{
+                    font-family:var(--font-header);
+                    font-size: 20px;
+                    margin: 0px; 
+                    color: var(--subInfoTitle-col);
                 }
                 
                 p{
@@ -152,6 +265,7 @@ class Profile extends HTMLElement{
                             max-width: 60vw;
                             width: 100%;
                             justify-content: space-around;
+                            & > img{cursor: pointer;}
                         }
 
                         & > .voice {
@@ -204,16 +318,58 @@ class Profile extends HTMLElement{
                         grid-template-columns: 30px auto;
                         grid-template-rows: 30px;
                         width: 52%;
-                
+                        height: 470px;
                     }
+
+                    & > section > div:last-of-type {
+                        overflow:scroll;
+                        scrollbar-width: none;
+                        margin: 0px 3px;
+                        & > article {
+                            margin-top: 25px;
+                            height: fit-content;
+                            display: flex;
+                            flex-direction: column;
+                            & > article{
+                                margin: 15px 0px;
+                                margin-left: 5px;
+                                & > div{
+                                    margin: 10px 0px;
+                                }
+                            }
+
+                            & > section{
+                                margin: 15px 0px;
+                                margin-left: 5px;
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 10px;
+                                h5{width: 100%};
+                                & > div{
+                                    margin: 10px 0px;
+                                    padding: 0px 5px;
+                                    align-items: center;
+                                    gap: 3px;
+                                    border-radius: var(--brderRad-m);
+                                    border: solid 2px var(--inputBorder);
+                                }
+                            }
+                        }
+
+                    }
+
 
                     & > section label{
                         display: flex;
                         gap: 10px;
                     }
 
-                    & > section article{
-                        margin: 20px 0px 50px;
+                    & > section article > div{
+                        padding: 0px 5px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        p{font-family: var(--font-body); font-size: 20px; margin: 0px;}
                     }
 
                     & > section > div:first-of-type {
@@ -227,11 +383,7 @@ class Profile extends HTMLElement{
                     & > section > div:last-of-type {
                         grid-area: div;
                     }
-
-
                 }
-
-
 
                 div.profile-head{
                     margin: 0px;
@@ -239,8 +391,6 @@ class Profile extends HTMLElement{
                     width: 100%;
                     justify-content: space-between;
                 }
-
-
 
                 div.avatar{
                     margin: 20px 0px;
@@ -285,7 +435,7 @@ class Profile extends HTMLElement{
 
                 .redline{
                     width: 6%;
-                    height: 500px;
+                    height: 100%;
                     background-color: var(--second-color);
                 }
 
@@ -369,6 +519,39 @@ class Profile extends HTMLElement{
                     background: none;          
                     cursor: pointer; 
                 }
+
+                .goal{border-bottom: solid 1px var(--inputBorder);}
+
+                .about{display:none;}
+                .height{display:none;}
+                .mbti{display:none;}
+                .zodiac{display:none;}
+
+                .work{
+                    display: none;
+                }
+
+                .movie{
+                    display: none;
+                }
+
+                .taste{
+                    display: none;
+                }
+
+                .song{
+                    display: none;
+                }
+
+                .interests{display: block;}
+                
+                .art{display:none;}
+                .sport{display:none;}
+                .music{display:none;}
+                .computer{display:none;}
+                .travel{display:none;}
+                .book{display:none;}
+                
             </style>
             <main>
 
@@ -384,7 +567,7 @@ class Profile extends HTMLElement{
                         <div class="avatar">
                             <img src="./img/Image.jpg" alt="profile">
                         </div>
-                        <p class="name">Тэмүүжин, <span>21</span></p>
+                        <p class="name">, <span>21</span></p>
                         <p class="bio">Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулдаг ялагдашгүй нэгдэл юм.</p>
                         <div class="user-image-container">
                             <img class="border-red" src="./img/image.jpeg" alt="user photo">
@@ -419,19 +602,7 @@ class Profile extends HTMLElement{
                         <div class="redline"></div>
                         <h3>Мэдээлэл</h3>
                         <div>
-                            <article>
-                                <label>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M16 6L19 3M19 3L22 6M19 3V9M16 21V19.8C16 18.1198 16 17.2798 15.673 16.638C15.3854 16.0735 14.9265 15.6146 14.362 15.327C13.7202 15 12.8802 15 11.2 15H6.8C5.11984 15 4.27976 15 3.63803 15.327C3.07354 15.6146 2.6146 16.0735 2.32698 16.638C2 17.2798 2 18.1198 2 19.8V21M12.5 7.5C12.5 9.433 10.933 11 9 11C7.067 11 5.5 9.433 5.5 7.5C5.5 5.567 7.067 4 9 4C10.933 4 12.5 5.567 12.5 7.5Z"
-                                            stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <h4>Удам</h4>
-                                </label>
-                                <p></p>
-                            </article>
-                            <article>
+                            <article class='relation'>
                                 <label>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -441,9 +612,35 @@ class Profile extends HTMLElement{
                                     </svg>
                                     <h4>Харилцаа</h4>
                                 </label>
-                                <p></p>
+                                <article class="goal">
+                                    <h5>Сонирхсон харилцаа</h5>
+                                    <div>                                       
+                                        <svg width="20" height="20" viewBox="0 0 27 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.8186 4.25C12.9228 4.25016 15.4543 6.81578 15.4543 10C15.4543 13.1842 12.9228 15.7498 9.8186 15.75C6.7143 15.75 4.18188 13.1843 4.18188 10C4.18188 6.81568 6.7143 4.25 9.8186 4.25Z" stroke="#55565A"/>
+                                        <path d="M17.1816 0.5C18.2525 0.5 19.1367 1.38675 19.1367 2.5C19.1367 3.61325 18.2525 4.5 17.1816 4.5C16.111 4.49974 15.2275 3.61309 15.2275 2.5C15.2275 1.38691 16.111 0.500258 17.1816 0.5Z" stroke="#55565A"/>
+                                        <path d="M24.5449 8C25.6158 8 26.5 8.88675 26.5 10C26.5 11.1133 25.6158 12 24.5449 12C23.4743 11.9997 22.5908 11.1131 22.5908 10C22.5908 8.88691 23.4743 8.00026 24.5449 8Z" stroke="#55565A"/>
+                                        <path d="M17.1816 15.5C18.2525 15.5 19.1367 16.3867 19.1367 17.5C19.1367 18.6133 18.2525 19.5 17.1816 19.5C16.111 19.4997 15.2275 18.6131 15.2275 17.5C15.2275 16.3869 16.111 15.5003 17.1816 15.5Z" stroke="#55565A"/>
+                                        <path d="M9.81812 8C10.889 8 11.7732 8.88675 11.7732 10C11.7732 11.1133 10.889 12 9.81812 12C8.74745 11.9997 7.86401 11.1131 7.86401 10C7.86401 8.88691 8.74745 8.00026 9.81812 8Z" stroke="#55565A"/>
+                                        <path d="M9.81812 0.5C10.889 0.5 11.7732 1.38675 11.7732 2.5C11.7732 3.61325 10.889 4.5 9.81812 4.5C8.74745 4.49974 7.86401 3.61309 7.86401 2.5C7.86401 1.38691 8.74745 0.500258 9.81812 0.5Z" stroke="#55565A"/>
+                                        <path d="M17.1816 8C18.2525 8 19.1367 8.88675 19.1367 10C19.1367 11.1133 18.2525 12 17.1816 12C16.111 11.9997 15.2275 11.1131 15.2275 10C15.2275 8.88691 16.111 8.00026 17.1816 8Z" stroke="#55565A"/>
+                                        <path d="M9.81812 15.5C10.889 15.5 11.7732 16.3867 11.7732 17.5C11.7732 18.6133 10.889 19.5 9.81812 19.5C8.74745 19.4997 7.86401 18.6131 7.86401 17.5C7.86401 16.3869 8.74745 15.5003 9.81812 15.5Z" stroke="#55565A"/>
+                                        <path d="M2.4541 8C3.52498 8 4.40918 8.88675 4.40918 10C4.40918 11.1133 3.52498 12 2.4541 12C1.38344 11.9997 0.5 11.1131 0.5 10C0.5 8.88691 1.38344 8.00026 2.4541 8Z" stroke="#55565A"/>
+                                        <path d="M17.1821 4.25C20.2863 4.25016 22.8179 6.81578 22.8179 10C22.8179 13.1842 20.2863 15.7498 17.1821 15.75C14.0778 15.75 11.5454 13.1843 11.5454 10C11.5454 6.81568 14.0778 4.25 17.1821 4.25Z" stroke="#55565A"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                </article>
+                                <article class="loveLang">
+                                    <h5>Хайрын хэл</h5>
+                                    <div>
+                                        <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14.5559 8.93863C14.9302 8.27337 15.2422 7.67308 15.4346 7.21618C16.3691 4.99757 15.4451 2.44556 13.1863 1.40457C10.9274 0.36358 8.65922 1.443 7.66376 3.52712C5.76014 2.22021 3.22078 2.41214 1.8204 4.45163C0.420021 6.49111 0.859523 9.15551 2.77754 10.6094C3.64803 11.2692 5.36963 12.2417 6.99048 13.107M15.3082 10.7655C14.8857 8.49462 12.9545 6.83381 10.5229 7.28521C8.0913 7.73662 6.51903 9.93157 6.84776 12.3166C7.11186 14.2328 8.56967 18.7286 9.13259 20.4221C9.2094 20.6531 9.24781 20.7687 9.32386 20.8493C9.3901 20.9195 9.47819 20.9703 9.57206 20.9926C9.67983 21.0182 9.79905 20.9937 10.0375 20.9448C11.7848 20.5858 16.4051 19.601 18.1958 18.8718C20.4246 17.9641 21.5748 15.5058 20.7132 13.1717C19.8517 10.8375 17.485 9.99608 15.3082 10.7655Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                </article>
                             </article>
-                            <article>
+                            <article class='about'>
                                 <label>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -453,9 +650,35 @@ class Profile extends HTMLElement{
                                     </svg>
                                     <h4>Миний тухай</h4>
                                 </label>
-                                <p></p>
+                                <article class="height">
+                                    <h5>Өндөр</h5>
+                                    <div>                                    
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.7563 3.88125L13.0688 5.19375M9.13132 6.50625L10.4438 7.81875M6.50632 9.13125L7.81882 10.4438M3.88132 11.7563L5.19382 13.0688M1.31376 14.4388L4.69881 17.8238C4.87206 17.9971 4.95869 18.0837 5.05859 18.1162C5.14646 18.1447 5.24111 18.1447 5.32898 18.1162C5.42887 18.0837 5.5155 17.9971 5.68876 17.8238L17.8238 5.68876C17.9971 5.5155 18.0837 5.42887 18.1162 5.32898C18.1447 5.24111 18.1447 5.14646 18.1162 5.05859C18.0837 4.95869 17.9971 4.87206 17.8238 4.69881L14.4388 1.31376C14.2655 1.1405 14.1789 1.05387 14.079 1.02141C13.9911 0.992862 13.8965 0.992862 13.8086 1.02141C13.7087 1.05387 13.6221 1.1405 13.4488 1.31376L1.31376 13.4488C1.1405 13.6221 1.05387 13.7087 1.02141 13.8086C0.992862 13.8965 0.992862 13.9911 1.02141 14.079C1.05387 14.1789 1.1405 14.2655 1.31376 14.4388Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                </article>
+                                <article class="zodiac">
+                                    <h5>Орд</h5>
+                                    <div>
+                                        <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M19.0017 5.00022C21.6667 8.54505 21.6661 13.4578 19 17.0021M11 21C12.5711 21 14.0575 20.6377 15.3803 19.9921C15.2542 19.9974 15.1274 20 15 20C10.0294 20 6 15.9706 6 11C6 6.02944 10.0294 2 15 2C15.1274 2 15.2542 2.00265 15.3803 2.00789C14.0575 1.36229 12.5711 1 11 1C5.47715 1 1 5.47715 1 11C1 16.5228 5.47715 21 11 21Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                </article>
+                                <article class="mbti">
+                                    <h5>MBTI</h5>
+                                    <div>                                
+                                        <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 12.1111H19.7614C20.3181 12.1111 20.5964 12.1111 20.7554 12.0034C20.894 11.9094 20.9825 11.7652 20.9984 11.6071C21.0167 11.4258 20.8735 11.2055 20.5871 10.7649L18.1484 7.01289C18.0404 6.84661 17.9863 6.76347 17.9652 6.67472C17.9465 6.59621 17.9465 6.5149 17.9652 6.4364C17.9863 6.34764 18.0404 6.2645 18.1484 6.09823L20.5871 2.34622C20.8735 1.90559 21.0167 1.68527 20.9984 1.50399C20.9825 1.34593 20.894 1.20171 20.7554 1.10776C20.5964 1 20.3181 1 19.7614 1H1L1 21" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                </article>
                             </article>
-                            <article>
+                            <article class='job'>
                                 <label>
                                     <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -465,9 +688,21 @@ class Profile extends HTMLElement{
                                     </svg>
                                     <h4>Ажил</h4>
                                 </label>
-                                <p></p>
+                                <article class="major">
+                                    <h5>Хөтөлбөр</h5>
+                                    <div>
+                                        <svg width="20" height="20" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15.8112 5.23191C15.8112 4.24805 15.8112 3.75612 15.7031 3.35251C15.4096 2.25724 14.5541 1.40174 13.4589 1.10827C13.0553 1.00012 12.5633 1.00012 11.5795 1.00012C10.5956 1.00012 10.1037 1.00012 9.70007 1.10827C8.6048 1.40174 7.7493 2.25724 7.45582 3.35251C7.34768 3.75612 7.34768 4.24805 7.34768 5.23191M4.38543 20.0432H18.7735C19.9585 20.0432 20.551 20.0432 21.0036 19.8125C21.4018 19.6097 21.7254 19.286 21.9283 18.8879C22.1589 18.4352 22.1589 17.8427 22.1589 16.6577V8.61733C22.1589 7.43232 22.1589 6.83982 21.9283 6.3872C21.7254 5.98907 21.4018 5.66538 21.0036 5.46252C20.551 5.23191 19.9585 5.23191 18.7735 5.23191H4.38543C3.20042 5.23191 2.60791 5.23191 2.1553 5.46252C1.75717 5.66538 1.43348 5.98907 1.23062 6.3872C1 6.83982 1 7.43232 1 8.61733V16.6577C1 17.8427 1 18.4352 1.23062 18.8879C1.43348 19.286 1.75717 19.6097 2.1553 19.8125C2.60791 20.0432 3.20042 20.0432 4.38543 20.0432Z" stroke="#5D5B5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                </article>
+                                <article class="work">
+                                    <h5>Ажил</h5>
+                                    <div><p></p></div>
+                                </article>
                             </article>
-                            <article>
+                            <article class='likes'>
                                 <label>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -475,9 +710,39 @@ class Profile extends HTMLElement{
                                             d="M11.9932 5.13581C9.9938 2.7984 6.65975 2.16964 4.15469 4.31001C1.64964 6.45038 1.29697 10.029 3.2642 12.5604C4.89982 14.6651 9.84977 19.1041 11.4721 20.5408C11.6536 20.7016 11.7444 20.7819 11.8502 20.8135C11.9426 20.8411 12.0437 20.8411 12.1361 20.8135C12.2419 20.7819 12.3327 20.7016 12.5142 20.5408C14.1365 19.1041 19.0865 14.6651 20.7221 12.5604C22.6893 10.029 22.3797 6.42787 19.8316 4.31001C17.2835 2.19216 13.9925 2.7984 11.9932 5.13581Z"
                                             stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
-                                    <h4>Дуртай</h4>
+                                    <h4>Таалагддаг</h4>
                                 </label>
-                                <p></p>
+                                <article class="movie">
+                                    <h5>Кино</h5>
+                                    <div><p></p></div>
+                                </article>
+                                <article class="taste">
+                                    <h5>Амттан</h5>
+                                    <div><p></p></div>
+                                </article>
+                                <article class="song">
+                                    <h5>Дуу</h5>
+                                    <div><p></p></div>
+                                </article>
+                                <section class="interests">
+                                    <h5>Сонирхол</h5>
+                                    <div class="art">                                      
+                                        <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8.12624 10.0104L11.9722 13.8489M7.08262 19.9198C5.69113 21.3086 3.03608 20.9614 1 20.9614C2.04359 18.9293 0.652101 16.2793 2.04359 14.8905C3.43508 13.5017 5.69113 13.5017 7.08262 14.8905C8.47411 16.2793 8.47411 18.531 7.08262 19.9198ZM11.1006 14.7884L20.4025 4.76172C21.2218 3.87859 21.1954 2.50711 20.3427 1.65606C19.49 0.805003 18.1158 0.778637 17.231 1.59635L7.18492 10.8803C6.66579 11.3601 6.40622 11.5999 6.25484 11.8558C5.89182 12.4692 5.87721 13.2276 6.21634 13.8546C6.35776 14.116 6.6079 14.3657 7.10818 14.865C7.60845 15.3643 7.85859 15.614 8.12054 15.7551C8.7487 16.0936 9.50857 16.079 10.1232 15.7167C10.3796 15.5656 10.6199 15.3065 11.1006 14.7884Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                    <div class="sport"><p></p></div>
+                                    <div class="music"><p></p></div>
+                                    <div class="computer">                                    
+                                        <svg width="20" height="17" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20.0002 13V4.2C20.0002 3.0799 20.0002 2.51984 19.7823 2.09202C19.5905 1.71569 19.2845 1.40973 18.9082 1.21799C18.4804 1 17.9203 1 16.8002 1H5.20024C4.08014 1 3.52009 1 3.09226 1.21799C2.71594 1.40973 2.40998 1.71569 2.21823 2.09202C2.00024 2.51984 2.00024 3.0799 2.00024 4.2V13M3.66691 17H18.3336C18.9536 17 19.2635 17 19.5179 16.9319C20.2081 16.7469 20.7472 16.2078 20.9321 15.5176C21.0002 15.2633 21.0002 14.9533 21.0002 14.3333C21.0002 14.0233 21.0002 13.8683 20.9662 13.7412C20.8737 13.3961 20.6042 13.1265 20.2591 13.0341C20.1319 13 19.9769 13 19.6669 13H2.33358C2.02359 13 1.86859 13 1.74143 13.0341C1.39633 13.1265 1.12679 13.3961 1.03432 13.7412C1.00024 13.8683 1.00024 14.0233 1.00024 14.3333C1.00024 14.9533 1.00024 15.2633 1.06839 15.5176C1.25333 16.2078 1.79242 16.7469 2.48261 16.9319C2.73694 17 3.04693 17 3.66691 17Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
+                                    <div class="travel"><p></p></div>
+                                    <div class="book"><p></p></div>
+                                </section>
                             </article>
                         </div>
                     </section>
@@ -517,11 +782,46 @@ class Profile extends HTMLElement{
                 </article>
             </main>
         `;
+
+        if (this.profile) this.loadUser();
     }
 
     renderDefault(){
         const mainCont = this.querySelector('.main-container');
         const elMain = mainCont.parentElement;
+
+        let edit = this.querySelector('#edit');
+        if(!edit) {
+            this.insertAdjacentHTML('beforeend', ` 
+                <style>
+                    #edit{
+                        display: none;
+                        place-items: center;
+                        position: fixed;
+                        top: 0px;
+                        z-index: 1;
+                        height: 100%;
+                        width: 100%;
+                        background-color: white;
+                        box-shadow: var(--box-shadow);
+                        background: rgba(0,0,0,0.2);
+                        border: 1px solid rgba(0,0,0,0.2);
+                    }
+
+                    .exit{
+                        position: absolute;
+                        width: 7% !important;
+                        height: 7% !important;
+                        right: 23%;
+                        top: 13%;
+                        cursor: pointer;
+                    }
+
+                    
+                </style>
+                <div id="edit"></div>`);
+            edit = this.querySelector('#edit');
+        }
      
         mainCont.innerHTML = `
             <article>
@@ -547,7 +847,7 @@ class Profile extends HTMLElement{
                     </svg>
                     <h4>BIO</h4>
                 </div>
-                <textarea maxlength="40" class="bio" rows="2" placeholder="Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулагдашгүй нэгдэл юм." ></textarea>
+                <textarea maxlength="140" class="bio" rows="3" placeholder="Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулагдашгүй нэгдэл юм." ></textarea>
                 <div class="title">                                       
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16.2 21H6.93137C6.32555 21 6.02265 21 5.88238 20.8802C5.76068 20.7763 5.69609 20.6203 5.70865 20.4608C5.72312 20.2769 5.93731 20.0627 6.36569 19.6343L14.8686 11.1314C15.2646 10.7354 15.4627 10.5373 15.691 10.4632C15.8918 10.3979 16.1082 10.3979 16.309 10.4632C16.5373 10.5373 16.7354 10.7354 17.1314 11.1314L21 15V16.2M16.2 21C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2M16.2 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V7.8C3 6.11984 3 5.27976 3.32698 4.63803C3.6146 4.07354 4.07354 3.6146 4.63803 3.32698C5.27976 3 6.11984 3 7.8 3H16.2C17.8802 3 18.7202 3 19.362 3.32698C19.9265 3.6146 20.3854 4.07354 20.673 4.63803C21 5.27976 21 6.11984 21 7.8V16.2M10.5 8.5C10.5 9.60457 9.60457 10.5 8.5 10.5C7.39543 10.5 6.5 9.60457 6.5 8.5C6.5 7.39543 7.39543 6.5 8.5 6.5C9.60457 6.5 10.5 7.39543 10.5 8.5Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -577,55 +877,152 @@ class Profile extends HTMLElement{
                 <div class="redline"></div>
                 <h3>Мэдээлэл</h3>
                 <div>
-                    <article>
-                        <label>                           
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 6L19 3M19 3L22 6M19 3V9M16 21V19.8C16 18.1198 16 17.2798 15.673 16.638C15.3854 16.0735 14.9265 15.6146 14.362 15.327C13.7202 15 12.8802 15 11.2 15H6.8C5.11984 15 4.27976 15 3.63803 15.327C3.07354 15.6146 2.6146 16.0735 2.32698 16.638C2 17.2798 2 18.1198 2 19.8V21M12.5 7.5C12.5 9.433 10.933 11 9 11C7.067 11 5.5 9.433 5.5 7.5C5.5 5.567 7.067 4 9 4C10.933 4 12.5 5.567 12.5 7.5Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <h4>Удам</h4>
-                        </label>
-                        <p></p>
-                        <button class="plus-btn" id="udam">НЭМЭХ</button>
-                    </article>
-                    <article>
+                    <article class='relation'>
                         <label>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15.5455 9.92543C15.9195 9.26103 16.2313 8.66151 16.4236 8.20521C17.3573 5.98947 16.434 3.44077 14.1769 2.40112C11.9199 1.36148 9.65341 2.4395 8.65871 4.52093C6.75657 3.2157 4.21918 3.40739 2.81989 5.44424C1.42059 7.48108 1.85975 10.142 3.77629 11.594C4.6461 12.253 6.36636 13.2242 7.98596 14.0884M16.2972 11.7499C15.8751 9.482 13.9454 7.82334 11.5156 8.27415C9.08592 8.72497 7.51488 10.9171 7.84335 13.299C8.10725 15.2127 9.56392 19.7027 10.1264 21.394C10.2032 21.6248 10.2415 21.7402 10.3175 21.8206C10.3837 21.8907 10.4717 21.9416 10.5655 21.9638C10.6732 21.9894 10.7923 21.9649 11.0306 21.916C12.7765 21.5575 17.3933 20.574 19.1826 19.8457C21.4096 18.9392 22.5589 16.4841 21.6981 14.153C20.8372 11.8219 18.4723 10.9815 16.2972 11.7499Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M15.5455 9.92543C15.9195 9.26103 16.2313 8.66151 16.4236 8.20521C17.3573 5.98947 16.434 3.44077 14.1769 2.40112C11.9199 1.36148 9.65341 2.4395 8.65871 4.52093C6.75657 3.2157 4.21918 3.40739 2.81989 5.44424C1.42059 7.48108 1.85975 10.142 3.77629 11.594C4.6461 12.253 6.36636 13.2242 7.98596 14.0884M16.2972 11.7499C15.8751 9.482 13.9454 7.82334 11.5156 8.27415C9.08592 8.72497 7.51488 10.9171 7.84335 13.299C8.10725 15.2127 9.56392 19.7027 10.1264 21.394C10.2032 21.6248 10.2415 21.7402 10.3175 21.8206C10.3837 21.8907 10.4717 21.9416 10.5655 21.9638C10.6732 21.9894 10.7923 21.9649 11.0306 21.916C12.7765 21.5575 17.3933 20.574 19.1826 19.8457C21.4096 18.9392 22.5589 16.4841 21.6981 14.153C20.8372 11.8219 18.4723 10.9815 16.2972 11.7499Z"
+                                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <h4>Харилцаа</h4>
                         </label>
-                        <p></p>
-                        <button class="plus-btn" id="hariltsaa">НЭМЭХ</button>
+                        <article class="goal">
+                            <h5>Сонирхсон харилцаа</h5>
+                            <div>                                       
+                                <svg width="20" height="20" viewBox="0 0 27 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9.8186 4.25C12.9228 4.25016 15.4543 6.81578 15.4543 10C15.4543 13.1842 12.9228 15.7498 9.8186 15.75C6.7143 15.75 4.18188 13.1843 4.18188 10C4.18188 6.81568 6.7143 4.25 9.8186 4.25Z" stroke="#55565A"/>
+                                <path d="M17.1816 0.5C18.2525 0.5 19.1367 1.38675 19.1367 2.5C19.1367 3.61325 18.2525 4.5 17.1816 4.5C16.111 4.49974 15.2275 3.61309 15.2275 2.5C15.2275 1.38691 16.111 0.500258 17.1816 0.5Z" stroke="#55565A"/>
+                                <path d="M24.5449 8C25.6158 8 26.5 8.88675 26.5 10C26.5 11.1133 25.6158 12 24.5449 12C23.4743 11.9997 22.5908 11.1131 22.5908 10C22.5908 8.88691 23.4743 8.00026 24.5449 8Z" stroke="#55565A"/>
+                                <path d="M17.1816 15.5C18.2525 15.5 19.1367 16.3867 19.1367 17.5C19.1367 18.6133 18.2525 19.5 17.1816 19.5C16.111 19.4997 15.2275 18.6131 15.2275 17.5C15.2275 16.3869 16.111 15.5003 17.1816 15.5Z" stroke="#55565A"/>
+                                <path d="M9.81812 8C10.889 8 11.7732 8.88675 11.7732 10C11.7732 11.1133 10.889 12 9.81812 12C8.74745 11.9997 7.86401 11.1131 7.86401 10C7.86401 8.88691 8.74745 8.00026 9.81812 8Z" stroke="#55565A"/>
+                                <path d="M9.81812 0.5C10.889 0.5 11.7732 1.38675 11.7732 2.5C11.7732 3.61325 10.889 4.5 9.81812 4.5C8.74745 4.49974 7.86401 3.61309 7.86401 2.5C7.86401 1.38691 8.74745 0.500258 9.81812 0.5Z" stroke="#55565A"/>
+                                <path d="M17.1816 8C18.2525 8 19.1367 8.88675 19.1367 10C19.1367 11.1133 18.2525 12 17.1816 12C16.111 11.9997 15.2275 11.1131 15.2275 10C15.2275 8.88691 16.111 8.00026 17.1816 8Z" stroke="#55565A"/>
+                                <path d="M9.81812 15.5C10.889 15.5 11.7732 16.3867 11.7732 17.5C11.7732 18.6133 10.889 19.5 9.81812 19.5C8.74745 19.4997 7.86401 18.6131 7.86401 17.5C7.86401 16.3869 8.74745 15.5003 9.81812 15.5Z" stroke="#55565A"/>
+                                <path d="M2.4541 8C3.52498 8 4.40918 8.88675 4.40918 10C4.40918 11.1133 3.52498 12 2.4541 12C1.38344 11.9997 0.5 11.1131 0.5 10C0.5 8.88691 1.38344 8.00026 2.4541 8Z" stroke="#55565A"/>
+                                <path d="M17.1821 4.25C20.2863 4.25016 22.8179 6.81578 22.8179 10C22.8179 13.1842 20.2863 15.7498 17.1821 15.75C14.0778 15.75 11.5454 13.1843 11.5454 10C11.5454 6.81568 14.0778 4.25 17.1821 4.25Z" stroke="#55565A"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                        </article>
+                        <article class="loveLang">
+                            <h5>Хайрын хэл</h5>
+                            <div>
+                                <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14.5559 8.93863C14.9302 8.27337 15.2422 7.67308 15.4346 7.21618C16.3691 4.99757 15.4451 2.44556 13.1863 1.40457C10.9274 0.36358 8.65922 1.443 7.66376 3.52712C5.76014 2.22021 3.22078 2.41214 1.8204 4.45163C0.420021 6.49111 0.859523 9.15551 2.77754 10.6094C3.64803 11.2692 5.36963 12.2417 6.99048 13.107M15.3082 10.7655C14.8857 8.49462 12.9545 6.83381 10.5229 7.28521C8.0913 7.73662 6.51903 9.93157 6.84776 12.3166C7.11186 14.2328 8.56967 18.7286 9.13259 20.4221C9.2094 20.6531 9.24781 20.7687 9.32386 20.8493C9.3901 20.9195 9.47819 20.9703 9.57206 20.9926C9.67983 21.0182 9.79905 20.9937 10.0375 20.9448C11.7848 20.5858 16.4051 19.601 18.1958 18.8718C20.4246 17.9641 21.5748 15.5058 20.7132 13.1717C19.8517 10.8375 17.485 9.99608 15.3082 10.7655Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                        </article>
+                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
                     </article>
-                    <article>                       
+                    <article class='about'>
                         <label>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 12H20M19.071 19.0711L17.6567 17.6569M4 12H2M6.34292 6.34317L4.92871 4.92896M12 4V2M17.6567 6.34317L19.071 4.92896M12 22V20M4.92871 19.0711L6.34292 17.6569M12 7L13.545 10.13L17 10.635L14.5 13.07L15.09 16.51L12 14.885L8.91 16.51L9.5 13.07L7 10.635L10.455 10.13L12 7Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M22 12H20M19.071 19.0711L17.6567 17.6569M4 12H2M6.34292 6.34317L4.92871 4.92896M12 4V2M17.6567 6.34317L19.071 4.92896M12 22V20M4.92871 19.0711L6.34292 17.6569M12 7L13.545 10.13L17 10.635L14.5 13.07L15.09 16.51L12 14.885L8.91 16.51L9.5 13.07L7 10.635L10.455 10.13L12 7Z"
+                                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <h4>Миний тухай</h4>
                         </label>
-                        <p></p>
-                        <button class="plus-btn" id="tuhai">НЭМЭХ</button>
+                        <article class="height">
+                            <h5>Өндөр</h5>
+                            <div>                                    
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.7563 3.88125L13.0688 5.19375M9.13132 6.50625L10.4438 7.81875M6.50632 9.13125L7.81882 10.4438M3.88132 11.7563L5.19382 13.0688M1.31376 14.4388L4.69881 17.8238C4.87206 17.9971 4.95869 18.0837 5.05859 18.1162C5.14646 18.1447 5.24111 18.1447 5.32898 18.1162C5.42887 18.0837 5.5155 17.9971 5.68876 17.8238L17.8238 5.68876C17.9971 5.5155 18.0837 5.42887 18.1162 5.32898C18.1447 5.24111 18.1447 5.14646 18.1162 5.05859C18.0837 4.95869 17.9971 4.87206 17.8238 4.69881L14.4388 1.31376C14.2655 1.1405 14.1789 1.05387 14.079 1.02141C13.9911 0.992862 13.8965 0.992862 13.8086 1.02141C13.7087 1.05387 13.6221 1.1405 13.4488 1.31376L1.31376 13.4488C1.1405 13.6221 1.05387 13.7087 1.02141 13.8086C0.992862 13.8965 0.992862 13.9911 1.02141 14.079C1.05387 14.1789 1.1405 14.2655 1.31376 14.4388Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                        </article>
+                        <article class="zodiac">
+                            <h5>Орд</h5>
+                            <div>
+                                <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19.0017 5.00022C21.6667 8.54505 21.6661 13.4578 19 17.0021M11 21C12.5711 21 14.0575 20.6377 15.3803 19.9921C15.2542 19.9974 15.1274 20 15 20C10.0294 20 6 15.9706 6 11C6 6.02944 10.0294 2 15 2C15.1274 2 15.2542 2.00265 15.3803 2.00789C14.0575 1.36229 12.5711 1 11 1C5.47715 1 1 5.47715 1 11C1 16.5228 5.47715 21 11 21Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                        </article>
+                        <article class="mbti">
+                            <h5>MBTI</h5>
+                            <div>                                
+                                <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 12.1111H19.7614C20.3181 12.1111 20.5964 12.1111 20.7554 12.0034C20.894 11.9094 20.9825 11.7652 20.9984 11.6071C21.0167 11.4258 20.8735 11.2055 20.5871 10.7649L18.1484 7.01289C18.0404 6.84661 17.9863 6.76347 17.9652 6.67472C17.9465 6.59621 17.9465 6.5149 17.9652 6.4364C17.9863 6.34764 18.0404 6.2645 18.1484 6.09823L20.5871 2.34622C20.8735 1.90559 21.0167 1.68527 20.9984 1.50399C20.9825 1.34593 20.894 1.20171 20.7554 1.10776C20.5964 1 20.3181 1 19.7614 1H1L1 21" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                        </article>
+                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
                     </article>
-                    <article>
+                    <article class='job'>
                         <label>
-                            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14.6834 9.43925H12.0613C11.1925 9.43925 10.4881 10.1436 10.4881 11.0125C10.4881 11.8813 11.1925 12.5857 12.0613 12.5857H13.1101C13.979 12.5857 14.6834 13.29 14.6834 14.1589C14.6834 15.0278 13.979 15.7321 13.1101 15.7321H10.4881M12.5857 8.39045V9.43925M12.5857 15.7321V16.7809M18.8786 12.5857H18.8891M6.29289 12.5857H6.30338M2.09766 8.60021L2.09766 16.5712C2.09766 17.7459 2.09766 18.3333 2.32628 18.782C2.52739 19.1767 2.84828 19.4976 3.24298 19.6987C3.69168 19.9273 4.27907 19.9273 5.45384 19.9273L19.7176 19.9273C20.8924 19.9273 21.4798 19.9273 21.9285 19.6987C22.3232 19.4976 22.6441 19.1767 22.8452 18.782C23.0738 18.3333 23.0738 17.7459 23.0738 16.5712V8.60021C23.0738 7.42543 23.0738 6.83804 22.8452 6.38934C22.6441 5.99465 22.3232 5.67375 21.9285 5.47265C21.4798 5.24402 20.8924 5.24402 19.7176 5.24402L5.45385 5.24402C4.27907 5.24402 3.69168 5.24402 3.24298 5.47265C2.84828 5.67375 2.52739 5.99465 2.32628 6.38934C2.09766 6.83804 2.09766 7.42543 2.09766 8.60021ZM19.403 12.5857C19.403 12.8753 19.1682 13.1101 18.8786 13.1101C18.589 13.1101 18.3542 12.8753 18.3542 12.5857C18.3542 12.2961 18.589 12.0613 18.8786 12.0613C19.1682 12.0613 19.403 12.2961 19.403 12.5857ZM6.8173 12.5857C6.8173 12.8753 6.58251 13.1101 6.29289 13.1101C6.00327 13.1101 5.76849 12.8753 5.76849 12.5857C5.76849 12.2961 6.00327 12.0613 6.29289 12.0613C6.58251 12.0613 6.8173 12.2961 6.8173 12.5857Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg width="26" height="26" viewBox="0 0 26 26" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M14.6834 9.43925H12.0613C11.1925 9.43925 10.4881 10.1436 10.4881 11.0125C10.4881 11.8813 11.1925 12.5857 12.0613 12.5857H13.1101C13.979 12.5857 14.6834 13.29 14.6834 14.1589C14.6834 15.0278 13.979 15.7321 13.1101 15.7321H10.4881M12.5857 8.39045V9.43925M12.5857 15.7321V16.7809M18.8786 12.5857H18.8891M6.29289 12.5857H6.30338M2.09766 8.60021L2.09766 16.5712C2.09766 17.7459 2.09766 18.3333 2.32628 18.782C2.52739 19.1767 2.84828 19.4976 3.24298 19.6987C3.69168 19.9273 4.27907 19.9273 5.45384 19.9273L19.7176 19.9273C20.8924 19.9273 21.4798 19.9273 21.9285 19.6987C22.3232 19.4976 22.6441 19.1767 22.8452 18.782C23.0738 18.3333 23.0738 17.7459 23.0738 16.5712V8.60021C23.0738 7.42543 23.0738 6.83804 22.8452 6.38934C22.6441 5.99465 22.3232 5.67375 21.9285 5.47265C21.4798 5.24402 20.8924 5.24402 19.7176 5.24402L5.45385 5.24402C4.27907 5.24402 3.69168 5.24402 3.24298 5.47265C2.84828 5.67375 2.52739 5.99465 2.32628 6.38934C2.09766 6.83804 2.09766 7.42543 2.09766 8.60021ZM19.403 12.5857C19.403 12.8753 19.1682 13.1101 18.8786 13.1101C18.589 13.1101 18.3542 12.8753 18.3542 12.5857C18.3542 12.2961 18.589 12.0613 18.8786 12.0613C19.1682 12.0613 19.403 12.2961 19.403 12.5857ZM6.8173 12.5857C6.8173 12.8753 6.58251 13.1101 6.29289 13.1101C6.00327 13.1101 5.76849 12.8753 5.76849 12.5857C5.76849 12.2961 6.00327 12.0613 6.29289 12.0613C6.58251 12.0613 6.8173 12.2961 6.8173 12.5857Z"
+                                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <h4>Ажил</h4>
                         </label>
-                        <p></p>
-                        <button class="plus-btn" id="ajil">НЭМЭХ</button>
+                        <article class="major">
+                            <h5>Хөтөлбөр</h5>
+                            <div>
+                                <svg width="20" height="20" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15.8112 5.23191C15.8112 4.24805 15.8112 3.75612 15.7031 3.35251C15.4096 2.25724 14.5541 1.40174 13.4589 1.10827C13.0553 1.00012 12.5633 1.00012 11.5795 1.00012C10.5956 1.00012 10.1037 1.00012 9.70007 1.10827C8.6048 1.40174 7.7493 2.25724 7.45582 3.35251C7.34768 3.75612 7.34768 4.24805 7.34768 5.23191M4.38543 20.0432H18.7735C19.9585 20.0432 20.551 20.0432 21.0036 19.8125C21.4018 19.6097 21.7254 19.286 21.9283 18.8879C22.1589 18.4352 22.1589 17.8427 22.1589 16.6577V8.61733C22.1589 7.43232 22.1589 6.83982 21.9283 6.3872C21.7254 5.98907 21.4018 5.66538 21.0036 5.46252C20.551 5.23191 19.9585 5.23191 18.7735 5.23191H4.38543C3.20042 5.23191 2.60791 5.23191 2.1553 5.46252C1.75717 5.66538 1.43348 5.98907 1.23062 6.3872C1 6.83982 1 7.43232 1 8.61733V16.6577C1 17.8427 1 18.4352 1.23062 18.8879C1.43348 19.286 1.75717 19.6097 2.1553 19.8125C2.60791 20.0432 3.20042 20.0432 4.38543 20.0432Z" stroke="#5D5B5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                        </article>
+                        <article class="work">
+                            <h5>Ажил</h5>
+                            <div><p></p></div>
+                        </article>
+                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
                     </article>
-                    <article>
+                    <article class='likes'>
                         <label>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9932 5.13581C9.9938 2.7984 6.65975 2.16964 4.15469 4.31001C1.64964 6.45038 1.29697 10.029 3.2642 12.5604C4.89982 14.6651 9.84977 19.1041 11.4721 20.5408C11.6536 20.7016 11.7444 20.7819 11.8502 20.8135C11.9426 20.8411 12.0437 20.8411 12.1361 20.8135C12.2419 20.7819 12.3327 20.7016 12.5142 20.5408C14.1365 19.1041 19.0865 14.6651 20.7221 12.5604C22.6893 10.029 22.3797 6.42787 19.8316 4.31001C17.2835 2.19216 13.9925 2.7984 11.9932 5.13581Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M11.9932 5.13581C9.9938 2.7984 6.65975 2.16964 4.15469 4.31001C1.64964 6.45038 1.29697 10.029 3.2642 12.5604C4.89982 14.6651 9.84977 19.1041 11.4721 20.5408C11.6536 20.7016 11.7444 20.7819 11.8502 20.8135C11.9426 20.8411 12.0437 20.8411 12.1361 20.8135C12.2419 20.7819 12.3327 20.7016 12.5142 20.5408C14.1365 19.1041 19.0865 14.6651 20.7221 12.5604C22.6893 10.029 22.3797 6.42787 19.8316 4.31001C17.2835 2.19216 13.9925 2.7984 11.9932 5.13581Z"
+                                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            <h4>Дуртай</h4>
+                            <h4>Таалагддаг</h4>
                         </label>
-                        <p></p>
-                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
+                        <article class="movie">
+                            <h5>Кино</h5>
+                            <div><p></p></div>
+                        </article>
+                        <article class="taste">
+                            <h5>Амттан</h5>
+                            <div><p></p></div>
+                        </article>
+                        <article class="song">
+                            <h5>Дуу</h5>
+                            <div><p></p></div>
+                        </article>
+                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
+                        <section class="interests">
+                            <h5>Сонирхол</h5>
+                            <div class="art">                                      
+                                <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8.12624 10.0104L11.9722 13.8489M7.08262 19.9198C5.69113 21.3086 3.03608 20.9614 1 20.9614C2.04359 18.9293 0.652101 16.2793 2.04359 14.8905C3.43508 13.5017 5.69113 13.5017 7.08262 14.8905C8.47411 16.2793 8.47411 18.531 7.08262 19.9198ZM11.1006 14.7884L20.4025 4.76172C21.2218 3.87859 21.1954 2.50711 20.3427 1.65606C19.49 0.805003 18.1158 0.778637 17.231 1.59635L7.18492 10.8803C6.66579 11.3601 6.40622 11.5999 6.25484 11.8558C5.89182 12.4692 5.87721 13.2276 6.21634 13.8546C6.35776 14.116 6.6079 14.3657 7.10818 14.865C7.60845 15.3643 7.85859 15.614 8.12054 15.7551C8.7487 16.0936 9.50857 16.079 10.1232 15.7167C10.3796 15.5656 10.6199 15.3065 11.1006 14.7884Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                            <div class="sport"><p></p></div>
+                            <div class="music"><p></p></div>
+                            <div class="computer">                                    
+                                <svg width="20" height="17" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.0002 13V4.2C20.0002 3.0799 20.0002 2.51984 19.7823 2.09202C19.5905 1.71569 19.2845 1.40973 18.9082 1.21799C18.4804 1 17.9203 1 16.8002 1H5.20024C4.08014 1 3.52009 1 3.09226 1.21799C2.71594 1.40973 2.40998 1.71569 2.21823 2.09202C2.00024 2.51984 2.00024 3.0799 2.00024 4.2V13M3.66691 17H18.3336C18.9536 17 19.2635 17 19.5179 16.9319C20.2081 16.7469 20.7472 16.2078 20.9321 15.5176C21.0002 15.2633 21.0002 14.9533 21.0002 14.3333C21.0002 14.0233 21.0002 13.8683 20.9662 13.7412C20.8737 13.3961 20.6042 13.1265 20.2591 13.0341C20.1319 13 19.9769 13 19.6669 13H2.33358C2.02359 13 1.86859 13 1.74143 13.0341C1.39633 13.1265 1.12679 13.3961 1.03432 13.7412C1.00024 13.8683 1.00024 14.0233 1.00024 14.3333C1.00024 14.9533 1.00024 15.2633 1.06839 15.5176C1.25333 16.2078 1.79242 16.7469 2.48261 16.9319C2.73694 17 3.04693 17 3.66691 17Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
+                            <div class="travel"><p></p></div>
+                            <div class="book"><p></p></div>
+                        </section>
+                        <button class="plus-btn" id="durtai">ЗАСАХ</button>
                     </article>
                 </div>
             </section>
@@ -636,180 +1033,163 @@ class Profile extends HTMLElement{
 
         `;
 
-           elMain.innerHTML += `
+        elMain.insertAdjacentHTML( 'beforeend', `
             <style>
-                    .bckground{
-                        position: absolute;
-                        width: 100%;
-                        height: 590px;
-                        z-index: -1;
-                    }
+                .bckground{
+                    position: absolute;
+                    width: 100%;
+                    height: 590px;
+                    z-index: -1;
+                }
 
-                    div.main-container{
-                        & > article{
+                div.main-container{
+                    & > article{
 
-                            & > .voice {
-                                label{
-                                    cursor: pointer;
-                                    width: fit-content;
-                                }
-                                
-                                input{
-                                    display: none;
-                                }
-                                .player{
-                                    height: 60px;
-                                    background-color: var(--first-color);
-                                    width: 60px;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    border-radius: 50%;
-                                    box-shadow: var(--box-shadow);
-                                }
-
-                                }
-                            .item{
-                                flex: 1;
-                                text-align: center;
-                                font:var(--font-header);
-                                font-family: var(--font-body);
-                                color: var(--second-color);
-                                font-weight: 600;
+                        & > .voice {
+                            label{
+                                cursor: pointer;
+                                width: fit-content;
                             }
-                        }
-                        & > section{
-                            height: 470px;
-                        }
-
-                        & > section label{
-                            display: flex;
-                            gap: 10px;
-                        }
-
-                        & > section article{
-                            height: fit-content;
-                            display: flex;
-                            flex-direction: column;
-                            .plus-btn{
-                                align-self: center;
-                                min-width: 100px;
-                                width: 13vw;
-                                height: 4vh;
+                            
+                            input{
+                                display: none;
+                            }
+                            .player{
+                                height: 60px;
                                 background-color: var(--first-color);
-                                font-size: var(--font-body);
-                                font-weight: 600;
-                                color:var(--textWithBack);
-                                border-radius: 8px;
-                                box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-                            }
-                        }
-
-                        & > section > div:last-of-type {
-                            overflow:scroll;
-                            scrollbar-width: none;
-                        }
-
-                        & > div{
-                            height: fit-content;
-                            display: flex;
-                            gap: 1vw;
-                            margin-bottom: 20px;
-                            margin-right: 2vw;
-                            justify-content: end;
-                            width: 100%;
-
-                            & button{
-                                min-width: 130px;
-                                color: var(--textWithBack);
-                                border-radius: 3px;
-                                font-family: var(--font-body);
-                                font-size: var(--font-body);
-                                font-weight: 600;
-                                margin-left
+                                width: 60px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                border-radius: 50%;
+                                box-shadow: var(--box-shadow);
                             }
 
-                            #exit{
-                                border: 3px solid var(--first-color);
-                                background-color: var(--bg-white);
-                                color:var(--first-color);
                             }
-
-                            #save{
-                                background-color: var(--first-color);
-                            }
+                        .item{
+                            flex: 1;
+                            text-align: center;
+                            font:var(--font-header);
+                            font-family: var(--font-body);
+                            color: var(--second-color);
+                            font-weight: 600;
                         }
                     }
+                    & > section{
+                        height: 470px;
+                    }
 
-                    div.avatar{
+                    & > section label{
+                        display: flex;
+                        gap: 10px;
+                    }
+
+                    
+                    .plus-btn{
+                        align-self: center;
+                        min-width: 100px;
+                        width: 13vw;
+                        height: 4vh;
+                        background-color: var(--first-color);
+                        font-size: var(--font-body);
+                        font-weight: 600;
+                        color:var(--textWithBack);
+                        border-radius: 8px;
                         box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
                     }
 
-                    .bio{
-                        width: 90%;
-                        resize: none;
-                    }
-                        
-                    .redline{
-                        height: 100%;
-                    }
-                
-                    #editVoice{
-                        z-index: 1;
-                        
-                    }
-
-                    .voice {
-                        margin-top: 20px;
+                    & > div{
+                        height: fit-content;
                         display: flex;
-                        max-width: 60vw;
+                        gap: 1vw;
+                        margin-bottom: 20px;
+                        margin-right: 2vw;
+                        justify-content: end;
                         width: 100%;
-                        justify-content: center;
-                        label{
-                            display: flex;
-                            align-items: center;
-                            width: 60%;
-                            color: var(--second-color);
+
+                        & button{
+                            min-width: 130px;
+                            color: var(--textWithBack);
+                            border-radius: 3px;
                             font-family: var(--font-body);
+                            font-size: var(--font-body);
                             font-weight: 600;
-                            justify-content: space-between;
-                        }
-                        label > .voice-progress{
-                            width: 100px;
-                            height: 2px;
-                            background-color:var(--second-color);
-                        }
-                        input{
-                            display: none;
-                        }
-                        .player{
-                            height: 20px;
-                        }
-                        .pause{
-                            cursor: pointer;
-                            display: none;
-                        }
-                        .play{
-                            cursor:pointer;
+                            margin-left
                         }
 
-                        input:checked + .player > .pause{
-                            display: inline;
+                        #exit{
+                            border: 3px solid var(--first-color);
+                            background-color: var(--bg-white);
+                            color:var(--first-color);
                         }
 
-                        input:checked + .player > .play{
-                            display: none;
+                        #save{
+                            background-color: var(--first-color);
                         }
                     }
-                </style>
-            <div id="editVoice"></div>`
-            
+                }
 
-        const editPlayer = document.querySelector('#editVoice');
+                div.avatar{
+                    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+                    margin: 0px;
+                    cursor: pointer;
+                }
+
+                .bio{
+                    width: 90%;
+                    resize: none;
+                }
+
+                .voice {
+                    margin-top: 20px;
+                    display: flex;
+                    max-width: 60vw;
+                    width: 100%;
+                    justify-content: center;
+                    label{
+                        display: flex;
+                        align-items: center;
+                        width: 60%;
+                        color: var(--second-color);
+                        font-family: var(--font-body);
+                        font-weight: 600;
+                        justify-content: space-between;
+                    }
+                    label > .voice-progress{
+                        width: 100px;
+                        height: 2px;
+                        background-color:var(--second-color);
+                    }
+                    input{
+                        display: none;
+                    }
+                    .player{
+                        height: 20px;
+                    }
+                    .pause{
+                        cursor: pointer;
+                        display: none;
+                    }
+                    .play{
+                        cursor:pointer;
+                    }
+
+                    input:checked + .player > .pause{
+                        display: inline;
+                    }
+
+                    input:checked + .player > .play{
+                        display: none;
+                    }
+                }
+            </style>
+            `
+        );
+            
         const player = this.querySelector('.editPlayer');
         player.addEventListener('change', ()=>{
             if(player.checked) {
-                editPlayer.innerHTML = `
+                edit.innerHTML = `
                     <div>
                         <p>Таны одоогийн voice</p>
                         <div class="voice">
@@ -843,7 +1223,197 @@ class Profile extends HTMLElement{
                     </div>
                 `;
             }
-            else editPlayer.innerHTML = ``;
+            else edit.innerHTML = ``;
+        });
+
+        const avatar = this.querySelector('.avatar');
+        avatar.addEventListener('click', () =>{
+            edit.style.display = 'grid';
+            edit.innerHTML = `
+                <style>
+                    #editAvatar{
+                        width: 50%;
+                        height: 70%;
+                        background-color: var(--back-col-white);
+                        box-shadow: var(--box-shadow);
+                        border-radius: var(--brderRad-m);
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 10%;
+
+                        h2{align-self:flex-start;}
+
+                        & > svg{
+                            width: 50%;
+                            height: 50%;
+                        }
+
+                        & > button{
+                            width: 20%;
+                            height: 10%;
+                            min-width: 130px;
+                            background-color: var(--first-color);
+                            border-radius: var(--brderRad-m);
+                            color: white;
+                        }
+                    }
+                </style>
+                <div id="editAvatar">
+                    <h2>ЗУРАГ ОРУУЛАХ</h2>    
+                    <svg width="105" height="105" viewBox="0 0 105 105" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.8605 100.988L46.8432 64.3409C48.8232 62.1408 49.8133 61.0408 50.9549 60.6286C51.9591 60.2661 53.0409 60.2661 54.0451 60.6286C55.1867 61.0408 56.1768 62.1409 58.1569 64.3409L90.9196 100.744M62.5 69.1667L76.8431 53.2298C78.8232 51.0297 79.8133 49.9297 80.9549 49.5175C81.9591 49.155 83.0409 49.155 84.0451 49.5175C85.1867 49.9297 86.1768 51.0297 88.1569 53.2298L102.5 69.1667M42.5 35.8333C42.5 41.9698 38.0228 46.9444 32.5 46.9444C26.9772 46.9444 22.5 41.9698 22.5 35.8333C22.5 29.6968 26.9772 24.7222 32.5 24.7222C38.0228 24.7222 42.5 29.6968 42.5 35.8333ZM26.5 102.5H78.5C86.9008 102.5 91.1012 102.5 94.3099 100.683C97.1323 99.0855 99.427 96.5359 100.865 93.3998C102.5 89.8346 102.5 85.1675 102.5 75.8333V29.1667C102.5 19.8325 102.5 15.1654 100.865 11.6002C99.427 8.46412 97.1323 5.91445 94.3099 4.31656C91.1012 2.5 86.9008 2.5 78.5 2.5H26.5C18.0992 2.5 13.8988 2.5 10.6901 4.31656C7.86771 5.91445 5.573 8.46412 4.1349 11.6002C2.5 15.1654 2.5 19.8325 2.5 29.1667V75.8333C2.5 85.1675 2.5 89.8346 4.1349 93.3998C5.573 96.5359 7.86771 99.0855 10.6901 100.683C13.8988 102.5 18.0992 102.5 26.5 102.5Z" stroke="#55565A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <button><h4>ОРУУЛАХ</h4></button>               
+                    <svg class="exit" width="38" height="31" viewBox="0 0 38 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M26.6694 7.55385L19.1157 15.1076L26.6694 22.6614" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.3306 22.8763L18.8843 15.3226L11.3306 7.7688" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            `;
+            this.enableExit(edit);
+        });
+
+        const images = this.querySelectorAll('.user-image-container img');
+        images.forEach(img =>{
+            img.addEventListener('click', _ =>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        #editAvatar{
+                            width: 50%;
+                            height: 70%;
+                            background-color: var(--back-col-white);
+                            box-shadow: var(--box-shadow);
+                            border-radius: var(--brderRad-m);
+                            padding: 20px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 10%;
+
+                            h2{align-self:flex-start;}
+
+                            & > svg{
+                                width: 50%;
+                                height: 50%;
+                            }
+
+                            & > button{
+                                width: 20%;
+                                height: 10%;
+                                min-width: 130px;
+                                background-color: var(--first-color);
+                                border-radius: var(--brderRad-m);
+                                color: white;
+                            }
+                        }
+                    </style>
+                    <div id="editAvatar">
+                        <h2>ЗУРАГ ОРУУЛАХ</h2>    
+                        <svg width="105" height="105" viewBox="0 0 105 105" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.8605 100.988L46.8432 64.3409C48.8232 62.1408 49.8133 61.0408 50.9549 60.6286C51.9591 60.2661 53.0409 60.2661 54.0451 60.6286C55.1867 61.0408 56.1768 62.1409 58.1569 64.3409L90.9196 100.744M62.5 69.1667L76.8431 53.2298C78.8232 51.0297 79.8133 49.9297 80.9549 49.5175C81.9591 49.155 83.0409 49.155 84.0451 49.5175C85.1867 49.9297 86.1768 51.0297 88.1569 53.2298L102.5 69.1667M42.5 35.8333C42.5 41.9698 38.0228 46.9444 32.5 46.9444C26.9772 46.9444 22.5 41.9698 22.5 35.8333C22.5 29.6968 26.9772 24.7222 32.5 24.7222C38.0228 24.7222 42.5 29.6968 42.5 35.8333ZM26.5 102.5H78.5C86.9008 102.5 91.1012 102.5 94.3099 100.683C97.1323 99.0855 99.427 96.5359 100.865 93.3998C102.5 89.8346 102.5 85.1675 102.5 75.8333V29.1667C102.5 19.8325 102.5 15.1654 100.865 11.6002C99.427 8.46412 97.1323 5.91445 94.3099 4.31656C91.1012 2.5 86.9008 2.5 78.5 2.5H26.5C18.0992 2.5 13.8988 2.5 10.6901 4.31656C7.86771 5.91445 5.573 8.46412 4.1349 11.6002C2.5 15.1654 2.5 19.8325 2.5 29.1667V75.8333C2.5 85.1675 2.5 89.8346 4.1349 93.3998C5.573 96.5359 7.86771 99.0855 10.6901 100.683C13.8988 102.5 18.0992 102.5 26.5 102.5Z" stroke="#55565A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <button><h4>ОРУУЛАХ</h4></button>               
+                        <svg class="exit" width="38" height="31" viewBox="0 0 38 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M26.6694 7.55385L19.1157 15.1076L26.6694 22.6614" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M11.3306 22.8763L18.8843 15.3226L11.3306 7.7688" stroke="#FF0B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                `;
+                this.enableExit(edit);
+            });
+        });
+
+        // const rel = this.querySelector('.relation');
+        // rel.querySelector('button').addEventListener('click', ()=>{
+        //     edit.style.display = 'flex';
+        //     edit.innerHTML = `
+        //     `;
+        // })
+
+        const goal = this.querySelector('.goal');
+
+        if(goal){
+            goal.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="${GOAL}" select="goal"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
+        const loveLang = this.querySelector('.loveLang');
+
+        if(loveLang){
+            loveLang.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="${Profile.LOVELANG}" select="loveLang"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
+
+        const zodiac = this.querySelector('.zodiac');
+
+        if(zodiac){
+            zodiac.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="" select="zodiac"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
+
+        const mbti = this.querySelector('.mbti');
+
+        if(mbti){
+            mbti.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="Сонирхсон харилцаа" select="mbti"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
+
+        if (this.profile) this.loadUser();
+    }
+
+    enableExit(edit){
+        this.querySelector('.exit').addEventListener('click', ()=>{
+            edit.style.display = `none`;
         });
     }
    
