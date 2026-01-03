@@ -100,5 +100,26 @@ export const api = {
   getMatchNotifications() {
     return request("/api/notifications/matches");
   },
+   async getOtherProfileByToken(token) {
+    const res = await fetch(`/api/othersprofile?t=${encodeURIComponent(token)}`, {
+      credentials: "include",
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data?.error || "Failed to load others profile");
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
+  },
+  
+
+  setPhoto(form){
+    return request("//api/upload/image", {
+      method: "POST",
+      body: form,
+    });
+  }
   
 };
