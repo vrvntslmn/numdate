@@ -1,41 +1,53 @@
-class Route extends HTMLElement{
-    constructor(){
-        super();
-        this.routes = new Map();
-    }
+class Route extends HTMLElement {
+  connectedCallback() {
+    const onRoute = () => {
+      const content = document.getElementById("content");
+      if (!content) return;
 
-    connectedCallback(){
-        window.addEventListener('hashchange', () =>{
-            const hash = window.location.hash;
-            const content = document.getElementById('content');
-            switch(hash){
-                case '#/':
-                    content.innerHTML = '<com-home></com-home>';
-                    break;
-                case '#messenger':
-                    content.innerHTML = '<com-messenger></com-messenger>';
-                    break;
-                case '#dateidea':
-                    content.innerHTML = '<com-dateidea></com-dateidea>';
-                    break;
-                case '#profile':
-                    content.innerHTML = `<com-profile></com-profile>`;
-                    break;
-                case '#othersProfile':
-                    content.innerHTML = `<com-othersprofile></com-othersprofile>`;
-                    break;
-                case '#match':
-                    content.innerHTML = `<com-match></com-match>`;
-                    break;
-                default :
-                    break;                 
-            }
-        });
-    }
 
-    urlBurtguuleh(url){
+      const hash = window.location.hash || "#/";
+      const clean = hash.replace(/^#\/?/, "");   
+      const path = (clean.split("?")[0] || "").toLowerCase(); // "match"
+
+      switch (path) {
+        case "":
+          content.innerHTML = "<com-home></com-home>";
+          break;
+        case "messenger":
+          content.innerHTML = "<com-messenger></com-messenger>";
+          break;
+        case "dateidea":
+          content.innerHTML = "<com-dateidea></com-dateidea>";
+          break;
+        case "profile":
+          content.innerHTML = "<com-profile></com-profile>";
+          break;
+        case "othersprofile":
+          content.innerHTML = "<com-othersprofile></com-othersprofile>";
+          break;
+        case "match":
+          content.innerHTML = "<com-match></com-match>";
+          break;
+        default:
+          content.innerHTML = "<com-home></com-home>";
+          break;
+      }
+    };
+
+    window.addEventListener("hashchange", onRoute);
+
+    // ✅ page refresh / initial load дээр шууд render
+    onRoute();
+  }
+
+  urlBurtguuleh(url){
         this.routes.set(url.path, url.content);
     }
 }
 
-window.customElements.define('com-router', Route);
+window.customElements.define("com-router", Route);
+
+    
+
+    
+

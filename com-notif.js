@@ -14,7 +14,13 @@ class ComNotif extends HTMLElement {
     this.addEventListener("click", this._onClick);
     document.addEventListener("click", this._onDocClick);
 
-    if (this._notifInput.checked) this.renderNotif();
+    if (this._notifInput.checked) {
+      this.classList.add("open");
+      this.renderNotif();
+    } else {
+      this.classList.remove("open");
+      this.innerHTML = "";
+    }
   }
 
   disconnectedCallback() {
@@ -26,8 +32,12 @@ class ComNotif extends HTMLElement {
   async _onToggle() {
     if (!this._notifInput) return;
 
-    if (this._notifInput.checked) await this.renderNotif();
-    else this._closePanel();
+    if (this._notifInput.checked) {
+      this.classList.add("open");
+      await this.renderNotif();
+    } else {
+      this._closePanel();
+    }
   }
 
   _onClick(e) {
@@ -35,50 +45,50 @@ class ComNotif extends HTMLElement {
     if (!item) return;
 
     const openWhat = item.getAttribute("data-open");
-    if (openWhat === "match") {
+    if (openWhat !== "match") return;
+
+    // ✅ ЭНДЭЭС ОДОО УНШИНА
+    const matchId = item.getAttribute("data-match-id");
+    const pairKey = item.getAttribute("data-pair-key");
+
+    if (matchId) {
+      this._goTo(`match?matchId=${encodeURIComponent(matchId)}`);
+    } else if (pairKey) {
+      this._goTo(`match?pairKey=${encodeURIComponent(pairKey)}`);
+    } else {
+      console.warn("notif item дээр matchId/pairKey алга байна");
       this._goTo("match");
-      this._closePanel();
     }
+
+    this._closePanel();
   }
 
   _onDocClick(e) {
     if (e.target.closest("label.notif")) return;
     if (e.target.closest("com-notif")) return;
-
     if (this._notifInput?.checked) this._closePanel();
   }
 
   _closePanel() {
     if (this._notifInput) this._notifInput.checked = false;
+    this.classList.remove("open");
     this.innerHTML = "";
   }
 
-  _goTo(route) {
-    const tryHash1 = `#${route}`;
-    const tryHash2 = `#/${route}`;
-
-    window.location.hash = tryHash1;
-
-    setTimeout(() => {
-      const h = window.location.hash || "";
-      const normalized = h.replace(/^#\/?/, "");
-      if (normalized !== route) window.location.hash = tryHash2;
-    }, 0);
+  // ✅ Router-тэйгээ нийцүүлж үргэлж #/ хэлбэрээр явуулъя
+  _goTo(routeWithQuery) {
+    window.location.hash = `#/${routeWithQuery}`;
   }
 
-  // ✅ panel нээгдэх үед "seen" болгоно
   async _markMatchesSeen() {
     try {
       await fetch("/api/notifications/matches/seen", {
         method: "POST",
         credentials: "include",
       });
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
   }
 
-  // ✅ com-app дээр байгаа refreshNotifBadge()-ийг дуудаж dot унтраана
   _refreshBadgeFromApp() {
     const appEl = document.querySelector("com-app");
     if (appEl && typeof appEl.refreshNotifBadge === "function") {
@@ -86,7 +96,6 @@ class ComNotif extends HTMLElement {
     }
   }
 
-  // ✅ time ago helper
   _timeAgo(inputDate) {
     const d = inputDate ? new Date(inputDate) : null;
     if (!d || Number.isNaN(d.getTime())) return "now";
@@ -128,16 +137,18 @@ class ComNotif extends HTMLElement {
   }
 
   async renderNotif() {
-    // ✅ panel нээгдэх мөчид seen болгож badge унтраана
     await this._markMatchesSeen();
     this._refreshBadgeFromApp();
 
-    // loading UI
     this.innerHTML = `
       <style>
         .notifSec{ padding: 20px; width: 360px; max-width: 90vw; }
         .notifHead{ color: var(--second-color); font-size: 40px; margin-bottom: 20px; }
         .loading{ font-family: var(--font-body); color:#666; }
+        @media (max-width: 768px) {
+          .notifSec{ width: min(520px, calc(100vw - 16px)); padding: 14px; margin: 0 auto; }
+          .notifHead{ font-size: 28px; margin-bottom: 12px; }
+        }
       </style>
       <section class="notifSec">
         <h2 class="notifHead">Notification</h2>
@@ -154,8 +165,17 @@ class ComNotif extends HTMLElement {
             const otherName = n.other?.name || "Unknown";
             const when = this._timeAgo(n.createdAt);
 
+            // ✅ Гол FIX: matchId-г data attribute-д хийж өгнө
+            const matchIdAttr = n.matchId ? `data-match-id="${this._escAttr(n.matchId)}"` : "";
+            // pairKey байхгүй бол хоосон (одоогоор чамд notifications дээр pairKey байхгүй)
+            const pairKeyAttr = n.pairKey ? `data-pair-key="${this._escAttr(n.pairKey)}"` : "";
+
             return `
-              <article class="notifArt" data-open="match" role="button" tabindex="0" aria-label="Open match">
+              <article class="notifArt"
+                data-open="match"
+                ${matchIdAttr}
+                ${pairKeyAttr}
+                role="button" tabindex="0" aria-label="Open match">
                 <div class="notifCir"></div>
 
                 <svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -163,7 +183,7 @@ class ComNotif extends HTMLElement {
                     stroke="#CF0F47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
 
-                <p class="notifText"><b>${otherName}</b>-тэй match боллоо 🎉</p>
+                <p class="notifText"><b>${otherName}</b> та 2 match боллоо 🎉</p>
                 <p class="notifDate">${when}</p>
               </article>
             `;
@@ -173,48 +193,22 @@ class ComNotif extends HTMLElement {
 
     this.innerHTML = `
       <style>
-        .notifHead{
-          color: var(--second-color);
-          font-size: 40px;
-          margin-bottom: 20px;
-        }
-        .notifCir{
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width:10px;
-          height:10px;
-          border-radius: 50%;
-          background-color: var(--second-color);
-          flex: 0 0 auto;
-        }
+        .notifHead{ color: var(--second-color); font-size: 40px; margin-bottom: 20px; }
+        .notifCir{ width:10px; height:10px; border-radius:50%; background-color: var(--second-color); flex:0 0 auto; }
         .notifText{ font-size: 20px; margin: 0; }
         .notifText b{ font-weight: 700; }
-        .notifDate{
-          color: var(--second-color);
-          font-size: 18px;
-          margin-left: auto;
-          flex: 0 0 auto;
-          white-space: nowrap;
-        }
+        .notifDate{ color: var(--second-color); font-size: 18px; margin-left:auto; flex:0 0 auto; }
         .notifSec{ padding: 20px; width: 360px; max-width: 90vw; }
-        .notifArt{
-          padding: 10px 10px;
-          display: flex;
-          align-items: center;
-          gap:14px;
-          border-radius: var(--brderRad-m);
-          user-select: none;
-        }
-        .notifArt:hover{
-          background-color: #ffd8e5ff;
-          cursor: pointer;
-        }
-        .empty{
-          font-family: var(--font-body);
-          color: #666;
-          font-size: 16px;
-          margin: 0;
+        .notifArt{ padding:10px 10px; display:flex; align-items:center; gap:14px; border-radius: var(--brderRad-m); user-select:none; }
+        .notifArt:hover{ background-color:#ffd8e5ff; cursor:pointer; }
+        .empty{ font-family: var(--font-body); color:#666; font-size:16px; margin:0; }
+        @media (max-width: 768px) {
+          .notifSec{ width: min(520px, calc(100vw - 16px)); max-width:none; padding:14px; margin:0 auto; }
+          .notifHead{ font-size:28px; margin-bottom:12px; }
+          .notifText{ font-size:16px; }
+          .notifDate{ font-size:14px; }
+          .notifArt{ gap:10px; padding:10px 8px; }
+          .notifArt svg{ width:28px; height:28px; }
         }
       </style>
 
@@ -223,6 +217,11 @@ class ComNotif extends HTMLElement {
         ${listHtml}
       </section>
     `;
+  }
+
+  // ✅ attribute safe (double quote эвдэхгүй)
+  _escAttr(v) {
+    return String(v).replaceAll("&", "&amp;").replaceAll('"', "&quot;");
   }
 }
 

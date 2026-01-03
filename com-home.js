@@ -485,7 +485,7 @@ removeLiked(list) {
                     </div>
                     <h1>Jennie Kim, 28</h1>
                     <p>Программ хангамж</p>
-                   <a href="#othersprofile" class="see-more-btn">See more</a>
+                   <a href="#/othersprofile" class="see-more-btn">See more</a>
                 </div>
                 <div class="buttons">
                     <button class="other_button">
@@ -966,46 +966,7 @@ async fetchProfiles() {
 
 
 
-    getDummyProfiles() {
-        return [
-            {
-                name: "Jennie Kim",
-                age: 28,
-                image: "img/image.jpeg",
-                major: "Программ хангамж",
-                about: { zodiac: "Загас", mbti: "ENFP" },
-                relationshipGoal: "Long-term",
-                loveLanguage: "Quality Time",
-                school: "Инженер, технологийн сургууль",
-                year: 3,
-                interests: ["Хөгжим", "Аялал", "Кино"]
-            },
-            {
-                name: "Alex Chen",
-                age: 25,
-                image: "img/profile2.jpg",
-                major: "Бизнесийн удирдлага",
-                about: { zodiac: "Хумх", mbti: "ISTJ" },
-                relationshipGoal: "Short-term fun",
-                loveLanguage: "Acts of Service",
-                school: "Бизнесийн сургууль",
-                year: 4,
-                interests: ["Спорт", "Компьютер", "Ном"]
-            },
-            {
-                name: "Emma Smith",
-                age: 26,
-                image: "img/profile3.jpg",
-                major: "Хууль",
-                about: { zodiac: "Арслан", mbti: "ENFJ" },
-                relationshipGoal: "Long-term",
-                loveLanguage: "Words of Affirmation",
-                school: "Хууль зүйн сургууль",
-                year: 2,
-                interests: ["Ном", "Хувцас", "Кино"]
-            }
-        ];
-    }
+    
 
     setupEventListeners() {
         const filterButton = this.querySelector('.filter');
@@ -1018,21 +979,38 @@ async fetchProfiles() {
             });
         }
         const seeMoreBtn = this.querySelector('.see-more-btn');
-        if (seeMoreBtn) {
-            seeMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const currentProfile = this.profileSwipe.getCurrentProfile();
-                if (currentProfile) {
-                    const userId = currentProfile.userId ||
-                        `user-${currentProfile.name.toLowerCase().replace(/\s+/g, '-')}`;
-                    window.location.hash = `#othersProfile?userId=${userId}`;
-                    console.log('Navigating to profile:', userId);
-                } else {
-                    console.warn('No current profile available');
-                    window.location.hash = '#othersProfile?userId=demo-user';
-                }
-            });
-        }
+if (seeMoreBtn) {
+  seeMoreBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const currentProfile = this.profileSwipe.getCurrentProfile();
+    if (!currentProfile) return alert("Профайл олдсонгүй");
+
+    const userId = currentProfile.userId ? String(currentProfile.userId) : null;
+    if (!userId) {
+      alert("Demo профайлын дэлгэрэнгүй харах боломжгүй (userId алга).");
+      return;
+    }
+
+    try {
+      // ✅ 1) token авах
+      const res = await fetch("/api/link/othersprofile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "failed to create token");
+
+      // ✅ 2) token-оор route хийх
+      window.location.hash = `#/othersprofile?t=${encodeURIComponent(data.token)}`;
+    } catch (err) {
+      console.error(err);
+      alert("Линк үүсгэж чадсангүй");
+    }
+  });
+}
+
     }
 
    applyFilters(filters) {

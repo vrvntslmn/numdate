@@ -8,7 +8,33 @@ class ComMessenger extends HTMLElement {
     this.mutedUsers = new Set();
     this.currentUserAvatar = "img/profile2.jpg";
     this._rendered = false;
+
+    this._pendingOtherId = null;
+    this.me = null;
+    this.meId = null;
+    this.activeOtherId = null;
   }
+
+  /* ================= ROUTE HELPERS ================= */
+
+  _getHashQuery(key) {
+    const h = window.location.hash || "";
+    const q = h.includes("?") ? h.split("?")[1] : "";
+    return q ? new URLSearchParams(q).get(key) : null;
+  }
+
+  _handleHashParams() {
+    const other = this._getHashQuery("other");
+    if (!other) return;
+
+    if (this.els?.conversationItems?.length) {
+      this.selectConversationByUserId(String(other));
+    } else {
+      this._pendingOtherId = String(other);
+    }
+  }
+
+  /* ================= LIFECYCLE ================= */
 
   connectedCallback() {
     if (this._rendered) return;
@@ -25,8 +51,8 @@ class ComMessenger extends HTMLElement {
           display: block;
           background: #F5F5F5;
           font-family: 'Yanone Kaffeesatz', sans-serif;
-          --topbar-h: 56px;   
-          --bottombar-h: 56px;  
+          --topbar-h: 56px;
+          --bottombar-h: 56px;
           --nav-total: calc(var(--topbar-h) + var(--bottombar-h));
           --vh: 1vh;
         }
@@ -40,6 +66,7 @@ class ComMessenger extends HTMLElement {
           display: flex;
           overflow: hidden;
           border-radius: 16px;
+          position: relative;
         }
 
         .sidebar {
@@ -51,24 +78,30 @@ class ComMessenger extends HTMLElement {
         }
 
         .stories-header { padding: 16px 20px; border-bottom: 1px solid #EFEFEF; }
-        .stories-scroll { display: flex; gap: 16px; overflow-x: auto; }
-        .stories-scroll::-webkit-scrollbar { display: none; }
 
-        .story-profile {
-          min-width: 64px;
+        .search-box {
           display: flex;
-          flex-direction: column;
           align-items: center;
-          cursor: pointer;
+          gap: 8px;
+          width: 100%;
+          padding: 6px 12px;
+          border-radius: 999px;
+          background: #F5F5F7;
+          border: 1px solid #E5E5EA;
         }
-        .story-avatar {
-          width: 56px; height: 56px;
-          border-radius: 50%;
-          background: #E0E0E0;
-          overflow: hidden;
+
+        .search-icon { flex-shrink: 0; }
+
+        .search-input {
+          border: none;
+          outline: none;
+          background: transparent;
+          font-family: 'Roboto Condensed', sans-serif;
+          font-size: 14px;
+          color: #444;
+          width: 100%;
         }
-        .story-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .story-name { margin-top: 6px; width: 48px; height: 4px; border-radius: 2px; background: #DBDBDB; }
+        .search-input::placeholder { color: #B0B3B8; }
 
         .conversation-list { padding: 8px 0; overflow-y: auto; flex: 1; }
         .conversation-list::-webkit-scrollbar { width: 0; }
@@ -86,12 +119,13 @@ class ComMessenger extends HTMLElement {
         .conversation-avatar {
           width: 56px; height: 56px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: #E0E0E0;
           margin-right: 12px;
           flex-shrink: 0;
           overflow: hidden;
         }
         .conversation-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
         .conversation-text { flex: 1; min-width: 0; }
 
         .conversation-name {
@@ -99,10 +133,13 @@ class ComMessenger extends HTMLElement {
           color: #262626; margin-bottom: 4px;
           font-family: 'Roboto Condensed', sans-serif;
         }
+
         .conversation-snippet {
           font-size: 13px; color: #8E8E8E;
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          font-family: 'Roboto Condensed', sans-serif;
         }
+
         .conversation-status {
           width: 8px; height: 8px; border-radius: 50%;
           background: #44B700;
@@ -116,6 +153,7 @@ class ComMessenger extends HTMLElement {
           flex-direction: column;
           background: #FFFFFF;
           position: relative;
+          min-width: 0;
         }
 
         .chat-header {
@@ -142,47 +180,15 @@ class ComMessenger extends HTMLElement {
           border-radius: 50%;
           background: #E0E0E0;
           overflow: hidden;
+          flex-shrink: 0;
         }
         .chat-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        .chat-user-info { display: flex; flex-direction: column; justify-content: center; }
+        .chat-user-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         .chat-user-name {
           font-size: 16px; font-weight: 600;
           color: #262626;
           font-family: 'Roboto Condensed', sans-serif;
-        }
-        .stories-header {
-          padding: 16px 20px;
-          border-bottom: 1px solid #EFEFEF;
-        }
-
-        .search-box {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          width: 100%;
-          padding: 6px 12px;
-          border-radius: 999px;
-          background: #F5F5F7;
-          border: 1px solid #E5E5EA;
-        }
-
-        .search-icon {
-          flex-shrink: 0;
-        }
-
-        .search-input {
-          border: none;
-          outline: none;
-          background: transparent;
-          font-family: 'Roboto Condensed', sans-serif;
-          font-size: 14px;
-          color: #444;
-          width: 100%;
-        }
-
-        .search-input::placeholder {
-          color: #B0B3B8;
         }
 
         .chat-user-status {
@@ -192,6 +198,7 @@ class ComMessenger extends HTMLElement {
           gap: 6px;
           font-size: 12px;
           color: #8E8E8E;
+          font-family: 'Roboto Condensed', sans-serif;
         }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #44B700; }
 
@@ -308,19 +315,9 @@ class ComMessenger extends HTMLElement {
         }
         .details-danger-btn:hover { opacity: 0.7; }
 
-        .switch {
-          position: relative;
-          display: inline-block;
-          width: 36px;
-          height: 20px;
-        }
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-          position: absolute;
-          inset: 0;
-          border-radius: 999px;
-          background-color: #DDD;
-        }
+        .slider { position: absolute; inset: 0; border-radius: 999px; background-color: #DDD; }
         .slider::before {
           content: "";
           position: absolute;
@@ -331,9 +328,7 @@ class ComMessenger extends HTMLElement {
           transition: transform 0.2s ease;
         }
         .switch input:checked + .slider { background-color: #33b76e; }
-        .switch input:checked + .slider::before {
-          transform: translateX(16px);
-        }
+        .switch input:checked + .slider::before { transform: translateX(16px); }
 
         .chat-body {
           flex: 1;
@@ -344,10 +339,7 @@ class ComMessenger extends HTMLElement {
           gap: 12px;
         }
         .chat-body::-webkit-scrollbar { width: 6px; }
-        .chat-body::-webkit-scrollbar-thumb {
-          background: #DBDBDB;
-          border-radius: 3px;
-        }
+        .chat-body::-webkit-scrollbar-thumb { background: #DBDBDB; border-radius: 3px; }
 
         .message-row { display: flex; gap: 8px; align-items: flex-start; }
         .message-row.incoming { justify-content: flex-start; }
@@ -356,7 +348,7 @@ class ComMessenger extends HTMLElement {
         .message-avatar {
           width: 28px; height: 28px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: #E0E0E0;
           flex-shrink: 0;
           overflow: hidden;
         }
@@ -372,12 +364,8 @@ class ComMessenger extends HTMLElement {
           word-wrap: break-word;
           font-family: 'Roboto Condensed', sans-serif;
         }
-        .message-row.incoming .message-bubble {
-          background: #EFEFEF; color: #262626;
-        }
-        .message-row.outgoing .message-bubble {
-          background: rgb(250, 233, 236); color: #262626;
-        }
+        .message-row.incoming .message-bubble { background: #EFEFEF; color: #262626; }
+        .message-row.outgoing .message-bubble { background: rgb(250, 233, 236); color: #262626; }
 
         .chat-footer {
           padding: 12px 20px;
@@ -413,13 +401,7 @@ class ComMessenger extends HTMLElement {
         .icon-btn:hover { background: #FAFAFA; }
         .icon-btn:disabled { opacity: 0.4; cursor: default; }
 
-        .message-form {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin: 0;
-        }
+        .message-form { flex: 1; display: flex; align-items: center; gap: 8px; margin: 0; }
         .message-input {
           flex: 1;
           border-radius: 22px;
@@ -431,10 +413,7 @@ class ComMessenger extends HTMLElement {
           transition: border 0.2s ease;
           background: #FAFAFA;
         }
-        .message-input:focus {
-          border-color: #A8A8A8;
-          background: #FFFFFF;
-        }
+        .message-input:focus { border-color: #A8A8A8; background: #FFFFFF; }
         .message-input::placeholder { color: #8E8E8E; }
 
         .send-btn {
@@ -504,16 +483,8 @@ class ComMessenger extends HTMLElement {
           margin-bottom: 8px;
           color: #EE0067;
         }
-        .date-dialog-text {
-          font-size: 15px;
-          margin-bottom: 18px;
-          color: #444;
-        }
-        .date-dialog-buttons {
-          display: flex;
-          justify-content: center;
-          gap: 10px;
-        }
+        .date-dialog-text { font-size: 15px; margin-bottom: 18px; color: #444; }
+        .date-dialog-buttons { display: flex; justify-content: center; gap: 10px; }
         .date-dialog-buttons button {
           border: none;
           border-radius: 999px;
@@ -564,17 +535,8 @@ class ComMessenger extends HTMLElement {
           padding: 4px;
         }
 
-        .report-sheet-title {
-          padding: 12px 16px 4px;
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .report-sheet-list {
-          display: flex;
-          flex-direction: column;
-          padding: 4px 0 8px;
-        }
+        .report-sheet-title { padding: 12px 16px 4px; font-size: 14px; font-weight: 600; }
+        .report-sheet-list { display: flex; flex-direction: column; padding: 4px 0 8px; }
 
         .report-row {
           width: 100%;
@@ -588,16 +550,9 @@ class ComMessenger extends HTMLElement {
           font-size: 14px;
           font-family: 'Roboto Condensed', sans-serif;
         }
-        .report-row + .report-row {
-          border-top: 1px solid #F3F3F3;
-        }
-        .report-row:hover {
-          background: #FAFAFA;
-        }
-        .report-row-arrow {
-          color: #C4C4C4;
-          font-size: 18px;
-        }
+        .report-row + .report-row { border-top: 1px solid #F3F3F3; }
+        .report-row:hover { background: #FAFAFA; }
+        .report-row-arrow { color: #C4C4C4; font-size: 18px; }
 
         .report-back {
           width: 100%;
@@ -609,10 +564,11 @@ class ComMessenger extends HTMLElement {
           font-family: 'Roboto Condensed', sans-serif;
         }
         .report-back:hover { background: #EBEBEB; }
+
         .empty-state {
           position: absolute;
           inset: 0;
-          display: none;                /* default – нуусан */
+          display: none;
           flex-direction: column;
           align-items: center;
           justify-content: center;
@@ -657,7 +613,6 @@ class ComMessenger extends HTMLElement {
         }
         .empty-btn:hover { opacity: .9; }
 
-
         .confirm-overlay {
           position: fixed;
           inset: 0;
@@ -680,17 +635,8 @@ class ComMessenger extends HTMLElement {
           font-family: 'Roboto Condensed', sans-serif;
         }
 
-        .confirm-title {
-          font-size: 18px;
-          font-weight: 600;
-          margin-bottom: 6px;
-        }
-
-        .confirm-text {
-          font-size: 14px;
-          color: #555;
-          margin-bottom: 18px;
-        }
+        .confirm-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+        .confirm-text { font-size: 14px; color: #555; margin-bottom: 18px; }
 
         .confirm-buttons {
           display: flex;
@@ -710,29 +656,15 @@ class ComMessenger extends HTMLElement {
           font-family: 'Roboto Condensed', sans-serif;
         }
 
-        .confirm-main {
-          color: #ED4956;
-          font-weight: 700;
-        }
-        .confirm-cancel {
-          color: #262626;
-          // background: #F5F5F5;
-        }
+        .confirm-main { color: #ED4956; font-weight: 700; }
+        .confirm-cancel { color: #262626; }
         .confirm-cancel:hover { background: #EBEBEB; }
 
         @media (max-width: 960px) {
           .chat-app { height: calc(100vh - 90px); }
 
-          .sidebar {
-            display: flex;          /* ❗ өмнө нь none байсан */
-            width: 100%;
-            border-right: none;
-          }
-
-          .chat-panel {
-            display: none;          /* эхлээд чат нуусан */
-            width: 100%;
-          }
+          .sidebar { display: flex; width: 100%; border-right: none; }
+          .chat-panel { display: none; width: 100%; }
 
           .chat-app.is-chat-open .sidebar { display: none; }
           .chat-app.is-chat-open .chat-panel { display: flex; }
@@ -762,7 +694,8 @@ class ComMessenger extends HTMLElement {
                 />
               </div>
             </div>
-              <div class="conversation-list" id="conversationList"></div>
+
+            <div class="conversation-list" id="conversationList"></div>
           </aside>
 
           <section class="chat-panel">
@@ -775,7 +708,7 @@ class ComMessenger extends HTMLElement {
 
               <div class="chat-user-info">
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <div class="chat-user-name" id="chatUserName">Тэмүүжин</div>
+                  <div class="chat-user-name" id="chatUserName">Messages</div>
                   <span class="header-banner" id="headerBanner"></span>
                 </div>
                 <div class="chat-user-status" id="headerStatus">
@@ -791,8 +724,8 @@ class ComMessenger extends HTMLElement {
               </div>
             </header>
 
-            <div class="chat-body" id="chatBody">
-            </div>
+            <div class="chat-body" id="chatBody"></div>
+
             <div class="empty-state" id="emptyState">
               <div class="empty-icon">
                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -806,7 +739,6 @@ class ComMessenger extends HTMLElement {
               <div class="empty-subtitle">Send a message to start a chat.</div>
               <button class="empty-btn" id="emptyNewMessageBtn">Send message</button>
             </div>
-
 
             <footer class="chat-footer">
               <div class="footer-banner" id="footerBanner"></div>
@@ -974,7 +906,6 @@ class ComMessenger extends HTMLElement {
       reportBtn: $("#reportBtn"),
       deleteChatBtn: $("#deleteChatBtn"),
       conversationList: $("#conversationList"),
-      conversationItems: $$(".conversation-item"),
       emojiItems: $$(".emoji-item"),
       actionsToggle: $("#actionsToggle"),
       detailsPanel: $("#detailsPanel"),
@@ -994,22 +925,22 @@ class ComMessenger extends HTMLElement {
       emptyNewMessageBtn: $("#emptyNewMessageBtn"),
       chatApp: this.shadowRoot.querySelector(".chat-app"),
       backBtn: this.shadowRoot.querySelector(".back-btn"),
-
-
+      conversationItems: [], // renderConversationList дээр set болно
     };
 
     this.currentUserAvatar =
       this.els.headerAvatar?.getAttribute("src") || this.currentUserAvatar;
 
     this.bindEvents();
-
-    const active = this.getActiveConversationEl();
-    if (active) this.applyUIForUser(active.dataset.user);
-
     this.updateEmptyState();
-    this.initAuthAndUsers();
 
+    // ✅ hash дээр other= байвал хадгалаад, users ачаалсны дараа сонгоно
+    this._handleHashParams();
+
+    this.initAuthAndUsers();
   }
+
+  /* ================= EVENTS ================= */
 
   bindEvents() {
     const {
@@ -1023,8 +954,11 @@ class ComMessenger extends HTMLElement {
       muteToggle,
       searchInput,
       emptyNewMessageBtn,
+      backBtn,
+      chatApp,
     } = this.els;
 
+    // details toggle
     if (actionsToggle && detailsPanel) {
       actionsToggle.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -1037,21 +971,18 @@ class ComMessenger extends HTMLElement {
       });
     }
 
-    messageForm.addEventListener("submit", async (e) => {
+    // send message
+    messageForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const active = this.getActiveConversationEl();
       const user = active?.dataset.user;
       if (!active) return;
 
-      // blocked/reported бол бичихгүй
       if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
 
       const otherId = active.dataset.userId;
-      if (!otherId) {
-        console.error("No otherId on active conversation");
-        return;
-      }
+      if (!otherId) return;
 
       const text = messageInput.value.trim();
       if (!text) return;
@@ -1064,7 +995,6 @@ class ComMessenger extends HTMLElement {
       chatBody.scrollTop = chatBody.scrollHeight;
       messageInput.value = "";
 
-      // ✅ DB save
       try {
         const res = await fetch("/api/messages", {
           method: "POST",
@@ -1073,163 +1003,147 @@ class ComMessenger extends HTMLElement {
           body: JSON.stringify({ other: otherId, text, type: "text" }),
         });
 
-        if (!res.ok) {
-          console.error("send failed", await res.text());
-        }
+        if (!res.ok) console.error("send failed", await res.text());
       } catch (err) {
         console.error("send error", err);
       }
     });
-    const { backBtn, chatApp } = this.els;
 
+    // mobile back
     if (backBtn && chatApp) {
       backBtn.addEventListener("click", () => {
-        // mobile дээр inbox руу буцаах
         chatApp.classList.remove("is-chat-open");
-
-        // details panel, emoji зэргийг хаая
         this.els.detailsPanel?.classList.remove("is-open");
         this.els.emojiPanel?.classList.remove("is-open");
-        this.closeDateOverlay?.();
-
-        // focus search
+        this.closeDateOverlay();
         this.els.searchInput?.focus();
       });
     }
 
-
-    // Search input – sidebar filter
+    // search filter
     if (searchInput) {
       searchInput.addEventListener("input", () => {
         const q = searchInput.value.toLowerCase().trim();
-        this.els.conversationItems.forEach(item => {
+        this.els.conversationItems.forEach((item) => {
           const name = (item.dataset.user || "").toLowerCase();
           const snippet = (item.querySelector(".conversation-snippet")?.textContent || "").toLowerCase();
-          const match = !q || name.includes(q) || snippet.includes(q);
-          item.style.display = match ? "flex" : "none";
+          const ok = !q || name.includes(q) || snippet.includes(q);
+          item.style.display = ok ? "flex" : "none";
         });
       });
     }
 
-    // "Send message" товч – хайлт руу focus
+    // empty button
     if (emptyNewMessageBtn) {
       emptyNewMessageBtn.addEventListener("click", () => {
-        if (searchInput) searchInput.focus();
+        this.els.searchInput?.focus();
       });
     }
 
-    // Emoji
-    this.els.emojiBtn.addEventListener("click", (e) => {
+    // emoji toggle
+    this.els.emojiBtn?.addEventListener("click", (e) => {
       e.preventDefault();
       const user = this.getActiveUserName();
-      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user)))
-        return;
+      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
       this.els.emojiPanel.classList.toggle("is-open");
     });
 
-    this.els.emojiItems.forEach((btn) => {
+    // emoji pick
+    this.els.emojiItems?.forEach((btn) => {
       btn.addEventListener("click", () => {
         const user = this.getActiveUserName();
-        if (
-          user &&
-          (this.blockedUsers.has(user) || this.reportedUsers.has(user))
-        )
-          return;
+        if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
         const emoji = btn.dataset.emoji;
         this.els.messageInput.value += emoji;
         this.els.messageInput.focus();
       });
     });
 
-    // Date
-    this.els.dateBtn.addEventListener("click", (e) => {
+    // date open
+    this.els.dateBtn?.addEventListener("click", (e) => {
       e.preventDefault();
       const user = this.getActiveUserName();
-      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user)))
-        return;
+      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
 
       this.els.dateOverlay.classList.add("is-open");
       this.els.dateOverlay.setAttribute("aria-hidden", "false");
       this.els.emojiPanel.classList.remove("is-open");
     });
 
-    this.els.dateCancelBtn.addEventListener("click", () => {
-      this.closeDateOverlay();
-    });
+    this.els.dateCancelBtn?.addEventListener("click", () => this.closeDateOverlay());
 
-    this.els.dateSendBtn.addEventListener("click", () => {
+    this.els.dateSendBtn?.addEventListener("click", async () => {
       const user = this.getActiveUserName();
-      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user)))
-        return;
+      if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+
+      const active = this.getActiveConversationEl();
+      const otherId = active?.dataset.userId;
+      if (!otherId) return;
 
       const text = "Болзоонд явах уу? 🫶";
+
+      // optimistic
       const row = document.createElement("div");
       row.className = "message-row outgoing";
-      row.innerHTML = `<div class="message-bubble">${this.escapeHtml(
-        text
-      )}</div>`;
+      row.innerHTML = `<div class="message-bubble">${this.escapeHtml(text)}</div>`;
       this.els.chatBody.appendChild(row);
       this.els.chatBody.scrollTop = this.els.chatBody.scrollHeight;
 
       this.closeDateOverlay();
-    });
 
-    this.els.dateOverlay.addEventListener("click", (e) => {
-      if (e.target === this.els.dateOverlay) this.closeDateOverlay();
-    });
-
-    // Block/report/delete
-    this.els.blockBtn.addEventListener("click", () => {
-      const userName = this.getActiveUserName();
-      if (!userName) return;
-
-      const isBlocked = this.blockedUsers.has(userName);
-
-      if (isBlocked) {
-        // Unblock confirm
-        this.openConfirmOverlay({ type: "unblock", userName });
-      } else {
-        // Block confirm
-        this.openConfirmOverlay({ type: "block", userName });
+      // save
+      try {
+        const res = await fetch("/api/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ other: otherId, text, type: "date" }),
+        });
+        if (!res.ok) console.error("date send failed", await res.text());
+      } catch (err) {
+        console.error("date send error", err);
       }
     });
 
+    this.els.dateOverlay?.addEventListener("click", (e) => {
+      if (e.target === this.els.dateOverlay) this.closeDateOverlay();
+    });
 
-    this.els.reportBtn.addEventListener("click", () => {
+    // block/unblock
+    this.els.blockBtn?.addEventListener("click", () => {
+      const userName = this.getActiveUserName();
+      if (!userName) return;
+      const isBlocked = this.blockedUsers.has(userName);
+      this.openConfirmOverlay({ type: isBlocked ? "unblock" : "block", userName });
+    });
+
+    // report
+    this.els.reportBtn?.addEventListener("click", () => {
       const userName = this.getActiveUserName();
       if (!userName) return;
       this._reportUserName = userName;
       this.openReportOverlay();
     });
 
-    if (this.els.reportCloseBtn) {
-      this.els.reportCloseBtn.addEventListener("click", () =>
-        this.closeReportOverlay()
-      );
-    }
-    if (this.els.reportBackBtn) {
-      this.els.reportBackBtn.addEventListener("click", () =>
-        this.closeReportOverlay()
-      );
-    }
-    if (this.els.reportOverlay) {
-      this.els.reportOverlay.addEventListener("click", (e) => {
-        if (e.target === this.els.reportOverlay) this.closeReportOverlay();
-      });
-    }
-    if (this.els.reportRows && this.els.reportRows.length) {
-      this.els.reportRows.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const label = btn.dataset.reason || btn.textContent.trim();
-          const userName = this._reportUserName || this.getActiveUserName();
-          if (!userName) return;
+    this.els.reportCloseBtn?.addEventListener("click", () => this.closeReportOverlay());
+    this.els.reportBackBtn?.addEventListener("click", () => this.closeReportOverlay());
 
-          this.closeReportOverlay();
-          this.openConfirmOverlay({ type: "report", userName, reason: label });
-        });
-      });
-    }
+    this.els.reportOverlay?.addEventListener("click", (e) => {
+      if (e.target === this.els.reportOverlay) this.closeReportOverlay();
+    });
 
+    this.els.reportRows?.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const label = btn.dataset.reason || btn.textContent.trim();
+        const userName = this._reportUserName || this.getActiveUserName();
+        if (!userName) return;
+
+        this.closeReportOverlay();
+        this.openConfirmOverlay({ type: "report", userName, reason: label });
+      });
+    });
+
+    // delete chat
     if (deleteChatBtn) {
       deleteChatBtn.addEventListener("click", () => {
         const userName = this.getActiveUserName();
@@ -1238,6 +1152,7 @@ class ComMessenger extends HTMLElement {
       });
     }
 
+    // mute
     if (muteToggle) {
       muteToggle.addEventListener("change", () => {
         const userName = this.getActiveUserName();
@@ -1250,105 +1165,70 @@ class ComMessenger extends HTMLElement {
       });
     }
 
-    const {
-      confirmOverlay,
-      confirmPrimaryBtn,
-      confirmCancelBtn,
-    } = this.els;
+    // confirm overlay close / primary
+    const { confirmOverlay, confirmPrimaryBtn, confirmCancelBtn } = this.els;
 
-    if (confirmCancelBtn && confirmOverlay) {
-      confirmCancelBtn.addEventListener("click", () =>
-        this.closeConfirmOverlay()
-      );
-      confirmOverlay.addEventListener("click", (e) => {
-        if (e.target === confirmOverlay) this.closeConfirmOverlay();
-      });
-    }
+    confirmCancelBtn?.addEventListener("click", () => this.closeConfirmOverlay());
+    confirmOverlay?.addEventListener("click", (e) => {
+      if (e.target === confirmOverlay) this.closeConfirmOverlay();
+    });
 
-    if (confirmPrimaryBtn) {
-      confirmPrimaryBtn.addEventListener("click", () => {
-        const state = this._confirmState;
-        if (!state) return;
+    confirmPrimaryBtn?.addEventListener("click", () => {
+      const state = this._confirmState;
+      if (!state) return;
 
-        const { type, userName } = state;
+      const { type, userName } = state;
 
-        if (type === "block") {
-          this.blockedUsers.add(userName);
-
-          // block хийвэл status нуух
-          this.els.headerStatus.classList.add("hidden-status");
-
-          this.updateConversationStatuses();
-          this.applyUIForUser(userName);
+      if (type === "block") {
+        this.blockedUsers.add(userName);
+        this.els.headerStatus?.classList.add("hidden-status");
+        this.updateConversationStatuses();
+        this.applyUIForUser(userName);
+      } else if (type === "unblock") {
+        this.blockedUsers.delete(userName);
+        if (!this.reportedUsers.has(userName)) {
+          this.els.headerStatus?.classList.remove("hidden-status");
         }
-
-        else if (type === "unblock") {
-          this.blockedUsers.delete(userName);
-
-          // report хийгээгүй бол status эргүүлж харуулна
-          if (!this.reportedUsers.has(userName)) {
-            this.els.headerStatus.classList.remove("hidden-status");
-          }
-
-          this.updateConversationStatuses();
-          this.applyUIForUser(userName);
+        this.updateConversationStatuses();
+        this.applyUIForUser(userName);
+      } else if (type === "report") {
+        this.reportedUsers.add(userName);
+        this.els.headerStatus?.classList.add("hidden-status");
+        this.updateConversationStatuses();
+        this.applyUIForUser(userName);
+      } else if (type === "delete") {
+        this.els.chatBody.innerHTML = "";
+        const active = this.getActiveConversationEl();
+        if (active) {
+          active.remove();
+          this.els.conversationItems = this.els.conversationItems.filter((el) => el !== active);
         }
+        this.updateEmptyState();
+      }
 
-        else if (type === "report") {
-          this.reportedUsers.add(userName);
-          this.els.headerStatus.classList.add("hidden-status");
+      this.els.detailsPanel?.classList.remove("is-open");
+      this.closeConfirmOverlay();
+    });
 
-          this.updateConversationStatuses();
-          this.applyUIForUser(userName);
-        }
-
-        else if (type === "delete") {
-          this.els.chatBody.innerHTML = "";
-
-          const active = this.getActiveConversationEl();
-          if (active) {
-            active.remove();
-            this.els.conversationItems = this.els.conversationItems.filter(
-              (el) => el !== active
-            );
-          }
-
-          this.updateEmptyState();
-        }
-
-        // details panel хаах
-        if (this.els.detailsPanel) {
-          this.els.detailsPanel.classList.remove("is-open");
-        }
-
-        this.closeConfirmOverlay();
-      });
-    }
-
-
-    // click outside – emoji, details panel-ийг хаах
+    // click outside closes emoji/details
     this.shadowRoot.addEventListener("click", (e) => {
-      const withinEmoji = e.composedPath().includes(this.els.emojiPanel);
-      const withinEmojiBtn = e.composedPath().includes(this.els.emojiBtn);
-      if (!withinEmoji && !withinEmojiBtn) {
-        this.els.emojiPanel.classList.remove("is-open");
-      }
+      const path = e.composedPath();
 
-      const withinDetails =
-        this.els.detailsPanel &&
-        e.composedPath().includes(this.els.detailsPanel);
-      const withinDetailsBtn =
-        this.els.actionsToggle &&
-        e.composedPath().includes(this.els.actionsToggle);
-      if (!withinDetails && !withinDetailsBtn && this.els.detailsPanel) {
-        this.els.detailsPanel.classList.remove("is-open");
-      }
+      const withinEmoji = path.includes(this.els.emojiPanel);
+      const withinEmojiBtn = path.includes(this.els.emojiBtn);
+      if (!withinEmoji && !withinEmojiBtn) this.els.emojiPanel?.classList.remove("is-open");
+
+      const withinDetails = this.els.detailsPanel && path.includes(this.els.detailsPanel);
+      const withinDetailsBtn = this.els.actionsToggle && path.includes(this.els.actionsToggle);
+      if (!withinDetails && !withinDetailsBtn) this.els.detailsPanel?.classList.remove("is-open");
     });
   }
 
+  /* ================= OVERLAYS ================= */
+
   closeDateOverlay() {
-    this.els.dateOverlay.classList.remove("is-open");
-    this.els.dateOverlay.setAttribute("aria-hidden", "true");
+    this.els.dateOverlay?.classList.remove("is-open");
+    this.els.dateOverlay?.setAttribute("aria-hidden", "true");
   }
 
   openReportOverlay() {
@@ -1362,6 +1242,7 @@ class ComMessenger extends HTMLElement {
     this.els.reportOverlay.classList.remove("is-open");
     this.els.reportOverlay.setAttribute("aria-hidden", "true");
   }
+
   openConfirmOverlay({ type, userName, reason }) {
     this._confirmState = { type, userName, reason };
 
@@ -1390,17 +1271,17 @@ class ComMessenger extends HTMLElement {
       confirmPrimaryBtn.textContent = "Delete";
     }
 
-    // ✅ always open
     confirmOverlay.classList.add("is-open");
     confirmOverlay.setAttribute("aria-hidden", "false");
   }
 
   closeConfirmOverlay() {
-    if (!this.els.confirmOverlay) return;
-    this.els.confirmOverlay.classList.remove("is-open");
-    this.els.confirmOverlay.setAttribute("aria-hidden", "true");
+    this.els.confirmOverlay?.classList.remove("is-open");
+    this.els.confirmOverlay?.setAttribute("aria-hidden", "true");
     this._confirmState = null;
   }
+
+  /* ================= UI HELPERS ================= */
 
   updateEmptyState() {
     if (!this.els.emptyState) return;
@@ -1408,10 +1289,9 @@ class ComMessenger extends HTMLElement {
     this.els.emptyState.style.display = hasConversations ? "none" : "flex";
   }
 
-
   escapeHtml(text) {
     const div = document.createElement("div");
-    div.textContent = text;
+    div.textContent = text ?? "";
     return div.innerHTML;
   }
 
@@ -1421,11 +1301,6 @@ class ComMessenger extends HTMLElement {
 
   getActiveUserName() {
     return this.els.chatUserName?.textContent || null;
-  }
-
-  updateIncomingAvatars() {
-    const incoming = this.shadowRoot.querySelectorAll(".incoming-avatar");
-    incoming.forEach((img) => (img.src = this.currentUserAvatar));
   }
 
   updateConversationStatuses() {
@@ -1442,9 +1317,8 @@ class ComMessenger extends HTMLElement {
     const isReported = this.reportedUsers.has(user);
     const isMuted = this.mutedUsers.has(user);
 
-    if (this.els.blockBtn) {
-      this.els.blockBtn.textContent = isBlocked ? "Unblock" : "Block";
-    }
+    if (this.els.blockBtn) this.els.blockBtn.textContent = isBlocked ? "Unblock" : "Block";
+
     if (this.els.headerBanner) {
       if (isMuted) {
         this.els.headerBanner.style.display = "inline-block";
@@ -1457,9 +1331,7 @@ class ComMessenger extends HTMLElement {
       }
     }
 
-    if (this.els.muteToggle) {
-      this.els.muteToggle.checked = isMuted;
-    }
+    if (this.els.muteToggle) this.els.muteToggle.checked = isMuted;
 
     if (!isBlocked && !isReported) {
       this.els.footerBanner.style.display = "none";
@@ -1483,61 +1355,73 @@ class ComMessenger extends HTMLElement {
     if (this.els.dateBtn) this.els.dateBtn.disabled = true;
 
     this.els.footerBanner.style.display = "block";
+    this.els.footerBanner.style.background = "#F5F5F5";
+    this.els.footerBanner.style.color = "#555";
 
     if (isBlocked && isReported) {
-      this.els.footerBanner.textContent =
-        "Энэ хэрэглэгч блоклогдсон бас репортлосон байна.";
-      this.els.footerBanner.style.background = "#F5F5F5";
-      this.els.footerBanner.style.color = "#555";
+      this.els.footerBanner.textContent = "Энэ хэрэглэгч блоклогдсон бас репортлосон байна.";
     } else if (isBlocked) {
-      this.els.footerBanner.textContent =
-        "Та энэ хэрэглэгчийн блоклосон байна.";
-      this.els.footerBanner.style.background = "#F5F5F5";
-      this.els.footerBanner.style.color = "#555";
+      this.els.footerBanner.textContent = "Та энэ хэрэглэгчийн блоклосон байна.";
     } else {
-      this.els.footerBanner.textContent =
-        "Та энэ хэрэглэгчийг репортлосон байна.";
-      this.els.footerBanner.style.background = "#F5F5F5";
-      this.els.footerBanner.style.color = "#555";
+      this.els.footerBanner.textContent = "Та энэ хэрэглэгчийг репортлосон байна.";
     }
   }
+
+  /* ================= API ================= */
+
   async fetchMe() {
-    const res = await fetch("/api/me", { credentials: "include" });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.user || null;
+    try {
+      const res = await fetch("/api/me", { credentials: "include" });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.user || null;
+    } catch {
+      return null;
+    }
   }
+
   async fetchUsers() {
-    const res = await fetch("/api/matches", { credentials: "include" });
-    if (!res.ok) return [];
-    return await res.json(); // зөвхөн match болсон хүмүүс
+    try {
+      const res = await fetch("/api/matches", { credentials: "include" });
+      if (!res.ok) return [];
+      return await res.json(); // match болсон хүмүүс
+    } catch {
+      return [];
+    }
   }
+
+  /* ================= INIT ================= */
 
   async initAuthAndUsers() {
     this.me = await this.fetchMe();
+
     if (!this.me?._id) {
       this.renderConversationList([]);
       this.updateEmptyState();
       return;
     }
+
     this.meId = String(this.me._id);
 
     const users = await this.fetchUsers();
 
-    // ✅ id-г нэг мөрөнд normalize
     const normalizeId = (u) => String(u.userId || u._id || "");
-
-    // ✅ me-г зөв хасна
-    const others = users.filter(u => normalizeId(u) && normalizeId(u) !== this.meId);
+    const others = users.filter((u) => normalizeId(u) && normalizeId(u) !== this.meId);
 
     this.renderConversationList(others);
 
-    const first = others[0];
-    if (first) {
-      this.selectConversationByUserId(normalizeId(first));
-    } else {
-      this.updateEmptyState();
+    // ✅ URL-аас ирсэн other байвал тэрийг түрүүн сонгоно
+    const wanted = this._pendingOtherId || this._getHashQuery("other");
+    if (wanted) {
+      this.selectConversationByUserId(String(wanted));
+      this._pendingOtherId = null;
+      return;
     }
+
+    // default first
+    const first = others[0];
+    if (first) this.selectConversationByUserId(normalizeId(first));
+    else this.updateEmptyState();
   }
 
   renderConversationList(list) {
@@ -1546,49 +1430,49 @@ class ComMessenger extends HTMLElement {
 
     wrap.innerHTML = "";
 
-    list.forEach(u => {
+    list.forEach((u) => {
       const el = document.createElement("div");
       el.className = "conversation-item";
 
-      const id = u.userId;              // profiles дээр userId байна
+      const id = String(u.userId || u._id || "");
       el.dataset.user = `${u.name || ""}`.trim() || "User";
-      el.dataset.userId = String(id);
+      el.dataset.userId = id;
       el.dataset.avatar = u.avatar || "img/profile2.jpg";
 
-
       el.innerHTML = `
-      <div class="conversation-avatar">
-        <img src="${this.escapeHtml(el.dataset.avatar)}" alt="${this.escapeHtml(el.dataset.user)}">
-      </div>
-      <div class="conversation-text">
-        <div class="conversation-name">${this.escapeHtml(el.dataset.user)}</div>
-        <div class="conversation-snippet"></div>
-      </div>
-      <div class="conversation-status"></div>
-    `;
+        <div class="conversation-avatar">
+          <img src="${this.escapeHtml(el.dataset.avatar)}" alt="${this.escapeHtml(el.dataset.user)}">
+        </div>
+        <div class="conversation-text">
+          <div class="conversation-name">${this.escapeHtml(el.dataset.user)}</div>
+          <div class="conversation-snippet"></div>
+        </div>
+        <div class="conversation-status"></div>
+      `;
 
       el.addEventListener("click", () => this.selectConversationEl(el));
       wrap.appendChild(el);
     });
 
-    // ✅ зөвхөн conversationList доторх item-үүд
     this.els.conversationItems = Array.from(
       this.els.conversationList.querySelectorAll(".conversation-item")
     );
 
+    this.updateConversationStatuses();
     this.updateEmptyState();
   }
 
   selectConversationByUserId(userId) {
-    const el = this.shadowRoot.querySelector(`.conversation-item[data-user-id="${CSS.escape(userId)}"]`);
+    const el = this.shadowRoot.querySelector(
+      `.conversation-item[data-user-id="${CSS.escape(String(userId))}"]`
+    );
     if (el) this.selectConversationEl(el);
   }
+
   async selectConversationEl(item) {
-    // mobile дээр chat руу шилжүүлэх
     this.els.chatApp?.classList.add("is-chat-open");
 
-    // active class
-    this.els.conversationItems.forEach(i => i.classList.remove("is-active"));
+    this.els.conversationItems.forEach((i) => i.classList.remove("is-active"));
     item.classList.add("is-active");
 
     const userName = item.dataset.user;
@@ -1601,19 +1485,19 @@ class ComMessenger extends HTMLElement {
     this.els.headerAvatar.src = userAvatar;
     this.currentUserAvatar = userAvatar;
 
-    // UI (mute banner etc)
     this.applyUIForUser(userName);
     this.updateConversationStatuses();
     if (this.els.muteToggle) this.els.muteToggle.checked = this.mutedUsers.has(userName);
 
-    // ✅ DB-с messages
     await this.loadMessages(otherId, userAvatar, userName);
   }
+
   async loadMessages(otherId, otherAvatar, otherName) {
     try {
-      const res = await fetch(`/api/messages?other=${encodeURIComponent(otherId)}&limit=200`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/api/messages?other=${encodeURIComponent(otherId)}&limit=200`,
+        { credentials: "include" }
+      );
 
       if (!res.ok) {
         const t = await res.text();
@@ -1622,11 +1506,10 @@ class ComMessenger extends HTMLElement {
         return;
       }
 
-
       const msgs = await res.json();
       this.els.chatBody.innerHTML = "";
 
-      msgs.forEach(m => {
+      msgs.forEach((m) => {
         const isOutgoing = String(m.fromUserId) === String(this.meId);
 
         const row = document.createElement("div");
@@ -1634,11 +1517,11 @@ class ComMessenger extends HTMLElement {
 
         if (!isOutgoing) {
           row.innerHTML = `
-          <div class="message-avatar">
-            <img src="${otherAvatar}" alt="${this.escapeHtml(otherName)}" class="incoming-avatar">
-          </div>
-          <div class="message-bubble">${this.escapeHtml(m.text || "")}</div>
-        `;
+            <div class="message-avatar">
+              <img src="${this.escapeHtml(otherAvatar)}" alt="${this.escapeHtml(otherName)}" class="incoming-avatar">
+            </div>
+            <div class="message-bubble">${this.escapeHtml(m.text || "")}</div>
+          `;
         } else {
           row.innerHTML = `<div class="message-bubble">${this.escapeHtml(m.text || "")}</div>`;
         }
@@ -1651,7 +1534,6 @@ class ComMessenger extends HTMLElement {
       console.error("loadMessages error", e);
     }
   }
-
-
 }
+
 window.customElements.define("com-messenger", ComMessenger);
