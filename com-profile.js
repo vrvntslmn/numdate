@@ -1,8 +1,17 @@
 import {api} from './apiClient.js';
+import './nm-selection.js';
+
 
 class Profile extends HTMLElement{
+    static GOAL = 'Харилцааны хэлбэр';
+    static LOVELANG = 'Хайрын хэл';
+    static ZODIAC = 'Орд';
+    static MBTI = 'MBTI';
+    static MAJOR = 'ХӨТӨЛБӨР';
+    static INTERESTS = 'Сонирхол';
+
     constructor(){
-        super();
+        super(); 
         this.profile = null;
     }
 
@@ -1317,12 +1326,87 @@ class Profile extends HTMLElement{
             });
         });
 
-        const rel = this.querySelector('.relation');
-        rel.querySelector('button').addEventListener('click', ()=>{
-            edit.style.display = 'flex';
-            edit.innerHTML = `
-            `;
-        })
+        // const rel = this.querySelector('.relation');
+        // rel.querySelector('button').addEventListener('click', ()=>{
+        //     edit.style.display = 'flex';
+        //     edit.innerHTML = `
+        //     `;
+        // })
+
+        const goal = this.querySelector('.goal');
+
+        if(goal){
+            goal.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="${GOAL}" select="goal"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
+        const loveLang = this.querySelector('.loveLang');
+
+        if(loveLang){
+            loveLang.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="${Profile.LOVELANG}" select="loveLang"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
+
+        const zodiac = this.querySelector('.zodiac');
+
+        if(zodiac){
+            zodiac.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="" select="zodiac"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
+
+        const mbti = this.querySelector('.mbti');
+
+        if(mbti){
+            mbti.addEventListener('click', ()=>{
+                edit.style.display = 'grid';
+                edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="Сонирхсон харилцаа" select="mbti"></nm-selection>
+                `;
+                this.enableExit(edit);
+            });
+        }
+
 
         if (this.profile) this.loadUser();
     }
