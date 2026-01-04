@@ -67,7 +67,7 @@ class NmSelection extends HTMLElement {
                 this.freeChoose(select);
         }
     }
- 
+
     connectedCallback() {
         this.name = this.getAttribute('name');
         this.select = this.getAttribute('select');
@@ -85,7 +85,7 @@ class NmSelection extends HTMLElement {
         let temp = ``;
         let k;
         let selected = document.querySelector(`.${this.select} p`);
- 
+
         if(Array.isArray(this.selection)){
             content = this.selection.map((element, i) =>{
                 if (element===selected.textContent) {
@@ -182,10 +182,10 @@ class NmSelection extends HTMLElement {
                     height:100%;
                     justify-content: center;
                     background-color: var(--back-col-white);
-                    box-shadow: var(--box-shadow);    
+                    box-shadow: var(--box-shadow);     
                     border-radius: var(--brderRad-m);
                     gap: 5%;
- 
+
                     & > div{
                         display: flex;
                         justify-content: center;
@@ -202,7 +202,7 @@ class NmSelection extends HTMLElement {
                     & >.field{
                         min-width: 100%;
                     }
- 
+
                     & button{
                         width: 80%;
                         height: 10%;
@@ -211,7 +211,7 @@ class NmSelection extends HTMLElement {
                         border-radius: var(--brderRad-m);
                         color: white;
                     }
- 
+
                     & .exit{
                         top: 22%;
                     }
@@ -228,7 +228,7 @@ class NmSelection extends HTMLElement {
 
                 }
                 h2{width:100%;}
- 
+
             </style>
             <section id="editSelect">
                 <h2>${head}</h2>
@@ -703,16 +703,16 @@ class NmSelection extends HTMLElement {
     disconnectedCallback() {
         //implementation
     }
- 
+
     attributeChangedCallback(name, oldVal, newVal) {
         //implementation
     }
- 
+
     adoptedCallback() {
         //implementation
     }
 
 
 }
- 
+
 window.customElements.define('nm-selection', NmSelection);

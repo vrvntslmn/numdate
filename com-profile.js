@@ -1,8 +1,8 @@
-import { api } from './apiClient.js';
+import {api} from './apiClient.js';
 import './nm-selection.js';
 
 
-class Profile extends HTMLElement {
+class Profile extends HTMLElement{
     static GOAL = 'Харилцааны хэлбэр';
     static LOVELANG = 'Хайрын хэл';
     // static ZODIAC = 'Орд';
@@ -13,8 +13,8 @@ class Profile extends HTMLElement {
     static JOB = 'Ажил';
     static LIKE = 'Таалагддаг';
 
-    constructor() {
-        super();
+    constructor(){
+        super(); 
         this.profile = null;
         this.imageAvatar = null;
         this.image0 = null;
@@ -23,7 +23,7 @@ class Profile extends HTMLElement {
         this.image3 = null;
     }
 
-    connectedCallback() {
+    connectedCallback(){
 
         this.addEventListener('click', (event) => {
             const target = event.target;
@@ -50,7 +50,7 @@ class Profile extends HTMLElement {
                 this.render();
             })
             .catch(err => console.error('Failed to load profiles:', err)
-            );
+        );
 
     }
 
@@ -82,7 +82,7 @@ class Profile extends HTMLElement {
             age = a;
         }
 
-        const $ = (sel) => this.querySelector(sel);
+        const $  = (sel) => this.querySelector(sel);
         const $$ = (sel) => this.querySelectorAll(sel);
 
         const goalEl = $('.goal p');
@@ -93,7 +93,7 @@ class Profile extends HTMLElement {
 
         const majorEl = $('.major p');
         if (majorEl && major) majorEl.textContent = major;
-
+        
         const aboutBlock = $('.about');
         const hasAbout =
             about &&
@@ -127,15 +127,15 @@ class Profile extends HTMLElement {
 
 
         const likesEl = $('.likes button');
-
-        if (!likes || Object.keys(likes).length == 0) if (likesEl) likesEl.style.display = 'none';
+        
+        if(!likes || Object.keys(likes).length == 0) if (likesEl) likesEl.style.display = 'none';
 
         Object.keys(interests).forEach((key) => {
-            const el = $(`.${key} p`);
-            if (el) {
-                el.parentElement.style.display = 'flex';
-                el.textContent = interests[key];
-            }
+        const el = $(`.${key} p`);
+        if (el) {
+            el.parentElement.style.display = 'flex';
+            el.textContent = interests[key];
+        }
         });
 
         const avatarImg = $('.avatar img');
@@ -153,7 +153,7 @@ class Profile extends HTMLElement {
     }
 
 
-    render() {
+    render(){
         this.innerHTML = `
             <style>
                 :root{
@@ -1130,27 +1130,14 @@ class Profile extends HTMLElement {
                     </article>
                     
                     <article class="out">
-                    <div class="item logout">
-                        <h4>Log out</h4>
-                        <svg class="ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                        <path d="M21 12L13 12" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M18 15L20.913 12.087V12.087C20.961 12.039 20.961 11.961 20.913 11.913V11.913L18 9" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M16 5V4.5V4.5C16 3.67157 15.3284 3 14.5 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H14.5C15.3284 21 16 20.3284 16 19.5V19.5V19" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
+                        <div class="item logout">
+                            <h4>Log out</h4>
+                        </div>
 
-                    <div class="item delete">
-                        <h4>Delete account</h4>
-                        <svg class="ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                        <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M4 7H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
+                        <div class="item delete">
+                            <h4>Delete account</h4>
+                        </div>
                     </article>
-
                 </aside>
             </main>
         `;
@@ -1188,12 +1175,12 @@ class Profile extends HTMLElement {
         if (this.profile) this.loadUser();
     }
 
-    renderDefault() {
+    renderDefault(){
         const mainCont = this.querySelector('.main-container');
         const elMain = mainCont.parentElement;
 
         let edit = this.querySelector('#edit');
-        if (!edit) {
+        if(!edit) {
             this.insertAdjacentHTML('beforeend', ` 
                 <style>
                     #edit{
@@ -1224,7 +1211,7 @@ class Profile extends HTMLElement {
                 <div id="edit"></div>`);
             edit = this.querySelector('#edit');
         }
-
+     
         mainCont.innerHTML = `
             <article>
                 <div class="profile-head">
@@ -1293,6 +1280,7 @@ class Profile extends HTMLElement {
                                 <path d="M17.1821 4.25C20.2863 4.25016 22.8179 6.81578 22.8179 10C22.8179 13.1842 20.2863 15.7498 17.1821 15.75C14.0778 15.75 11.5454 13.1843 11.5454 10C11.5454 6.81568 14.0778 4.25 17.1821 4.25Z" stroke="#55565A"/>
                                 </svg>
                                 <p></p>
+                                <h4>Сонгох</h4>
                             </div>
                         </article>
                         <article class="loveLang">
@@ -1323,7 +1311,6 @@ class Profile extends HTMLElement {
                                 <path d="M11.7563 3.88125L13.0688 5.19375M9.13132 6.50625L10.4438 7.81875M6.50632 9.13125L7.81882 10.4438M3.88132 11.7563L5.19382 13.0688M1.31376 14.4388L4.69881 17.8238C4.87206 17.9971 4.95869 18.0837 5.05859 18.1162C5.14646 18.1447 5.24111 18.1447 5.32898 18.1162C5.42887 18.0837 5.5155 17.9971 5.68876 17.8238L17.8238 5.68876C17.9971 5.5155 18.0837 5.42887 18.1162 5.32898C18.1447 5.24111 18.1447 5.14646 18.1162 5.05859C18.0837 4.95869 17.9971 4.87206 17.8238 4.69881L14.4388 1.31376C14.2655 1.1405 14.1789 1.05387 14.079 1.02141C13.9911 0.992862 13.8965 0.992862 13.8086 1.02141C13.7087 1.05387 13.6221 1.1405 13.4488 1.31376L1.31376 13.4488C1.1405 13.6221 1.05387 13.7087 1.02141 13.8086C0.992862 13.8965 0.992862 13.9911 1.02141 14.079C1.05387 14.1789 1.1405 14.2655 1.31376 14.4388Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
-                                <h4>Сонгох</h4>
                             </div>
                         </article>
                         <article class="zodiac">
@@ -1333,7 +1320,6 @@ class Profile extends HTMLElement {
                                 <path d="M19.0017 5.00022C21.6667 8.54505 21.6661 13.4578 19 17.0021M11 21C12.5711 21 14.0575 20.6377 15.3803 19.9921C15.2542 19.9974 15.1274 20 15 20C10.0294 20 6 15.9706 6 11C6 6.02944 10.0294 2 15 2C15.1274 2 15.2542 2.00265 15.3803 2.00789C14.0575 1.36229 12.5711 1 11 1C5.47715 1 1 5.47715 1 11C1 16.5228 5.47715 21 11 21Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
-                                <h4>Сонгох</h4>
                             </div>
                         </article>
                         <article class="mbti">
@@ -1343,7 +1329,6 @@ class Profile extends HTMLElement {
                                 <path d="M1 12.1111H19.7614C20.3181 12.1111 20.5964 12.1111 20.7554 12.0034C20.894 11.9094 20.9825 11.7652 20.9984 11.6071C21.0167 11.4258 20.8735 11.2055 20.5871 10.7649L18.1484 7.01289C18.0404 6.84661 17.9863 6.76347 17.9652 6.67472C17.9465 6.59621 17.9465 6.5149 17.9652 6.4364C17.9863 6.34764 18.0404 6.2645 18.1484 6.09823L20.5871 2.34622C20.8735 1.90559 21.0167 1.68527 20.9984 1.50399C20.9825 1.34593 20.894 1.20171 20.7554 1.10776C20.5964 1 20.3181 1 19.7614 1H1L1 21" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
-                                <h4>Сонгох</h4>
                             </div>
                         </article>
                         <button class="plus-btn" id="plusAbout">НЭМЭХ</button>
@@ -1424,7 +1409,7 @@ class Profile extends HTMLElement {
             <input type="file" id="galleryFile" accept="image/*" hidden>
         `;
 
-        elMain.insertAdjacentHTML('beforeend', `
+        elMain.insertAdjacentHTML( 'beforeend', `
             <style>
                 .bckground{
                     position: absolute;
@@ -1436,6 +1421,10 @@ class Profile extends HTMLElement {
                 div.main-container{  
                     & > section{
                         height: 470px;
+
+                        & article{
+                            article{cursor: pointer;}
+                        }
                     }
 
                     & > section label{
@@ -1561,8 +1550,8 @@ class Profile extends HTMLElement {
         });
 
         const images = this.querySelectorAll('.user-image-container img');
-        images.forEach(img => {
-            img.addEventListener('click', _ => {
+        images.forEach(img =>{
+            img.addEventListener('click', _ =>{
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1629,8 +1618,8 @@ class Profile extends HTMLElement {
 
         const goal = this.querySelector('.goal');
 
-        if (goal) {
-            goal.addEventListener('click', () => {
+        if(goal){
+            goal.addEventListener('click', ()=>{
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1647,8 +1636,8 @@ class Profile extends HTMLElement {
 
         const loveLang = this.querySelector('.loveLang');
 
-        if (loveLang) {
-            loveLang.addEventListener('click', () => {
+        if(loveLang){
+            loveLang.addEventListener('click', ()=>{
                 edit.style.display = 'grid';
                 edit.innerHTML = `
                     <style>
@@ -1862,8 +1851,8 @@ class Profile extends HTMLElement {
     setupAvatarUpload(edit) {
         const fileInput = this.querySelector('#avatarFile');
         const avatarImg = this.querySelector('.avatar img');
-        const uploadBtn = edit.querySelector('#uploadBtn');
-
+        const uploadBtn   = edit.querySelector('#uploadBtn');
+        
         if (!avatarImg || !fileInput || !uploadBtn) return;
         
         uploadBtn.onclick = () => {
@@ -1935,6 +1924,10 @@ class Profile extends HTMLElement {
         fileInput.onchange = (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
+            const img = this.querySelector(
+                `.user-image-container img[value="${value}"]`
+            );
+            if (!img) return;
 
             const localUrl = URL.createObjectURL(file);
 
@@ -1977,4 +1970,5 @@ class Profile extends HTMLElement {
 
    
 }
+
 window.customElements.define('com-profile', Profile);
