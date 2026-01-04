@@ -159,18 +159,107 @@ class ComNotif extends HTMLElement {
 
     this.innerHTML = `
       <style>
-        .notifSec{ padding: 20px; width: 360px; max-width: 90vw; }
+        com-notif{
+          --n-bg:#ffffff;
+          --n-text:#101828;
+          --n-muted:#667085;
+          --n-hover:#ffd8e5ff;
+          --n-dot: var(--second-color);
+          --n-shadow: 0 18px 60px rgba(16,24,40,.10);
+          color-scheme: light dark;
+
+          display:block;
+          background: var(--n-bg);
+          color: var(--n-text);
+          border-radius: var(--brderRad-m);
+          overflow:hidden;
+          height:auto;
+        }
+        @media (prefers-color-scheme: dark){
+          com-notif{
+            --n-bg: #0b0f17;
+            --n-text: #e6eaf2;
+            --n-muted: #a0a8b8;
+            --n-hover: rgba(255, 216, 229, 0.12);
+            --n-dot: var(--second-color);
+            --n-shadow: 0 18px 60px rgba(0,0,0,.55);
+          }
+        }
+        com-notif.open{
+          background: var(--n-bg);
+          color: var(--n-text);
+          border-radius: var(--brderRad-m);
+          overflow: hidden;
+        }
+        .notifSec{
+          padding: 20px;
+          width: 360px;
+          max-width: 90vw;
+          background: var(--n-bg) !important;
+          color: var(--n-text);
+          border-radius: var(--brderRad-m);
+          box-shadow: var(--n-shadow);
+          height: auto !important;
+          min-height: 0 !important;
+        }
+
         .notifHead{ color: var(--second-color); font-size: 40px; margin-bottom: 20px; }
-        .loading{ font-family: var(--font-body); color:#666; }
+        .loading{ font-family: var(--font-body); color: var(--n-muted); }
+
+        .notifCir{
+          width: 10px; height: 10px; border-radius: 50%;
+          background-color: var(--n-dot);
+          flex: 0 0 auto; margin-top: 6px;
+        }
+
+        .notifText{ font-size: 20px; margin: 0; color: var(--n-text); }
+        .notifText b{ font-weight: 700; }
+
+        .notifDate{
+          color: var(--second-color);
+          font-size: 18px;
+          margin-left: auto;
+          flex: 0 0 auto;
+          white-space: nowrap;
+        }
+
+        .notifArt{
+          padding: 10px 10px;
+          display:flex;
+          align-items:center;
+          gap:14px;
+          border-radius: var(--brderRad-m);
+          user-select:none;
+        }
+
+        .notifArt:hover{ background: var(--n-hover); cursor:pointer; }
+
+        .empty{ font-family: var(--font-body); color: var(--n-muted); font-size: 16px; margin: 0; }
+
         @media (max-width: 768px) {
           .notifSec{ width: min(520px, calc(100vw - 16px)); padding: 14px; margin: 0 auto; }
           .notifHead{ font-size: 28px; margin-bottom: 12px; }
+          .notifText{ font-size: 16px; }
+          .notifDate{ font-size: 14px; }
+          .notifArt{ gap: 10px; padding: 10px 8px; align-items: flex-start; }
+          .notifArt svg{ width: 28px; height: 28px; margin-top: 2px; }
+          .notifCir{ margin-top: 4px; }
+          com-notif{
+            background: var(--panel-bg, #fff); 
+            overflow: hidden;           
+          }
+          com-notif .notifSec{
+            max-height: calc(100vh - var(--bottom-nav-height) - var(--header-height) - 24px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+          }
         }
       </style>
       <section class="notifSec">
         <h2 class="notifHead">Notification</h2>
-        <p class="loading">Loading...</p>
+        <div class="notifList"><p class="loading">Loading...</p></div>
       </section>
+
     `;
 
     const items = await this._fetchNotifs();
@@ -243,112 +332,9 @@ class ComNotif extends HTMLElement {
         })
         .join("")
       : `<p class="empty">Одоохондоо мэдэгдэл алга. Хичээгээрэй!</p>`;
+    const box = this.querySelector(".notifList");
+    if (box) box.innerHTML = listHtml;
 
-    this.innerHTML = `
-      <style>
-        .notifHead {
-            color: var(--second-color);
-            font-size: 40px;
-            margin-bottom: 20px;
-        }
-
-        .notifCir {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--second-color);
-            flex: 0 0 auto;
-            margin-top: 6px;
-        }
-
-        .notifText {
-            font-size: 20px;
-            margin: 0;
-        }
-
-        .notifText b {
-            font-weight: 700;
-        }
-
-        .notifDate {
-            color: var(--second-color);
-            font-size: 18px;
-            margin-left: auto;
-            flex: 0 0 auto;
-            white-space: nowrap;
-        }
-
-        .notifSec {
-            padding: 20px;
-            width: 360px;
-            max-width: 90vw;
-        }
-
-        .notifArt {
-            padding: 10px 10px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            border-radius: var(--brderRad-m);
-            user-select: none;
-        }
-
-        .notifArt:hover {
-            background-color: #ffd8e5ff;
-            cursor: pointer;
-        }
-
-        .empty {
-            font-family: var(--font-body);
-            color: #666;
-            font-size: 16px;
-            margin: 0;
-        }
-
-        @media (max-width: 768px) {
-            .notifSec {
-                width: min(520px, calc(100vw - 16px));
-                max-width: none;
-                padding: 14px;
-                margin: 0 auto;
-            }
-
-            .notifHead {
-                font-size: 28px;
-                margin-bottom: 12px;
-            }
-
-            .notifText {
-                font-size: 16px;
-            }
-
-            .notifDate {
-                font-size: 14px;
-            }
-
-            .notifArt {
-                gap: 10px;
-                padding: 10px 8px;
-                align-items: flex-start;
-            }
-
-            .notifArt svg {
-                width: 28px;
-                height: 28px;
-                margin-top: 2px;
-            }
-
-            .notifCir {
-                margin-top: 4px;
-            }
-        }
-      </style>
-
-      <section class="notifSec">
-        <h2 class="notifHead">Notification</h2>
-        ${listHtml}
-      </section>
-    `;
   }
 
   _escAttr(v) {
