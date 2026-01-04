@@ -1,3 +1,5 @@
+import { api } from "./apiClient.js"; 
+
 class Match extends HTMLElement {
   constructor() {
     super();
@@ -49,34 +51,33 @@ class Match extends HTMLElement {
   }
 
   async _fetchMatch(matchId) {
-    this.render({ loading: true });
+  this.render({ loading: true });
+  this._bind();
+
+  try {
+    this._data = await api.getMatchById(matchId);
+
+    this.render({ loading: false });
     this._bind();
 
-    try {
-      const res = await fetch(`/api/matches/${encodeURIComponent(matchId)}`, {
-        credentials: "include",
-        headers: { Accept: "application/json" },
-      });
+    this.createBurst();
+    this.playAudio();
+  } catch (e) {
+    console.error(e);
+    this._data = null;
 
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`HTTP ${res.status}: ${txt}`);
-      }
+    // apiClient error дээр e.status, e.data ирнэ
+    const msg =
+      e?.data?.error ||
+      e?.data?.message ||
+      e?.message ||
+      "Match дата татаж чадсангүй";
 
-      this._data = await res.json();
-
-      this.render({ loading: false });
-      this._bind();
-
-      this.createBurst();
-      this.playAudio();
-    } catch (e) {
-      console.error(e);
-      this._data = null;
-      this.render({ error: "Match дата татаж чадсангүй" });
-      this._bind();
-    }
+    this.render({ error: msg });
+    this._bind();
   }
+}
+
 
   render({ loading = false, error = "" } = {}) {
     const left = this._data?.left;

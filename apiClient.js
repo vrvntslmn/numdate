@@ -1,3 +1,5 @@
+
+
 const API_BASE = "";
 
 async function request(path, { method = "GET", body } = {}) {
@@ -14,7 +16,7 @@ async function request(path, { method = "GET", body } = {}) {
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
-    data = text; // JSON биш байж болно
+    data = text; 
   }
 
   if (!res.ok) {
@@ -30,7 +32,7 @@ async function request(path, { method = "GET", body } = {}) {
 }
 
 export const api = {
-  // -------- AUTH --------
+  // AUTH
   login({ email, password }) {
     return request("/api/auth/login", {
       method: "POST",
@@ -60,35 +62,33 @@ export const api = {
     });
   },
 
-  // -------- PROFILES --------
-  // ✅ MY profile (logged-in user) — ID хэрэггүй
   getMyProfile() {
     return request("/api/profile");
   },
 
-  // ✅ Home feed profiles
+
   getProfiles() {
     return request("/api/profiles");
   },
 
-  // ✅ OTHERS profile (userId-гаар нь авах) — чи яг үүнийг ашиглах ёстой
   getOtherProfileByUserId(userId) {
     return request(`/api/profile/${encodeURIComponent(userId)}`);
   },
 
-  // ⚠️ Зөвхөн profiles collection-ын document _id (profileId) байгаа үед хэрэглэнэ
+ 
   getProfileById(profileId) {
     return request(`/api/profiles/${encodeURIComponent(profileId)}`);
   },
 
-  // -------- OTHER --------
+
   getDateIdeas() {
     return request("/api/dateideas");
   },
 
-  getRecipients() {
-    return request("/api/recipients");
-  },
+  
+  getOthersProfile() {
+  return request("/api/othersprofile");
+},
 
   like(toUserId) {
     return request("/api/like", {
@@ -100,14 +100,52 @@ export const api = {
   getMatchNotifications() {
     return request("/api/notifications/matches");
   },
+  getMatchById(matchId) {
+    return request(`/api/matches/${encodeURIComponent(matchId)}`);
+  },
 
+  getNotifications() {
+    return request("/api/notifications");
+  },
+
+  markMatchNotifsSeen() {
+    return request("/api/notifications/matches/seen", { method: "POST" });
+  },
+
+  markDateIdeaNotifsSeen() {
+    return request("/api/notifications/dateideas/seen", { method: "POST" });
+  },
+
+  // (optional) unread count бас энд байж болно
+  getUnreadNotifCount() {
+    return request("/api/notifications/unread-count");
+  },
+ 
+  me() {
+    return request("/api/me");
+  },
+
+  getUnreadNotifCount() {
+    return request("/api/notifications/unread-count");
+  },
   
-
   setPhoto(form){
     return request("//api/upload/image", {
       method: "POST",
       body: form,
     });
   }
+  ,
+  sendDateIdea({ toUserId, cardId, title, meta = "", tags = [] }) {
+    return request("/api/dateideas/send", {
+      method: "POST",
+      body: { toUserId, cardId, title, meta, tags },
+    });
+  },
+
+   getMatches() {
+    return request("/api/matches");
+  },
+
   
 };

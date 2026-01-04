@@ -1,7 +1,6 @@
-// Энд жаахан interaction нэмье
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Сайдбар дээр чат дархад идэвхжүүлэх
+    
     const conversationItems = document.querySelectorAll(".conversation-item");
     const userNameEl = document.querySelector(".chat-user-name");
 
@@ -17,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Доорх input-оос enter дарахад шинэ гарах мессеж
     const form = document.querySelector(".message-form");
     const input = document.querySelector(".message-input");
     const chatBody = document.querySelector(".chat-body");
@@ -38,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
             row.appendChild(bubble);
             chatBody.appendChild(row);
 
-            chatBody.scrollTop = chatBody.scrollHeight; // доош автоматаар гүйлгэнэ
+            chatBody.scrollTop = chatBody.scrollHeight;
             input.value = "";
         });
     }

@@ -705,7 +705,7 @@ class Auth extends HTMLElement {
                                                     <button type="button" id="pickAvatarBtn" class="btn secondary" style="max-width:140px;">Choose</button>
                                                     </div>
 
-                                                    <input id="avatarInput" type="file" accept="image/*" hidden />
+                                                    <input id="avatarInput" type="file" accept="image
                                                     <div id="avatarErr" class="err"></div>
                                                 </div>
 
@@ -752,9 +752,9 @@ class Auth extends HTMLElement {
         this.loginPw = q('#loginPw');
         this.loginBtn = q('#loginBtn');
 
-        this.loginPwToggle = q('#loginPwToggle');          // FIX: cache pw toggle
-        this.signupPwToggle = q('#signupPwToggle');        // FIX
-        this.signupPwConfirmToggle = q('#signupPwConfirmToggle'); // FIX
+        this.loginPwToggle = q('#loginPwToggle');        
+        this.signupPwToggle = q('#signupPwToggle');      
+        this.signupPwConfirmToggle = q('#signupPwConfirmToggle');
 
         this.formLogin = q('#formLogin');
         this.formSignup = q('#formSignup');
@@ -788,7 +788,7 @@ class Auth extends HTMLElement {
         this.loginEmail.oninput = () => this.validateLogin();
         this.loginPw.oninput = () => this.validateLogin();
 
-        // FIX: wire up password toggles
+        
         if (this.loginPwToggle) {
             this.loginPwToggle.onclick = () => this.togglePw(this.loginPw, this.loginPwToggle);
         }
@@ -823,7 +823,6 @@ class Auth extends HTMLElement {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // same-origin is default, but explicit is fine
                     credentials: 'same-origin',
                     body: JSON.stringify({ email, password }),
                 });
