@@ -14,7 +14,8 @@ class OthersProfile extends HTMLElement {
   connectedCallback() {
     this.renderSkeleton();
     window.addEventListener("hashchange", this._onHashChange);
-    this.load();
+    const path = this._getPathFromHash();
+  if (path === "othersprofile") this.load();
   }
 
   disconnectedCallback() {
@@ -41,21 +42,18 @@ class OthersProfile extends HTMLElement {
 
 
 
-  async _fetchProfileSessionBased() {
-    const res = await fetch(`/api/othersprofile`, {
-      credentials: "include",
-    });
+ async _fetchProfileSessionBased() {
+  const res = await fetch(`/api/othersprofile`, { credentials: "include" });
+  const data = await res.json().catch(() => ({}));
 
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      const msg = data?.error || data?.message || "Profile fetch failed";
-      const err = new Error(msg);
-      err.status = res.status;
-      err.data = data;
-      throw err;
-    }
-    return data;
+  if (!res.ok) {
+    const err = new Error(data?.error || "Profile fetch failed");
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
+  return data;
+}
 
 
   async load() {
