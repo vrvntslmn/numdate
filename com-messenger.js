@@ -28,7 +28,6 @@ class ComMessenger extends HTMLElement {
     const other = this._getHashQuery("other");
     if (!other) return;
 
-    // list render болсон бол шууд select
     if (this.els?.conversationItems?.length) {
       this.selectConversationByUserId(String(other));
     } else {

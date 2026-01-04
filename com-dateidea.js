@@ -12,7 +12,7 @@ class DateIdea extends HTMLElement {
     this.topPicks = [];
     this.categories = [];
     this.cardById = new Map();
-    this.matches = [];          // ✅ match болсон хүмүүс энд орно
+    this.matches = [];
     this.recipientButtons = null;
 
   }
@@ -20,7 +20,7 @@ class DateIdea extends HTMLElement {
   connectedCallback() {
     (async () => {
       await Promise.all([this.loadDateIdeas(), this.loadMatches()]);
-       this.render();
+      this.render();
       this.initCardSelection();
       this.initModal();
     })();
@@ -48,55 +48,55 @@ class DateIdea extends HTMLElement {
       this.cardById = new Map();
     }
   }
-   
+
   async loadMatches() {
-  try {
-    const res = await fetch("/api/matches", { credentials: "include" }); // ✅ endpoint-оо тааруул
-    if (!res.ok) throw new Error(`HTTP ${res.status} on /api/matches`);
+    try {
+      const res = await fetch("/api/matches", { credentials: "include" });
+      if (!res.ok) throw new Error(`HTTP ${res.status} on /api/matches`);
 
-    const data = await res.json();
+      const data = await res.json();
 
-    const list =
-      Array.isArray(data) ? data :
-      Array.isArray(data?.matches) ? data.matches :
-      [];
+      const list =
+        Array.isArray(data) ? data :
+          Array.isArray(data?.matches) ? data.matches :
+            [];
 
-    this.matches = list
-      .map((m) => ({
-        userId: String(m.userId || m.id || m._id || ""),
-        name: m.name || m.fullName || m.username || "",
-        avatar: m.avatar || m.photo || m.image || "",
-      }))
-      .filter((x) => x.userId);
-  } catch (e) {
-    console.error("Failed to load matches:", e);
-    this.matches = [];
+      this.matches = list
+        .map((m) => ({
+          userId: String(m.userId || m.id || m._id || ""),
+          name: m.name || m.fullName || m.username || "",
+          avatar: m.avatar || m.photo || m.image || "",
+        }))
+        .filter((x) => x.userId);
+    } catch (e) {
+      console.error("Failed to load matches:", e);
+      this.matches = [];
+    }
   }
-}
-renderRecipientsHtml() {
-  if (!this.matches.length) {
-    return `<div style="color:#94a3b8;font-size:13px;">Match болсон хүн алга байна.</div>`;
-  }
+  renderRecipientsHtml() {
+    if (!this.matches.length) {
+      return `<div style="color:#94a3b8;font-size:13px;">Match болсон хүн алга байна.</div>`;
+    }
 
-  return this.matches
-    .map((m) => {
-      const id = this.escapeAttr(m.userId);
-      const name = this.escapeHtml(m.name || "Unknown");
-      const avatar = m.avatar ? this.escapeAttr(m.avatar) : "";
+    return this.matches
+      .map((m) => {
+        const id = this.escapeAttr(m.userId);
+        const name = this.escapeHtml(m.name || "Unknown");
+        const avatar = m.avatar ? this.escapeAttr(m.avatar) : "";
 
-      const avatarHtml = avatar
-        ? `<img src="${avatar}" alt="${name}" />`
-        : `<span>${name.slice(0, 1).toUpperCase()}</span>`;
+        const avatarHtml = avatar
+          ? `<img src="${avatar}" alt="${name}" />`
+          : `<span>${name.slice(0, 1).toUpperCase()}</span>`;
 
-      return `
+        return `
         <button type="button" class="recipient-chip" data-recipient-id="${id}">
           <span class="recipient-chip__avatar">${avatarHtml}</span>
           <span class="recipient-chip__name recipient-name">${name}</span>
         </button>
       `;
-    })
-    .join("");
-}
+      })
+      .join("");
+  }
 
   buildCardIndex() {
     this.cardById = new Map();
@@ -178,8 +178,6 @@ renderRecipientsHtml() {
         </svg>
       `;
     }
-
-    // default (extras гэх мэт)
     return `
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g clip-path="url(#clip0_1545_8560)">
@@ -880,9 +878,9 @@ renderRecipientsHtml() {
     this.teardownCardSelection();
 
     this.allCards = this.shadowRoot.querySelectorAll("[data-date-card]");
-    
 
-  
+
+
     this.allCards.forEach((card) => {
       card.addEventListener("click", this.handleCardClick);
 
@@ -1126,9 +1124,9 @@ renderRecipientsHtml() {
 
   handleRecipientClick(btn) {
     this.selectedRecipient = {
-      id: btn.getAttribute("data-recipient-id"),  
+      id: btn.getAttribute("data-recipient-id"),
       name: btn.querySelector(".recipient-name")?.textContent?.trim() || "",
-        avatar: btn.querySelector("img")?.getAttribute("src") || "",
+      avatar: btn.querySelector("img")?.getAttribute("src") || "",
     };
 
     if (this.recipientButtons) {
@@ -1139,68 +1137,58 @@ renderRecipientsHtml() {
 
     if (this.modalSendBtn) this.modalSendBtn.disabled = false;
   }
-async handleSendClick() {
-  const data = this.selectedCardForSend;
+  async handleSendClick() {
+    const data = this.selectedCardForSend;
 
-  if (!this.selectedRecipient) {
-    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-    return;
-  }
-  if (!data) {
+    if (!this.selectedRecipient) {
+      if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+      return;
+    }
+    if (!data) {
+      this.closeModal();
+      return;
+    }
+    try {
+      if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+
+      const res = await fetch("/api/dateideas/send", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          toUserId: this.selectedRecipient.id,
+          cardId: data.id,
+          title: data.title,
+          meta: data.meta || "",
+          tags: Array.isArray(data.tags) ? data.tags : [],
+        }),
+      });
+
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(out?.error || `HTTP ${res.status}`);
+
+    } catch (e) {
+      console.error("send dateidea failed:", e);
+      // хүсвэл alert / toast
+    } finally {
+      if (this.modalSendBtn) this.modalSendBtn.disabled = false;
+    }
+    this.dispatchEvent(
+      new CustomEvent("dateidea-send", {
+        detail: {
+          id: data.id,
+          title: data.title,
+          meta: data.meta || "",
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          source: data.source,
+          recipient: this.selectedRecipient,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+
     this.closeModal();
-    return;
   }
-
-  // ✅ 1) server руу notification үүсгэж явуулна
-  try {
-    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-
-    const res = await fetch("/api/dateideas/send", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        toUserId: this.selectedRecipient.id,   // ✅ match хүний userId
-        cardId: data.id,                       // ✅ date card id
-        title: data.title,
-        meta: data.meta || "",
-        tags: Array.isArray(data.tags) ? data.tags : [],
-      }),
-    });
-
-    const out = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(out?.error || `HTTP ${res.status}`);
-
-    // хүсвэл UI дээр "sent" гэж харуулах
-    // console.log("sent", out);
-
-  } catch (e) {
-    console.error("send dateidea failed:", e);
-    // хүсвэл alert / toast
-  } finally {
-    if (this.modalSendBtn) this.modalSendBtn.disabled = false;
-  }
-
-  // ✅ 2) event dispatch (чи өөр component дээр сонсож байж магадгүй)
-  this.dispatchEvent(
-    new CustomEvent("dateidea-send", {
-      detail: {
-        id: data.id,
-        title: data.title,
-        meta: data.meta || "",
-        tags: Array.isArray(data.tags) ? data.tags : [],
-        source: data.source,
-        recipient: this.selectedRecipient,
-      },
-      bubbles: true,
-      composed: true,
-    })
-  );
-
-  this.closeModal();
 }
-
-
-}
-
 window.customElements.define("com-dateidea", DateIdea);

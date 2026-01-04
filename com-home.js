@@ -1103,7 +1103,6 @@ class Home extends HTMLElement {
         this.profileSwipe = new ProfileSwipe(this);
         this.setupEventListeners();
 
-        // ✅ эхний профайлыг шууд update хийнэ
         this.profileSwipe.updateProfile();
     }
 
@@ -1134,7 +1133,7 @@ class Home extends HTMLElement {
 
 
 
-    
+
 
     setupEventListeners() {
         const filterButton = this.querySelector('.filter');
@@ -1147,39 +1146,37 @@ class Home extends HTMLElement {
             });
         }
         const seeMoreBtn = this.querySelector('.see-more-btn');
-if (seeMoreBtn) {
-  seeMoreBtn.addEventListener("click", async (e) => {
-    e.preventDefault();
+        if (seeMoreBtn) {
+            seeMoreBtn.addEventListener("click", async (e) => {
+                e.preventDefault();
 
-    const currentProfile = this.profileSwipe.getCurrentProfile();
-    if (!currentProfile) return alert("Профайл олдсонгүй");
+                const currentProfile = this.profileSwipe.getCurrentProfile();
+                if (!currentProfile) return alert("Профайл олдсонгүй");
 
-    const userId = currentProfile.userId ? String(currentProfile.userId) : null;
-    if (!userId) {
-      alert("Demo профайлын дэлгэрэнгүй харах боломжгүй (userId алга).");
-      return;
-    }
+                const userId = currentProfile.userId ? String(currentProfile.userId) : null;
+                if (!userId) {
+                    alert("Demo профайлын дэлгэрэнгүй харах боломжгүй (userId алга).");
+                    return;
+                }
 
-    try {
-      // ✅ 1) session дээр 'үзэх хүн'-ийг set хийнэ
-      const res = await fetch("/api/othersprofile/select", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",           // ✅ cookie/session явна
-        body: JSON.stringify({ userId }),
-      });
+                try {
+                    const res = await fetch("/api/othersprofile/select", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify({ userId }),
+                    });
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "failed to select profile");
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data?.error || "failed to select profile");
 
-      // ✅ 2) URL дээр userId/token хийхгүй
-      window.location.hash = "#/othersprofile";
-    } catch (err) {
-      console.error(err);
-      alert("Профайл сонгож чадсангүй");
-    }
-  });
-}
+                    window.location.hash = "#/othersprofile";
+                } catch (err) {
+                    console.error(err);
+                    alert("Профайл сонгож чадсангүй");
+                }
+            });
+        }
 
 
     }
@@ -1192,7 +1189,6 @@ if (seeMoreBtn) {
             return;
         }
 
-        // 1) filters-ээр шүүх
         let result = this.allProfiles.filter(profile => {
             for (const [category, selectedValues] of Object.entries(filters)) {
                 if (!selectedValues || selectedValues.length === 0) continue;
@@ -1245,21 +1241,17 @@ if (seeMoreBtn) {
             return true;
         });
 
-        // 2) ✅ LIKE дарсан хүмүүсийг хасах (updateProfile-оос өмнө!)
         result = this.removeLiked(result);
 
-        // 3) state-д оноох
         this.filteredProfiles = result;
 
         console.log('Found profiles (after liked removed):', this.filteredProfiles.length);
 
-        // 4) UI update
         if (this.profileSwipe) {
             this.profileSwipe.currentProfileIndex = 0;
             this.profileSwipe.updateProfile();
         }
 
-        // 5) Alert (liked хасагдсаны дараах үр дүнгээр)
         if (!this.filteredProfiles.length && Object.keys(filters).length > 0) {
             setTimeout(() => {
                 alert("Тохирох илэрц олдсонгүй");
@@ -1294,18 +1286,15 @@ class ProfileSwipe {
         this.checkRefreshLimit();
     }
 
-    // ✅ like / pass-ийг backend руу хадгална
-    // ✅ like / pass-ийг backend руу хадгална
     async saveSwipe(action, profile) {
         if (!profile) return;
 
-        const isRealUser = !!profile.userId; // profiles API-с ирсэн бодит user
+        const isRealUser = !!profile.userId;
         const targetUserId = isRealUser
-            ? String(profile.userId) // ObjectId string байх ёстой
+            ? String(profile.userId)
             : `demo-${String(profile.name || "user").toLowerCase().replace(/\s+/g, "-")}`;
 
         try {
-            // 1) LIKE үед likes collection руу хадгална (зөвхөн real user дээр)
             if (action === "like" && isRealUser) {
                 const likeRes = await fetch("/api/like", {
                     method: "POST",
@@ -1313,20 +1302,18 @@ class ProfileSwipe {
                     body: JSON.stringify({ toUserId: targetUserId }),
                 });
 
-                // алдаа бол console-д харуулъя
                 if (!likeRes.ok) {
                     const txt = await likeRes.text().catch(() => "");
                     throw new Error(`POST /api/like failed: ${likeRes.status} ${txt}`);
                 }
             }
 
-            // 2) Swipe log (like + pass хоёул)
             const swipeRes = await fetch("/api/swipes", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    action,                // "like" | "pass"
-                    targetUserId,          // string (objectId string эсвэл demo-xxx)
+                    action,
+                    targetUserId,
                     targetName: profile.name || null,
                     at: new Date().toISOString(),
                 }),
@@ -1338,13 +1325,9 @@ class ProfileSwipe {
             }
 
         } catch (err) {
-            console.warn("❌ saveSwipe failed:", err);
+            console.warn("saveSwipe failed:", err);
         }
     }
-
-
-
-
     setupTransitions() {
         this.profileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
         this.refreshButton.style.transition = 'transform 0.3s ease';
@@ -1464,13 +1447,10 @@ class ProfileSwipe {
         const currentProfile = this.getCurrentProfile();
         if (!currentProfile) return;
 
-        // ✅ LOCAL likedIds-д хадгална (ингэснээр дахиж харагдахгүй)
         this.home.markLiked(currentProfile);
 
-        // ✅ backend руу хадгална
         this.saveSwipe("like", currentProfile);
 
-        // ✅ яг одоо харагдаж байгаа list-ээс нь ч бас хасна
         this.home.allProfiles = this.home.removeLiked(this.home.allProfiles);
         this.home.filteredProfiles = this.home.removeLiked(this.home.filteredProfiles);
 
@@ -1481,7 +1461,6 @@ class ProfileSwipe {
             this.heartButton.style.transform = 'scale(1)';
             this.profileElement.style.transform = 'translateX(0) rotate(0)';
 
-            // ✅ index зөв болгоно (хасагдсан тул index өөрчлөгдөнө)
             if (this.currentProfileIndex >= this.home.filteredProfiles.length) {
                 this.currentProfileIndex = 0;
             }
@@ -1496,7 +1475,6 @@ class ProfileSwipe {
         const currentProfile = this.getCurrentProfile();
         if (!currentProfile) return;
 
-        // ✅ DB-д хадгална
         this.saveSwipe("pass", currentProfile);
 
         this.closeButton.style.transform = 'rotate(90deg)';

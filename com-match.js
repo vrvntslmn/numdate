@@ -152,11 +152,8 @@ class Match extends HTMLElement {
           overflow:hidden;
           isolation: isolate; 
         }
-
-        /* ===== background heart layer (behind everything) ===== */
         com-match .bg-heart{
-
-         --x: 18px;   /* ✅ баруун тийш */
+         --x: 18px; 
          --y: -12px; 
           position:absolute;
           inset: 0;
@@ -172,16 +169,14 @@ class Match extends HTMLElement {
         }
 
       com-match .bg-heart svg{
-  width: min(72%, 320px);     /* desktop дээр хэт томрохгүй */
-  aspect-ratio: 1 / 1;        /* квадрат харьцаа */
-  height: auto;
+          width: min(72%, 320px);   
+          aspect-ratio: 1 / 1;      
+          height: auto;
 
-  max-height: 62%;            /* card дотроо багтана */
-  opacity: 1;
-  filter: drop-shadow(0 18px 30px rgba(0,0,0,0.18));
-}
-
-
+          max-height: 62%;        
+          opacity: 1;
+          filter: drop-shadow(0 18px 30px rgba(0,0,0,0.18));
+        }
         @keyframes bg-heart-in{
           from { opacity: 0; transform: scale(0.65); }
           to   { opacity: 1; transform: scale(1); }
@@ -191,7 +186,6 @@ class Match extends HTMLElement {
           100% { transform: scale(0.86); }
         }
 
-        /* ===== content layers above heart ===== */
         com-match .content{
           position: relative;
           z-index: 1;
@@ -282,7 +276,6 @@ class Match extends HTMLElement {
           }
         }
 
-        /* falling hearts behind card too */
         com-match .falling-hearts{
           position: fixed;
           inset: 0;
@@ -336,24 +329,22 @@ class Match extends HTMLElement {
           }
 
           com-match .bg-heart svg{
-          width: min(78%, 260px);
-          max-height: 54%;
-  }
+            width: min(78%, 260px);
+            max-height: 54%;
+          }
         }
-
         @media (max-width: 380px){
           com-match .page{ padding-top: 10vh; }
           com-match .bg-heart svg{
            width: min(82%, 220px);
            max-height: 48%;
-  }
+        }
         }
       </style>
 
-      ${
-        loading
-          ? `<div class="page"><div class="state">Loading...</div></div>`
-          : error
+      ${loading
+        ? `<div class="page"><div class="state">Loading...</div></div>`
+        : error
           ? `<div class="page"><div class="state error">${this._esc(error)}</div></div>`
           : `
             <div class="page">
@@ -499,7 +490,7 @@ class Match extends HTMLElement {
     const audio = this.querySelector("#heartBeat");
     if (!audio) return;
     audio.currentTime = 0;
-    audio.play?.().catch(() => {});
+    audio.play?.().catch(() => { });
   }
 
   _esc(v) {

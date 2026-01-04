@@ -805,7 +805,6 @@ class Auth extends HTMLElement {
         this.formLogin.onsubmit = async (e) => {
             e.preventDefault();
 
-            // if button is visually disabled, do nothing
             if (this.loginBtn.classList.contains('disabled')) return;
 
             const email = this.loginEmail.value.trim();
@@ -814,11 +813,9 @@ class Auth extends HTMLElement {
             const emailErr = this.querySelector('#loginEmailErr');
             const pwErr = this.querySelector('#loginPwErr');
 
-            // clear old errors
             if (emailErr) { emailErr.textContent = ''; emailErr.style.display = 'none'; }
             if (pwErr) { pwErr.textContent = ''; pwErr.style.display = 'none'; }
 
-            // lock button while logging in
             this.toggleBtn(this.loginBtn, false);
             this.loginBtn.textContent = 'Нэвтэрч байна…';
 
@@ -839,28 +836,20 @@ class Auth extends HTMLElement {
                 }
 
                 if (!res.ok) {
-                    // backend sends { error: '...' }
                     const msg = data.error || 'Нэвтрэх амжилтгүй боллоо';
                     if (pwErr) {
                         pwErr.textContent = msg;
                         pwErr.style.display = 'block';
                     }
                     this.loginBtn.textContent = 'Нэвтрэх';
-                    this.validateLogin(); // re-enable if form is valid
+                    this.validateLogin();
                     return;
                 }
 
-                // ✅ success: server set session cookie
                 this.loginBtn.textContent = 'Амжилттай';
 
-                // OPTION A: hard redirect to main app
                 window.location.href = '/';
 
-                // OPTION B (SPA): tell parent component and let it switch view
-                // this.dispatchEvent(new CustomEvent('login-success', {
-                //     detail: data.user,
-                //     bubbles: true,
-                // }));
             } catch (err) {
                 console.error('Login fetch error', err);
                 if (pwErr) {
@@ -868,7 +857,7 @@ class Auth extends HTMLElement {
                     pwErr.style.display = 'block';
                 }
                 this.loginBtn.textContent = 'Нэвтрэх';
-                this.validateLogin(); // re-enable if form still valid
+                this.validateLogin();
             }
         };
 
@@ -891,7 +880,6 @@ class Auth extends HTMLElement {
             this.signupBtn.textContent = "Түр хүлээнэ үү...";
 
             try {
-                // 1) Register (энэ үед session cookie үүснэ)
                 const res = await fetch("/api/auth/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -905,7 +893,6 @@ class Auth extends HTMLElement {
                     return;
                 }
 
-                // 2) Avatar upload (login хийхгүй!)
                 if (this.state.signup.avatarFile) {
                     const url = await this.uploadImage({ file: this.state.signup.avatarFile, type: "avatar" });
                     console.log("avatar uploaded:", url);
@@ -931,7 +918,6 @@ class Auth extends HTMLElement {
         ['#signupMajor', '#signupSchool', '#signupDob', '#signupGender', '#signupZodiac', '#signupCourse']
             .forEach(sel => this.querySelector(sel).addEventListener('input', () => this.validateStep2()));
 
-        // Avatar pick
         if (this.pickAvatarBtn && this.avatarInput) {
             this.pickAvatarBtn.onclick = () => this.avatarInput.click();
 
@@ -939,7 +925,6 @@ class Auth extends HTMLElement {
                 const file = this.avatarInput.files?.[0];
                 if (!file) return;
 
-                // only image check
                 if (!file.type.startsWith('image/')) {
                     if (this.avatarErr) {
                         this.avatarErr.textContent = 'Зөвхөн зураг сонгоно уу.';
@@ -948,7 +933,6 @@ class Auth extends HTMLElement {
                     return;
                 }
 
-                // size check (5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     if (this.avatarErr) {
                         this.avatarErr.textContent = 'Зураг 5MB-аас бага байх ёстой.';
@@ -959,18 +943,15 @@ class Auth extends HTMLElement {
 
                 if (this.avatarErr) { this.avatarErr.textContent = ''; this.avatarErr.style.display = 'none'; }
 
-                // preview
                 const url = URL.createObjectURL(file);
                 if (this.avatarPreview) this.avatarPreview.src = url;
                 if (this.avatarHint) this.avatarHint.textContent = file.name;
 
-                // save in state
                 this.state.signup.avatarFile = file;
             };
         }
 
     }
-    // class Auth { ... дотор
     async uploadImage({ file, type = "avatar", index = 0 }) {
         if (!file) return null;
 
@@ -1004,7 +985,6 @@ class Auth extends HTMLElement {
     }
 
     validateLogin() {
-        // NOTE: adjust domain to match backend (@num.edu.mn or @stud.num.edu.mn)
         const ok =
             this.loginEmail.value.endsWith('@stud.num.edu.mn') &&
             this.loginPw.value.length > 0;
@@ -1126,7 +1106,6 @@ class Auth extends HTMLElement {
         const root = this.querySelector('#' + id);
         if (!root) return;
 
-        // opts = Auth.INTERESTS = { art: "Урлаг", sport: "Спорт", ... }
         Object.entries(opts).forEach(([interestKey, label]) => {
             const b = document.createElement('button');
             b.type = 'button';
@@ -1134,13 +1113,11 @@ class Auth extends HTMLElement {
             b.textContent = label;
 
             b.onclick = () => {
-                const obj = this.state.signup[key]; // interests object
+                const obj = this.state.signup[key];
                 if (obj[interestKey]) {
-                    // сонгосон байвал авах
                     delete obj[interestKey];
                     b.classList.remove('selected');
                 } else {
-                    // сонгоогүй байвал нэмэх
                     obj[interestKey] = label;
                     b.classList.add('selected');
                 }
@@ -1159,7 +1136,6 @@ class Auth extends HTMLElement {
         btn.disabled = !ok;
     }
 
-    // FIX: shared helper for show/hide password
     togglePw(input, btn) {
         if (!input || !btn) return;
         const isPw = input.type === 'password';

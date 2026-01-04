@@ -45,8 +45,6 @@ class ComNotif extends HTMLElement {
     if (!item) return;
 
     const openWhat = item.getAttribute("data-open");
-
-    // ✅ MATCH notif click
     if (openWhat === "match") {
       const matchId = item.getAttribute("data-match-id");
       const pairKey = item.getAttribute("data-pair-key");
@@ -64,9 +62,7 @@ class ComNotif extends HTMLElement {
       return;
     }
 
-    // ✅ DATEIDEA notif click
     if (openWhat === "dateidea") {
-      // хамгийн энгийн: match page руу оруулъя (чи хүсвэл өөр route болгож болно)
       this._goTo("match");
       this._closePanel();
       return;
@@ -85,7 +81,6 @@ class ComNotif extends HTMLElement {
     this.innerHTML = "";
   }
 
-  // ✅ Router-тэйгээ нийцүүлж үргэлж #/ хэлбэрээр явуулъя
   _goTo(routeWithQuery) {
     window.location.hash = `#/${routeWithQuery}`;
   }
@@ -96,16 +91,16 @@ class ComNotif extends HTMLElement {
         method: "POST",
         credentials: "include",
       });
-    } catch (e) {}
+    } catch (e) { }
   }
-   async _markDateIdeasSeen() {
-  try {
-    await fetch("/api/notifications/dateideas/seen", {
-      method: "POST",
-      credentials: "include",
-    });
-  } catch (e) {}
-}
+  async _markDateIdeasSeen() {
+    try {
+      await fetch("/api/notifications/dateideas/seen", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (e) { }
+  }
 
 
   _refreshBadgeFromApp() {
@@ -156,10 +151,10 @@ class ComNotif extends HTMLElement {
   }
 
   async renderNotif() {
-   
-  await this._markMatchesSeen();
-  await this._markDateIdeasSeen();   // ✅ НЭМ
-  this._refreshBadgeFromApp();
+
+    await this._markMatchesSeen();
+    await this._markDateIdeasSeen();
+    this._refreshBadgeFromApp();
 
 
     this.innerHTML = `
@@ -180,24 +175,21 @@ class ComNotif extends HTMLElement {
 
     const items = await this._fetchNotifs();
 
-    // ✅ MATCH + DATEIDEA хоёуланг нь харуулна
     const list = items.filter((n) => n.type === "match" || n.type === "dateidea");
 
     const listHtml = list.length
       ? list
-          .map((n) => {
-            const otherName = n.other?.name || "Unknown";
-            const when = this._timeAgo(n.createdAt);
+        .map((n) => {
+          const otherName = n.other?.name || "Unknown";
+          const when = this._timeAgo(n.createdAt);
 
-            // ✅ DOT: read/seen бол нуух
-            const dotHtml = (n.read || n.seen) ? "" : `<div class="notifCir"></div>`;
+          const dotHtml = (n.read || n.seen) ? "" : `<div class="notifCir"></div>`;
 
-            // ✅ MATCH row
-            if (n.type === "match") {
-              const matchIdAttr = n.matchId ? `data-match-id="${this._escAttr(n.matchId)}"` : "";
-              const pairKeyAttr = n.pairKey ? `data-pair-key="${this._escAttr(n.pairKey)}"` : "";
+          if (n.type === "match") {
+            const matchIdAttr = n.matchId ? `data-match-id="${this._escAttr(n.matchId)}"` : "";
+            const pairKeyAttr = n.pairKey ? `data-pair-key="${this._escAttr(n.pairKey)}"` : "";
 
-              return `
+            return `
                 <article class="notifArt"
                   data-open="match"
                   ${matchIdAttr}
@@ -214,16 +206,14 @@ class ComNotif extends HTMLElement {
                   <p class="notifDate">${when}</p>
                 </article>
               `;
-            }
+          }
+          if (n.type === "dateidea") {
+            const title = n.title || "Date idea";
 
-            // ✅ DATEIDEA row
-            if (n.type === "dateidea") {
-              const title = n.title || "Date idea";
-             
-              const cardIdAttr = n.cardId ? `data-card-id="${this._escAttr(n.cardId)}"` : "";
-              const otherIdAttr = n.other?.userId ? `data-other-id="${this._escAttr(n.other.userId)}"` : "";
+            const cardIdAttr = n.cardId ? `data-card-id="${this._escAttr(n.cardId)}"` : "";
+            const otherIdAttr = n.other?.userId ? `data-other-id="${this._escAttr(n.other.userId)}"` : "";
 
-              return `
+            return `
                 <article class="notifArt"
                   data-open="dateidea"
                   ${cardIdAttr}
@@ -247,32 +237,110 @@ class ComNotif extends HTMLElement {
                   <p class="notifDate">${when}</p>
                 </article>
               `;
-            }
+          }
 
-            return "";
-          })
-          .join("")
+          return "";
+        })
+        .join("")
       : `<p class="empty">Одоохондоо мэдэгдэл алга. Хичээгээрэй!</p>`;
 
     this.innerHTML = `
       <style>
-        .notifHead{ color: var(--second-color); font-size: 40px; margin-bottom: 20px; }
-        .notifCir{ width:10px; height:10px; border-radius:50%; background-color: var(--second-color); flex:0 0 auto; margin-top:6px; }
-        .notifText{ font-size: 20px; margin: 0; }
-        .notifText b{ font-weight: 700; }
-        .notifDate{ color: var(--second-color); font-size: 18px; margin-left:auto; flex:0 0 auto; white-space:nowrap; }
-        .notifSec{ padding: 20px; width: 360px; max-width: 90vw; }
-        .notifArt{ padding:10px 10px; display:flex; align-items:center; gap:14px; border-radius: var(--brderRad-m); user-select:none; }
-        .notifArt:hover{ background-color:#ffd8e5ff; cursor:pointer; }
-        .empty{ font-family: var(--font-body); color:#666; font-size:16px; margin:0; }
+        .notifHead {
+            color: var(--second-color);
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .notifCir {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--second-color);
+            flex: 0 0 auto;
+            margin-top: 6px;
+        }
+
+        .notifText {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .notifText b {
+            font-weight: 700;
+        }
+
+        .notifDate {
+            color: var(--second-color);
+            font-size: 18px;
+            margin-left: auto;
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .notifSec {
+            padding: 20px;
+            width: 360px;
+            max-width: 90vw;
+        }
+
+        .notifArt {
+            padding: 10px 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-radius: var(--brderRad-m);
+            user-select: none;
+        }
+
+        .notifArt:hover {
+            background-color: #ffd8e5ff;
+            cursor: pointer;
+        }
+
+        .empty {
+            font-family: var(--font-body);
+            color: #666;
+            font-size: 16px;
+            margin: 0;
+        }
+
         @media (max-width: 768px) {
-          .notifSec{ width: min(520px, calc(100vw - 16px)); max-width:none; padding:14px; margin:0 auto; }
-          .notifHead{ font-size:28px; margin-bottom:12px; }
-          .notifText{ font-size:16px; }
-          .notifDate{ font-size:14px; }
-          .notifArt{ gap:10px; padding:10px 8px; align-items:flex-start; }
-          .notifArt svg{ width:28px; height:28px; margin-top:2px; }
-          .notifCir{ margin-top:4px; }
+            .notifSec {
+                width: min(520px, calc(100vw - 16px));
+                max-width: none;
+                padding: 14px;
+                margin: 0 auto;
+            }
+
+            .notifHead {
+                font-size: 28px;
+                margin-bottom: 12px;
+            }
+
+            .notifText {
+                font-size: 16px;
+            }
+
+            .notifDate {
+                font-size: 14px;
+            }
+
+            .notifArt {
+                gap: 10px;
+                padding: 10px 8px;
+                align-items: flex-start;
+            }
+
+            .notifArt svg {
+                width: 28px;
+                height: 28px;
+                margin-top: 2px;
+            }
+
+            .notifCir {
+                margin-top: 4px;
+            }
         }
       </style>
 
@@ -283,7 +351,6 @@ class ComNotif extends HTMLElement {
     `;
   }
 
-  // ✅ attribute safe (double quote эвдэхгүй)
   _escAttr(v) {
     return String(v ?? "")
       .replaceAll("&", "&amp;")
@@ -291,8 +358,6 @@ class ComNotif extends HTMLElement {
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;");
   }
-
-  // ✅ text safe (html injection хамгаална)
   _escHtml(v) {
     return String(v ?? "")
       .replaceAll("&", "&amp;")
@@ -302,5 +367,4 @@ class ComNotif extends HTMLElement {
       .replaceAll("'", "&#039;");
   }
 }
-
 window.customElements.define("com-notif", ComNotif);

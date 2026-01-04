@@ -10,7 +10,7 @@ class OthersProfile extends HTMLElement {
     this._onHashChange = this._onHashChange.bind(this);
   }
 
- 
+
   connectedCallback() {
     this.renderSkeleton();
     window.addEventListener("hashchange", this._onHashChange);
@@ -41,45 +41,45 @@ class OthersProfile extends HTMLElement {
 
 
 
- async _fetchProfileSessionBased() {
-  const res = await fetch(`/api/othersprofile`, {
-    credentials: "include", // ✅ session cookie
-  });
+  async _fetchProfileSessionBased() {
+    const res = await fetch(`/api/othersprofile`, {
+      credentials: "include",
+    });
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = data?.error || data?.message || "Profile fetch failed";
-    const err = new Error(msg);
-    err.status = res.status;
-    err.data = data;
-    throw err;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = data?.error || data?.message || "Profile fetch failed";
+      const err = new Error(msg);
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
   }
-  return data;
-}
 
 
-async load() {
-  if (this._loading) return;
-  this._loading = true;
+  async load() {
+    if (this._loading) return;
+    this._loading = true;
 
-  try {
-    this.renderSkeleton();
-    this.profile = await this._fetchProfileSessionBased(); // ✅ session-based
-    this.render();
-    this.fill();
-  } catch (e) {
-    console.error("OthersProfile load failed:", e);
-    const status = e?.status ? ` (${e.status})` : "";
-    const msg =
-      e?.data?.error ||
-      e?.data?.message ||
-      e?.message ||
-      "Профайл ачаалж чадсангүй";
-    this.innerHTML = `<p style="padding:16px;">${msg}${status}</p>`;
-  } finally {
-    this._loading = false;
+    try {
+      this.renderSkeleton();
+      this.profile = await this._fetchProfileSessionBased();
+      this.render();
+      this.fill();
+    } catch (e) {
+      console.error("OthersProfile load failed:", e);
+      const status = e?.status ? ` (${e.status})` : "";
+      const msg =
+        e?.data?.error ||
+        e?.data?.message ||
+        e?.message ||
+        "Профайл ачаалж чадсангүй";
+      this.innerHTML = `<p style="padding:16px;">${msg}${status}</p>`;
+    } finally {
+      this._loading = false;
+    }
   }
-}
 
   ageFromDob(dob) {
     if (!dob) return "";
@@ -99,242 +99,336 @@ async load() {
   render() {
     this.innerHTML = `
       <style>
-        :root{
-          --first-color:#FF0B55;
-          --second-color:#CF0F47;
-          --textWithBack:white;
-          --font-header: "Yanone Kaffeesatz", sans-serif;
-          --font-body:"Roboto Condensed", sans-serif;
-          --box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-          --bg-white: white;
-          --brderRad-big: 20px;
-          --brderRad-m: 8px;
-          --brderRad-sm: 2px;
-          --back-col-white: white;
-          --inputBorder: #D9D9D9;
-          --subInfoTitle-col: #55565A;
+        :root {
+            --first-color: #FF0B55;
+            --second-color: #CF0F47;
+            --textWithBack: white;
+            --font-header: "Yanone Kaffeesatz", sans-serif;
+            --font-body: "Roboto Condensed", sans-serif;
+            --box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+            --bg-white: white;
+            --brderRad-big: 20px;
+            --brderRad-m: 8px;
+            --brderRad-sm: 2px;
+            --back-col-white: white;
+            --inputBorder: #D9D9D9;
+            --subInfoTitle-col: #55565A;
         }
 
-        :host{ display:block; color-scheme: light dark; }
-
-        h2{ font-family:var(--font-header); font-weight:400; font-size:36px; margin:0; color: var(--second-color); }
-        h3{ margin:0; font-family:var(--font-header); font-size:36px; }
-        h4{ font-family:var(--font-header); font-size:24px; margin:0; }
-        h5{ font-family:var(--font-header); font-size:20px; margin:0; color: var(--subInfoTitle-col); }
-        p{ font-family: var(--font-body); font-weight: 400; }
-
-        main{
-          display:flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap:50px;
-          padding: 25px;
+        :host {
+            display: block;
+            color-scheme: light dark;
         }
 
-        div.main-container{
-          min-height: 500px;
-          background-color: white;
-          border-radius: var(--brderRad-big);
-          display: flex;
-          flex: 0 1 800px;
-          z-index: 0;
-          flex-wrap: wrap;
-          justify-content: space-between;
-          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+        h2 {
+            font-family: var(--font-header);
+            font-weight: 400;
+            font-size: 36px;
+            margin: 0;
+            color: var(--second-color);
         }
 
-        div.main-container > article{
-          margin: 20px;
-          display:flex;
-          flex: 1 0 auto;
-          flex-direction: column;
-          align-items: center;
-          width: 36%;
-          min-width: 300px;
+        h3 {
+            margin: 0;
+            font-family: var(--font-header);
+            font-size: 36px;
         }
 
-        div.profile-head{
-          margin: 0px;
-          display: flex;
-          width: 100%;
-          justify-content: space-between;
-          align-items: center;
+        h4 {
+            font-family: var(--font-header);
+            font-size: 24px;
+            margin: 0;
         }
 
-        div.avatar{
-          margin: 20px 0px;
-          width: 130px;
-          height: 130px;
-          border-radius: 50%;
-          border: 3px solid var(--second-color);
-          justify-content: center;
-          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
-          overflow:hidden;
-        }
-        div.avatar > img{
-          width: 130px;
-          height: 130px;
-          border-radius: 50%;
-          object-fit: cover;
+        h5 {
+            font-family: var(--font-header);
+            font-size: 20px;
+            margin: 0;
+            color: var(--subInfoTitle-col);
         }
 
-        .name{
-          margin: 0px;
-          font-family: var(--font-body);
-          font-weight: 600;
-          font-size: 24px;
+        p {
+            font-family: var(--font-body);
+            font-weight: 400;
         }
 
-        .bio{
-          text-align: center;
-          font-size: 14px;
-          font-weight: 400;
-          color: rgba(0, 0, 0, 0.7);
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 50px;
+            padding: 25px;
         }
 
-        .user-image-container{
-          display: flex;
-          max-width: 60vw;
-          width: 100%;
-          justify-content: space-around;
-          gap: 8px;
-        }
-        .border-red{
-          height: 50px;
-          width: 20%;
-          border:2px solid var(--second-color);
-          border-radius: 7px;
-          object-fit: cover;
-          background: #f2f2f2;
+        div.main-container {
+            min-height: 500px;
+            background-color: white;
+            border-radius: var(--brderRad-big);
+            display: flex;
+            flex: 0 1 800px;
+            z-index: 0;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
         }
 
-        div.main-container > section{
-          margin: 20px;
-          display: grid;
-          grid-template-areas: "ln h3" "ln div";
-          grid-template-columns: 30px auto;
-          grid-template-rows: 30px;
-          width: 52%;
-          height: 470px;
+        div.main-container>article {
+            margin: 20px;
+            display: flex;
+            flex: 1 0 auto;
+            flex-direction: column;
+            align-items: center;
+            width: 36%;
+            min-width: 300px;
         }
 
-        .redline{
-          width: 6%;
-          height: 100%;
-          background-color: var(--second-color);
-          grid-area: ln;
+        div.profile-head {
+            margin: 0px;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .info-head{
-          grid-area: h3;
-          display:flex;
-          align-items:center;
-          justify-content: space-between;
-          padding-right: 6px;
+        div.avatar {
+            margin: 20px 0px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid var(--second-color);
+            justify-content: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
         }
 
-        .scroll{
-          grid-area: div;
-          overflow: scroll;
-          scrollbar-width: none;
-          margin: 0px 3px;
+        div.avatar>img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
-        .scroll > article {
-          margin-top: 25px;
-          height: fit-content;
-          display: flex;
-          flex-direction: column;
+        .name {
+            margin: 0px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 24px;
         }
 
-        .scroll > article > article{
-          margin: 15px 0px;
-          margin-left: 5px;
+        .bio {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.7);
         }
 
-        .scroll label{
-          display:flex;
-          gap:10px;
-          align-items:center;
+        .user-image-container {
+            display: flex;
+            max-width: 60vw;
+            width: 100%;
+            justify-content: space-around;
+            gap: 8px;
         }
 
-        .rowWrap > div{
-          padding: 0px 5px;
-          display:flex;
-          align-items:center;
-          gap:10px;
-        }
-        .rowWrap p{ font-size:20px; margin:0; width:80%; }
-
-        button{
-          border:none;
-          background: none;
-          cursor: pointer;
+        .border-red {
+            height: 50px;
+            width: 20%;
+            border: 2px solid var(--second-color);
+            border-radius: 7px;
+            object-fit: cover;
+            background: #f2f2f2;
         }
 
-        .interest-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top: 10px;
-}
+        div.main-container>section {
+            margin: 20px;
+            display: grid;
+            grid-template-areas: "ln h3" "ln div";
+            grid-template-columns: 30px auto;
+            grid-template-rows: 30px;
+            width: 52%;
+            height: 470px;
+        }
 
-.interest-chip{
-  border: 1px solid var(--inputBorder);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  background: rgba(207, 15, 71, 0.06);
-  color: #111;
-}
+        .redline {
+            width: 6%;
+            height: 100%;
+            background-color: var(--second-color);
+            grid-area: ln;
+        }
 
-@media (prefers-color-scheme: dark) {
-  .interest-chip{
-    border-color: rgba(255,255,255,.18);
-    background: rgba(207, 15, 71, 0.20);
-    color: rgba(232,236,243,.95);
-  }
-}
+        .info-head {
+            grid-area: h3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-right: 6px;
+        }
 
+        .scroll {
+            grid-area: div;
+            overflow: scroll;
+            scrollbar-width: none;
+            margin: 0px 3px;
+        }
 
+        .scroll>article {
+            margin-top: 25px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .goal{border-bottom: solid 1px var(--inputBorder);}
+        .scroll>article>article {
+            margin: 15px 0px;
+            margin-left: 5px;
+        }
 
-        /* default hide */
-        .about{display:none;}
-        .height{display:none;}
-        .mbti{display:none;}
-        .zodiac{display:none;}
+        .scroll label {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-        .work{ display:none; }
-        .movie{ display:none; }
-        .taste{ display:none; }
-        .song{ display:none; }
+        .rowWrap>div {
+            padding: 0px 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-        .interests{ display:block; }
-        .art,.sport,.music,.computer,.travel,.book{ display:none; }
+        .rowWrap p {
+            font-size: 20px;
+            margin: 0;
+            width: 80%;
+        }
 
-        /* "Таалагддаг" гарчиг (label) + доорх контентын хооронд зай */
-.likes > label{
-  margin-bottom: 12px;   /* 8~16px тохируулж болно */
-}
+        button {
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
 
-/* extra: эхний мөр дээр жаахан зай (optional) */
-.likes > .rowWrap:first-of-type{
-  margin-top: 6px;
-}
+        .interest-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
 
+        .interest-chip {
+            border: 1px solid var(--inputBorder);
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            background: rgba(207, 15, 71, 0.06);
+            color: #111;
+        }
 
         @media (prefers-color-scheme: dark) {
-          body{ background-color:#0b0d10 !important; }
-          div.main-container{ background-color:#0f131a !important; box-shadow:0px 10px 30px rgba(0,0,0,.55) !important; }
-          h2,h3,h4,h5,p,label{ color:#e8ecf3 !important; }
-          .bio,h5{ color: rgba(232,236,243,.75) !important; }
-          .border-red{ border-color: rgba(207,15,71,.8) !important; }
-          .goal{ border-bottom: 1px solid rgba(255,255,255,.12) !important; }
-          svg path[stroke="black"]{ stroke: rgba(232,236,243,.85) !important; }
-          svg path[fill="black"]{ fill: rgba(232,236,243,.85) !important; }
+            .interest-chip {
+                border-color: rgba(255, 255, 255, .18);
+                background: rgba(207, 15, 71, 0.20);
+                color: rgba(232, 236, 243, .95);
+            }
+        }
+
+        .goal {
+            border-bottom: solid 1px var(--inputBorder);
+        }
+
+        .about {
+            display: none;
+        }
+
+        .height {
+            display: none;
+        }
+
+        .mbti {
+            display: none;
+        }
+
+        .zodiac {
+            display: none;
+        }
+
+        .work {
+            display: none;
+        }
+
+        .movie {
+            display: none;
+        }
+
+        .taste {
+            display: none;
+        }
+
+        .song {
+            display: none;
+        }
+
+        .interests {
+            display: block;
+        }
+
+        .art,
+        .sport,
+        .music,
+        .computer,
+        .travel,
+        .book {
+            display: none;
+        }
+
+        .likes>label {
+            margin-bottom: 12px;
+        }
+
+        .likes>.rowWrap:first-of-type {
+            margin-top: 6px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #0b0d10 !important;
+            }
+
+            div.main-container {
+                background-color: #0f131a !important;
+                box-shadow: 0px 10px 30px rgba(0, 0, 0, .55) !important;
+            }
+
+            h2,
+            h3,
+            h4,
+            h5,
+            p,
+            label {
+                color: #e8ecf3 !important;
+            }
+
+            .bio,
+            h5 {
+                color: rgba(232, 236, 243, .75) !important;
+            }
+
+            .border-red {
+                border-color: rgba(207, 15, 71, .8) !important;
+            }
+
+            .goal {
+                border-bottom: 1px solid rgba(255, 255, 255, .12) !important;
+            }
+
+            svg path[stroke="black"] {
+                stroke: rgba(232, 236, 243, .85) !important;
+            }
+
+            svg path[fill="black"] {
+                fill: rgba(232, 236, 243, .85) !important;
+            }
         }
       </style>
 
@@ -539,195 +633,177 @@ async load() {
     if (closeBtn) closeBtn.addEventListener("click", () => history.back());
   }
 
-fill() {
-  const p = this.profile;
-  if (!p) return;
+  fill() {
+    const p = this.profile;
+    if (!p) return;
 
-  const photos =
-    Array.isArray(p.photos) ? p.photos :
-    Array.isArray(p.images) ? p.images :
-    Array.isArray(p.gallery) ? p.gallery :
-    [];
+    const photos =
+      Array.isArray(p.photos) ? p.photos :
+        Array.isArray(p.images) ? p.images :
+          Array.isArray(p.gallery) ? p.gallery :
+            [];
 
-  const {
-    avatar,
-    name,
-    dob,
-    bio,
-    relationshipGoal,
-    loveLanguage,
-    about = {},
-    major,
-    work,
-    likes = {},
-    interests = [],
-  } = p;
+    const {
+      avatar,
+      name,
+      dob,
+      bio,
+      relationshipGoal,
+      loveLanguage,
+      about = {},
+      major,
+      work,
+      likes = {},
+      interests = [],
+    } = p;
 
-  const $ = (sel) => this.querySelector(sel);
-  const $$ = (sel) => this.querySelectorAll(sel);
+    const $ = (sel) => this.querySelector(sel);
+    const $$ = (sel) => this.querySelectorAll(sel);
 
-  const age = this.ageFromDob(dob);
+    const age = this.ageFromDob(dob);
 
-  const avatarImg = $(".avatar img");
-  if (avatarImg) avatarImg.src = avatar || "./img/Image.jpg";
+    const avatarImg = $(".avatar img");
+    if (avatarImg) avatarImg.src = avatar || "./img/Image.jpg";
 
-  const nameEl = $(".name");
-  if (nameEl) {
-    const a = age !== "" ? `, <span>${age}</span>` : "";
-    nameEl.innerHTML = `${name || ""}${a}`;
-  }
-
-  const bioEl = $(".bio");
-  if (bioEl) bioEl.textContent = bio || "";
-
-  const goalEl = $(".goal p");
-  if (goalEl) goalEl.textContent = relationshipGoal || "";
-
-  const loveEl = $(".loveLang p");
-  if (loveEl) loveEl.textContent = loveLanguage || "";
-
-  const majorEl = $(".major p");
-  if (majorEl) majorEl.textContent = major || "";
-
-  // work (optional)
-  const workRow = $(".work");
-  const workP = $(".work p");
-  if (workRow && workP) {
-    if (work) {
-      workRow.style.display = "block";
-      workP.textContent = work;
-    } else {
-      workRow.style.display = "none";
-    }
-  }
-
-  // about block
-  const aboutBlock = $(".about");
-  const hasAbout = about && (about.height || about.zodiac || about.mbti);
-  if (aboutBlock) {
-    aboutBlock.style.display = hasAbout ? "block" : "none";
-
-    const hRow = aboutBlock.querySelector(".height");
-    if (hRow) hRow.style.display = about?.height ? "block" : "none";
-    if (about?.height) {
-      const hp = $(".height p");
-      if (hp) hp.textContent = about.height;
+    const nameEl = $(".name");
+    if (nameEl) {
+      const a = age !== "" ? `, <span>${age}</span>` : "";
+      nameEl.innerHTML = `${name || ""}${a}`;
     }
 
-    const zRow = aboutBlock.querySelector(".zodiac");
-    if (zRow) zRow.style.display = about?.zodiac ? "block" : "none";
-    if (about?.zodiac) {
-      const zp = $(".zodiac p");
-      if (zp) zp.textContent = about.zodiac;
+    const bioEl = $(".bio");
+    if (bioEl) bioEl.textContent = bio || "";
+
+    const goalEl = $(".goal p");
+    if (goalEl) goalEl.textContent = relationshipGoal || "";
+
+    const loveEl = $(".loveLang p");
+    if (loveEl) loveEl.textContent = loveLanguage || "";
+
+    const majorEl = $(".major p");
+    if (majorEl) majorEl.textContent = major || "";
+
+    // work (optional)
+    const workRow = $(".work");
+    const workP = $(".work p");
+    if (workRow && workP) {
+      if (work) {
+        workRow.style.display = "block";
+        workP.textContent = work;
+      } else {
+        workRow.style.display = "none";
+      }
     }
 
-    const mRow = aboutBlock.querySelector(".mbti");
-    if (mRow) mRow.style.display = about?.mbti ? "block" : "none";
-    if (about?.mbti) {
-      const mp = $(".mbti p");
-      if (mp) mp.textContent = about.mbti;
-    }
-  }
+    // about block
+    const aboutBlock = $(".about");
+    const hasAbout = about && (about.height || about.zodiac || about.mbti);
+    if (aboutBlock) {
+      aboutBlock.style.display = hasAbout ? "block" : "none";
 
-  // photos
-  $$(".user-image-container img").forEach((img, i) => {
-    img.src = photos[i] || "./img/image.jpeg";
-  });
+      const hRow = aboutBlock.querySelector(".height");
+      if (hRow) hRow.style.display = about?.height ? "block" : "none";
+      if (about?.height) {
+        const hp = $(".height p");
+        if (hp) hp.textContent = about.height;
+      }
 
-  // likes (movie/taste/song)
-  const likesBlock = $(".likes");
-  const hasLikes = likes && Object.keys(likes || {}).length > 0;
-  if (likesBlock) {
-    // movie
-    const movieRow = $(".movie");
-    const movieP = $(".movie p");
-    if (movieRow && movieP) {
-      if (likes?.movie) {
-        movieRow.style.display = "block";
-        movieP.textContent = likes.movie;
-      } else movieRow.style.display = "none";
-    }
+      const zRow = aboutBlock.querySelector(".zodiac");
+      if (zRow) zRow.style.display = about?.zodiac ? "block" : "none";
+      if (about?.zodiac) {
+        const zp = $(".zodiac p");
+        if (zp) zp.textContent = about.zodiac;
+      }
 
-    // taste
-    const tasteRow = $(".taste");
-    const tasteP = $(".taste p");
-    if (tasteRow && tasteP) {
-      if (likes?.taste) {
-        tasteRow.style.display = "block";
-        tasteP.textContent = likes.taste;
-      } else tasteRow.style.display = "none";
+      const mRow = aboutBlock.querySelector(".mbti");
+      if (mRow) mRow.style.display = about?.mbti ? "block" : "none";
+      if (about?.mbti) {
+        const mp = $(".mbti p");
+        if (mp) mp.textContent = about.mbti;
+      }
     }
 
-    // song
-    const songRow = $(".song");
-    const songP = $(".song p");
-    if (songRow && songP) {
-      if (likes?.song) {
-        songRow.style.display = "block";
-        songP.textContent = likes.song;
-      } else songRow.style.display = "none";
+    $$(".user-image-container img").forEach((img, i) => {
+      img.src = photos[i] || "./img/image.jpeg";
+    });
+
+    const likesBlock = $(".likes");
+    const hasLikes = likes && Object.keys(likes || {}).length > 0;
+    if (likesBlock) {
+      const movieRow = $(".movie");
+      const movieP = $(".movie p");
+      if (movieRow && movieP) {
+        if (likes?.movie) {
+          movieRow.style.display = "block";
+          movieP.textContent = likes.movie;
+        } else movieRow.style.display = "none";
+      }
+
+      const tasteRow = $(".taste");
+      const tasteP = $(".taste p");
+      if (tasteRow && tasteP) {
+        if (likes?.taste) {
+          tasteRow.style.display = "block";
+          tasteP.textContent = likes.taste;
+        } else tasteRow.style.display = "none";
+      }
+
+      const songRow = $(".song");
+      const songP = $(".song p");
+      if (songRow && songP) {
+        if (likes?.song) {
+          songRow.style.display = "block";
+          songP.textContent = likes.song;
+        } else songRow.style.display = "none";
+      }
+
+      if (
+        !hasLikes &&
+        (!interests ||
+          (Array.isArray(interests) && interests.length === 0) ||
+          (!Array.isArray(interests) && typeof interests === "object" && Object.keys(interests).length === 0))
+      ) {
+      }
     }
 
-    // if likes object empty and no interests too, still keep section visible (you can hide if you want)
-    if (
-      !hasLikes &&
-      (!interests ||
-        (Array.isArray(interests) && interests.length === 0) ||
-        (!Array.isArray(interests) && typeof interests === "object" && Object.keys(interests).length === 0))
-    ) {
-      // likesBlock.style.display = "none"; // хүсвэл нуу
+    ["art", "sport", "music", "computer", "travel", "book"].forEach((k) => {
+      const el = this.querySelector(`.${k}`);
+      if (el) el.style.display = "none";
+    });
+
+    let interestArr = [];
+    if (Array.isArray(interests)) {
+      interestArr = interests.map(x => String(x).trim()).filter(Boolean);
+    } else if (interests && typeof interests === "object") {
+
+      interestArr = Object.entries(interests)
+        .filter(([_, v]) => v)
+        .map(([k, v]) => (v === true ? String(k) : String(v)).trim())
+        .filter(Boolean);
     }
-  }
 
-  /* =========================
-     INTERESTS (3+ show)
-     ========================= */
+    const seen = new Set();
+    interestArr = interestArr.filter(x => (seen.has(x) ? false : (seen.add(x), true)));
 
-  // 1) optional: хуучин hardcoded art/sport/... row-уудыг нууя (байвал)
-  ["art", "sport", "music", "computer", "travel", "book"].forEach((k) => {
-    const el = this.querySelector(`.${k}`);
-    if (el) el.style.display = "none";
-  });
+    const interestListEl = this.querySelector(".interest-list");
+    if (interestListEl) {
+      interestListEl.innerHTML = "";
 
-  // 2) normalize interests => array
-  let interestArr = [];
-  if (Array.isArray(interests)) {
-    interestArr = interests.map(x => String(x).trim()).filter(Boolean);
-  } else if (interests && typeof interests === "object") {
-
-    interestArr = Object.entries(interests)
-      .filter(([_, v]) => v) // true / non-empty only
-      .map(([k, v]) => (v === true ? String(k) : String(v)).trim())
-      .filter(Boolean);
-  }
-
-  // unique + keep order
-  const seen = new Set();
-  interestArr = interestArr.filter(x => (seen.has(x) ? false : (seen.add(x), true)));
-
-  // 3) render chips into .interest-list (render() дээр энэ div байх ёстой)
-  const interestListEl = this.querySelector(".interest-list");
-  if (interestListEl) {
-    interestListEl.innerHTML = "";
-
-    if (interestArr.length >= 3) {
-      interestArr.forEach((txt) => {
-        const chip = document.createElement("span");
-        chip.className = "interest-chip";
-        chip.textContent = txt;
-        interestListEl.appendChild(chip);
-      });
-    } else {
-      // хүсвэл энэ хэсгийг устгаад бүр хоосон байлгаж болно
-      const msg = document.createElement("p");
-      msg.style.margin = "0";
-      msg.style.opacity = ".75";
-      msg.textContent = "Сонирхол дутуу байна";
-      interestListEl.appendChild(msg);
+      if (interestArr.length >= 3) {
+        interestArr.forEach((txt) => {
+          const chip = document.createElement("span");
+          chip.className = "interest-chip";
+          chip.textContent = txt;
+          interestListEl.appendChild(chip);
+        });
+      } else {
+        const msg = document.createElement("p");
+        msg.style.margin = "0";
+        msg.style.opacity = ".75";
+        msg.textContent = "Сонирхол дутуу байна";
+        interestListEl.appendChild(msg);
+      }
     }
   }
 }
-
-}
-
 customElements.define("com-othersprofile", OthersProfile);
