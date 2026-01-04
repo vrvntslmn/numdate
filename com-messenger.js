@@ -1,3 +1,5 @@
+import { api } from "./apiClient.js";
+
 class ComMessenger extends HTMLElement {
   constructor() {
     super();
@@ -1359,20 +1361,10 @@ class ComMessenger extends HTMLElement {
       chatBody.appendChild(row);
       chatBody.scrollTop = chatBody.scrollHeight;
       messageInput.value = "";
-
       try {
-        const res = await fetch("/api/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ other: otherId, text, type: "text" }),
-        });
-
-        if (!res.ok) {
-          console.error("send failed", await res.text());
-        }
+        await api.sendMessage({ otherId, text, type: "text" });
       } catch (err) {
-        console.error("send error", err);
+        console.error("send failed", err);
       }
     });
     const { backBtn, chatApp } = this.els;
@@ -1380,12 +1372,11 @@ class ComMessenger extends HTMLElement {
     if (backBtn && chatApp) {
       backBtn.addEventListener("click", () => {
         chatApp.classList.remove("is-chat-open");
-
+        this.setBottomNavHidden(false);
+        requestAnimationFrame(() => this.setBottomNavHidden(false));
         this.els.detailsPanel?.classList.remove("is-open");
         this.els.emojiPanel?.classList.remove("is-open");
         this.closeDateOverlay?.();
-
-        // focus search
         this.els.searchInput?.focus();
       });
     }
@@ -1630,31 +1621,15 @@ class ComMessenger extends HTMLElement {
     }
   }
   async openOthersProfileBySession(otherId) {
-    if (!otherId) {
-      console.warn("openOthersProfileBySession: missing otherId");
-      return;
-    }
+    if (!otherId) return;
 
     try {
-      const res = await fetch("/api/othersprofile/select", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ userId: otherId }),
-      });
-
-      if (!res.ok) {
-        console.error("select failed:", res.status, await res.text());
-        return;
-      }
-
+      await api.selectOtherProfile(otherId);
       window.location.hash = "#/othersprofile";
     } catch (e) {
-      console.error("openOthersProfileBySession error:", e);
+      console.error("select failed:", e);
     }
   }
-
-
   closeDateOverlay() {
     this.els.dateOverlay.classList.remove("is-open");
     this.els.dateOverlay.setAttribute("aria-hidden", "true");
@@ -1804,17 +1779,21 @@ class ComMessenger extends HTMLElement {
     }
   }
   async fetchMe() {
-    const res = await fetch("/api/me", { credentials: "include" });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.user || null;
-  }
-  async fetchUsers() {
-    const res = await fetch("/api/matches", { credentials: "include" });
-    if (!res.ok) return [];
-    return await res.json();
+    try {
+      const data = await api.me();
+      return data?.user || null;
+    } catch {
+      return null;
+    }
   }
 
+  async fetchUsers() {
+    try {
+      return await api.matches();
+    } catch {
+      return [];
+    }
+  }
   async initAuthAndUsers() {
     this.me = await this.fetchMe();
     if (!this.me?._id) {
@@ -1884,7 +1863,8 @@ class ComMessenger extends HTMLElement {
   }
   async selectConversationEl(item) {
     this.els.chatApp?.classList.add("is-chat-open");
-
+    this.setBottomNavHidden(true);
+    requestAnimationFrame(() => this.setBottomNavHidden(true));
     this.els.conversationItems.forEach(i => i.classList.remove("is-active"));
     item.classList.add("is-active");
 
@@ -1906,19 +1886,8 @@ class ComMessenger extends HTMLElement {
   }
   async loadMessages(otherId, otherAvatar, otherName) {
     try {
-      const res = await fetch(`/api/messages?other=${encodeURIComponent(otherId)}&limit=200`, {
-        credentials: "include",
-      });
+      const msgs = await api.getMessages(otherId, 200);
 
-      if (!res.ok) {
-        const t = await res.text();
-        console.error("loadMessages failed:", res.status, t);
-        this.els.chatBody.innerHTML = `<div style="padding:16px;">Failed to load messages (${res.status})</div>`;
-        return;
-      }
-
-
-      const msgs = await res.json();
       this.els.chatBody.innerHTML = "";
 
       msgs.forEach(m => {
@@ -1942,9 +1911,65 @@ class ComMessenger extends HTMLElement {
       });
 
       this.els.chatBody.scrollTop = this.els.chatBody.scrollHeight;
-    } catch (e) {
-      console.error("loadMessages error", e);
+    } catch (err) {
+      console.error("loadMessages failed:", err);
+      this.els.chatBody.innerHTML = `<div style="padding:16px;">Failed to load messages</div>`;
     }
   }
+
+  getBottomNavEl() {
+    // 1) шууд олдох хувилбар
+    const direct =
+      document.querySelector("com-nav") ||
+      document.querySelector("com-navbar") ||
+      document.querySelector(".bottom-nav") ||
+      document.querySelector("nav.bottom") ||
+      document.querySelector("nav[aria-label='bottom']");
+
+    if (direct) return direct;
+
+    // 2) Shadow DOM дотроос хайх (com-routes / app гэх мэт)
+    const roots = [
+      document.querySelector("com-routes"),
+      document.querySelector("com-route"),
+      document.querySelector("app-root"),
+      document.querySelector("app-main"),
+      document.querySelector("app"),
+    ].filter(Boolean);
+
+    for (const host of roots) {
+      const sr = host.shadowRoot;
+      if (!sr) continue;
+
+      const inside =
+        sr.querySelector("com-nav") ||
+        sr.querySelector("com-navbar") ||
+        sr.querySelector(".bottom-nav") ||
+        sr.querySelector("nav.bottom") ||
+        sr.querySelector("nav[aria-label='bottom']");
+      if (inside) return inside;
+    }
+
+    return null;
+  }
+
+
+  setBottomNavHidden(hidden) {
+    const nav = this.getBottomNavEl();
+    if (!nav) return;
+
+    if (hidden) {
+      // өмнөх style-ийг хадгална
+      if (nav.dataset.prevDisplay == null) nav.dataset.prevDisplay = nav.style.display || "";
+      nav.style.display = "none";
+    } else {
+      nav.style.display = nav.dataset.prevDisplay ?? "";
+      delete nav.dataset.prevDisplay;
+    }
+  }
+  disconnectedCallback() {
+    this.setBottomNavHidden(false);
+  }
+
 }
 window.customElements.define("com-messenger", ComMessenger);
