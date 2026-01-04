@@ -1,14 +1,17 @@
+// server.js
 require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
 const { MongoClient, ObjectId } = require("mongodb");
 const session = require("express-session");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const multer = require("multer");
+
+// const cors = require("cors"); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,1147 +22,1257 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "change-me-in-prod";
 
 if (!MONGO_URL) throw new Error("Missing MONGO_URL in .env");
 
+
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
 });
 
 if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("SMTP configuration missing — email verification will fail.");
+  console.warn("⚠️ SMTP configuration missing — email verification will fail.");
 }
 
 let db;
 
+
 class MongoDBStore extends session.Store {
-    constructor(db, collectionName = "sessions") {
-        super();
-        this.collection = db.collection(collectionName);
-    }
-    get(sid, callback) {
-        this.collection
-            .findOne({ _id: sid })
-            .then((doc) => callback(null, doc ? doc.data : null))
-            .catch((err) => callback(err));
-    }
-    set(sid, sessionData, callback) {
-        this.collection
-            .updateOne(
-                { _id: sid },
-                { $set: { data: sessionData, updatedAt: new Date() } },
-                { upsert: true }
-            )
-            .then(() => callback && callback(null))
-            .catch((err) => callback && callback(err));
-    }
-    destroy(sid, callback) {
-        this.collection
-            .deleteOne({ _id: sid })
-            .then(() => callback && callback(null))
-            .catch((err) => callback && callback(err));
-    }
+  constructor(db, collectionName = "sessions") {
+    super();
+    this.collection = db.collection(collectionName);
+  }
+  get(sid, callback) {
+    this.collection
+      .findOne({ _id: sid })
+      .then((doc) => callback(null, doc ? doc.data : null))
+      .catch((err) => callback(err));
+  }
+  set(sid, sessionData, callback) {
+    this.collection
+      .updateOne(
+        { _id: sid },
+        { $set: { data: sessionData, updatedAt: new Date() } },
+        { upsert: true }
+      )
+      .then(() => callback && callback(null))
+      .catch((err) => callback && callback(err));
+  }
+  destroy(sid, callback) {
+    this.collection
+      .deleteOne({ _id: sid })
+      .then(() => callback && callback(null))
+      .catch((err) => callback && callback(err));
+  }
 }
+
+// -------------------- UPLOADS (Multer) --------------------
 const imgUploadDir = path.join(__dirname, "numdate", "img", "uploads");
 if (!fs.existsSync(imgUploadDir)) {
-    fs.mkdirSync(imgUploadDir, { recursive: true });
+  fs.mkdirSync(imgUploadDir, { recursive: true });
 }
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, imgUploadDir),
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname || "").toLowerCase();
-        const safeBase = path
-            .basename(file.originalname || "image", ext)
-            .replace(/[^a-z0-9_-]/gi, "_")
-            .slice(0, 40);
 
-        cb(null, `${safeBase}-${Date.now()}${ext}`);
-    },
+// SPA static чинь аль хэдийн:
+// app.use(express.static(path.join(__dirname, "numdate")));
+// Тиймээс нэмэлт static mount хэрэггүй.
+// (Хэрвээ хэрэгтэй бол: app.use("/img/uploads", express.static(imgUploadDir));)
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, imgUploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || "").toLowerCase();
+    const safeBase = path
+      .basename(file.originalname || "image", ext)
+      .replace(/[^a-z0-9_-]/gi, "_")
+      .slice(0, 40);
+
+    cb(null, `${safeBase}-${Date.now()}${ext}`);
+  },
 });
 
 const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        if (!file.mimetype?.startsWith("image/")) {
-            return cb(new Error("Зөвхөн зураг upload хийнэ."), false);
-        }
-        cb(null, true);
-    },
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype?.startsWith("image/")) {
+      return cb(new Error("Зөвхөн зураг upload хийнэ."), false);
+    }
+    cb(null, true);
+  },
 });
 
 function requireAuth(req, res, next) {
-    if (!req.session?.userId) return res.status(401).json({ error: "Not logged in" });
-    next();
+  if (!req.session?.userId) return res.status(401).json({ error: "Not logged in" });
+  next();
 }
 
 function projectSafeUser(user) {
-    if (!user) return null;
-    const { passwordHash, ...rest } = user;
-    return rest;
+  if (!user) return null;
+  const { passwordHash, ...rest } = user;
+  return rest;
 }
 
 function calcAge(dob) {
-    try {
-        const d = new Date(dob);
-        if (Number.isNaN(d.getTime())) return null;
-        const diff = Date.now() - d.getTime();
-        const ageDt = new Date(diff);
-        return Math.abs(ageDt.getUTCFullYear() - 1970);
-    } catch {
-        return null;
-    }
+  try {
+    const d = new Date(dob);
+    if (Number.isNaN(d.getTime())) return null;
+    const diff = Date.now() - d.getTime();
+    const ageDt = new Date(diff);
+    return Math.abs(ageDt.getUTCFullYear() - 1970);
+  } catch {
+    return null;
+  }
 }
 
 async function start() {
-    const client = new MongoClient(MONGO_URL);
-    await client.connect();
-    console.log("✅ Connected to MongoDB");
-    db = client.db(DB_NAME);
+  const client = new MongoClient(MONGO_URL);
+  await client.connect();
+  console.log("✅ Connected to MongoDB");
+  db = client.db(DB_NAME);
 
-    const store = new MongoDBStore(db, "sessions");
-    app.use(
-        session({
-            name: "sid",
-            secret: SESSION_SECRET,
-            resave: false,
-            saveUninitialized: false,
-            store,
-            cookie: {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 1000 * 60 * 60 * 24 * 7,
-            },
-        })
-    );
+  // ----- Sessions -----
+  const store = new MongoDBStore(db, "sessions");
+  app.use(
+    session({
+      name: "sid",
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      store,
+      cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      },
+    })
+  );
 
-    app.use(express.static(path.join(__dirname, "numdate")));
+  // Static SPA
+  app.use(express.static(path.join(__dirname, "numdate")));
 
-    app.post("/api/auth/register", async (req, res) => {
-        try {
-            const {
-                email,
-                password,
-                name,
-                lname,
-                major,
-                school,
-                dob,
-                gender,
-                zodiac,
-                course,
-                mbti,
-                loveLanguage,
-                relationshipGoal,
-                interestedIn,
-                interests,
-            } = req.body;
+  // -------------------- AUTH --------------------
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const {
+        email,
+        password,
+        name,
+        lname,
+        major,
+        school,
+        dob,
+        gender,
+        zodiac,
+        course,
+        mbti,
+        loveLanguage,
+        relationshipGoal,
+        interestedIn,
+        interests,
+      } = req.body;
 
-            if (!email || !password || !name) {
-                return res.status(400).json({ error: "Missing fields" });
-            }
+      if (!email || !password || !name) {
+        return res.status(400).json({ error: "Missing fields" });
+      }
 
-            if (!email.endsWith("@stud.num.edu.mn")) {
-                return res.status(400).json({ error: "Use your university email (@stud.num.edu.mn)" });
-            }
+      if (!email.endsWith("@stud.num.edu.mn")) {
+        return res.status(400).json({ error: "Use your university email (@stud.num.edu.mn)" });
+      }
 
-            const existing = await db.collection("users").findOne({ email });
-            if (existing) return res.status(409).json({ error: "Email already registered" });
+      const existing = await db.collection("users").findOne({ email });
+      if (existing) return res.status(409).json({ error: "Email already registered" });
 
-            const passwordHash = await bcrypt.hash(password, 12);
-            const verificationToken = crypto.randomBytes(32).toString("hex");
-            const verificationExpires = new Date(Date.now() + 1000 * 60 * 60 * 24);
+      const passwordHash = await bcrypt.hash(password, 12);
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const verificationExpires = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
-            const userDoc = {
-                email,
-                passwordHash,
-                name,
-                major: major || null,
-                createdAt: new Date(),
-                verified: false,
-                verificationToken,
-                verificationExpires,
-            };
+      const userDoc = {
+        email,
+        passwordHash,
+        name,
+        major: major || null,
+        createdAt: new Date(),
+        verified: false,
+        verificationToken,
+        verificationExpires,
+      };
 
-            const result = await db.collection("users").insertOne(userDoc);
+      const result = await db.collection("users").insertOne(userDoc);
 
-            req.session.userId = result.insertedId.toString();
-            await new Promise((resolve, reject) =>
-                req.session.save((err) => (err ? reject(err) : resolve()))
-            );
+      req.session.userId = result.insertedId.toString();
+      await new Promise((resolve, reject) =>
+        req.session.save((err) => (err ? reject(err) : resolve()))
+      );
 
-            const age = dob ? calcAge(dob) : null;
+      const age = dob ? calcAge(dob) : null;
 
-            const profileDoc = {
-                userId: result.insertedId,
-                name: name || null,
-                lname: lname || null,
-                avatar: null,
-                gender: gender || null,
-                major: major || null,
-                school: school || null,
-                year: course || null,
-                dob: dob || null,
-                age,
-                about: { zodiac: zodiac || null, mbti: mbti || null },
-                relationshipGoal: relationshipGoal || null,
-                loveLanguage: loveLanguage || null,
-                interests: Array.isArray(interests) ? interests : [],
-                interestedIn: interestedIn || null,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            };
+      const profileDoc = {
+        userId: result.insertedId,
+        name: name || null,
+        lname: lname || null,
+        avatar: null,
+        gender: gender || null,
+        major: major || null,
+        school: school || null,
+        year: course || null,
+        dob: dob || null,
+        age,
+        about: { zodiac: zodiac || null, mbti: mbti || null },
+        relationshipGoal: relationshipGoal || null,
+        loveLanguage: loveLanguage || null,
+        interests: Array.isArray(interests) ? interests : [],
+        interestedIn: interestedIn || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-            await db.collection("profile").insertOne(profileDoc);
+      await db.collection("profile").insertOne(profileDoc);
 
-            const base = process.env.APP_BASE_URL || "http://localhost:3000";
-            const verifyUrl =
-                `${base}/api/auth/verify-email?token=${verificationToken}` +
-                `&email=${encodeURIComponent(email)}`;
+      const base = process.env.APP_BASE_URL || "http://localhost:3000";
+      const verifyUrl =
+        `${base}/api/auth/verify-email?token=${verificationToken}` +
+        `&email=${encodeURIComponent(email)}`;
 
-            try {
-                await transporter.sendMail({
-                    from: `"NumDate" <${process.env.SMTP_USER}>`,
-                    to: email,
-                    subject: "Verify your NumDate account",
-                    text: `Сайн байна уу, ${name}! Баталгаажуулах линк:\n\n${verifyUrl}\n\n24 цаг хүчинтэй.`,
-                    html: `
+      try {
+        await transporter.sendMail({
+          from: `"NumDate" <${process.env.SMTP_USER}>`,
+          to: email,
+          subject: "Verify your NumDate account",
+          text: `Сайн байна уу, ${name}! Баталгаажуулах линк:\n\n${verifyUrl}\n\n24 цаг хүчинтэй.`,
+          html: `
             <p>Сайн байна уу, ${name} 👋</p>
             <p>Имэйлээ баталгаажуулахын тулд доорх линк дээр дарна уу:</p>
             <p><a href="${verifyUrl}" target="_blank">Имэйл баталгаажуулах</a></p>
             <p>Энэ линк 24 цаг хүчинтэй.</p>
           `,
-                });
-            } catch (mailErr) {
-                console.error("Email send error:", mailErr);
-            }
-
-            res.status(201).json({ ok: true, message: "Registered. Please verify your email." });
-        } catch (err) {
-            console.error("Register error", err);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
-
-    app.get("/api/auth/verify-email", async (req, res) => {
-        try {
-            const { token, email } = req.query;
-            if (!token || !email) return res.status(400).send("Invalid verification link");
-
-            const user = await db.collection("users").findOne({ email });
-            if (!user) return res.status(400).send("Invalid verification link");
-
-            if (user.verified) return res.redirect("/?alreadyVerified=1");
-
-            if (
-                user.verificationToken !== token ||
-                !user.verificationExpires ||
-                user.verificationExpires < new Date()
-            ) {
-                return res.status(400).send("Verification link is invalid or expired");
-            }
-
-            await db.collection("users").updateOne(
-                { _id: user._id },
-                { $set: { verified: true }, $unset: { verificationToken: "", verificationExpires: "" } }
-            );
-
-            req.session.userId = user._id.toString();
-            return res.redirect("/?verified=1");
-        } catch (err) {
-            console.error("Verify email error", err);
-            res.status(500).send("Server error");
-        }
-    });
-
-    app.post("/api/auth/login", async (req, res) => {
-        try {
-            const { email, password } = req.body;
-            if (!email || !password) return res.status(400).json({ error: "Missing email or password" });
-
-            const user = await db.collection("users").findOne({ email });
-            if (!user) return res.status(401).json({ error: "Invalid credentials" });
-
-            const match = await bcrypt.compare(password, user.passwordHash);
-            if (!match) return res.status(401).json({ error: "Invalid credentials" });
-
-            if (!user.verified) {
-                return res.status(403).json({ error: "Email not verified" });
-            }
-
-            req.session.userId = user._id.toString();
-            res.json({ ok: true, user: projectSafeUser(user) });
-        } catch (err) {
-            console.error("Login error", err);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
-
-    app.post("/api/auth/logout", (req, res) => {
-        req.session.destroy((err) => {
-            if (err) console.error("Session destroy error", err);
-            res.clearCookie("sid");
-            res.json({ ok: true });
         });
+      } catch (mailErr) {
+        console.error("Email send error:", mailErr);
+      }
+
+      res.status(201).json({ ok: true, message: "Registered. Please verify your email." });
+    } catch (err) {
+      console.error("Register error", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  app.get("/api/auth/verify-email", async (req, res) => {
+    try {
+      const { token, email } = req.query;
+      if (!token || !email) return res.status(400).send("Invalid verification link");
+
+      const user = await db.collection("users").findOne({ email });
+      if (!user) return res.status(400).send("Invalid verification link");
+
+      if (user.verified) return res.redirect("/?alreadyVerified=1");
+
+      if (
+        user.verificationToken !== token ||
+        !user.verificationExpires ||
+        user.verificationExpires < new Date()
+      ) {
+        return res.status(400).send("Verification link is invalid or expired");
+      }
+
+      await db.collection("users").updateOne(
+        { _id: user._id },
+        { $set: { verified: true }, $unset: { verificationToken: "", verificationExpires: "" } }
+      );
+
+      req.session.userId = user._id.toString();
+      return res.redirect("/?verified=1");
+    } catch (err) {
+      console.error("Verify email error", err);
+      res.status(500).send("Server error");
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) return res.status(400).json({ error: "Missing email or password" });
+
+      const user = await db.collection("users").findOne({ email });
+      if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+      const match = await bcrypt.compare(password, user.passwordHash);
+      if (!match) return res.status(401).json({ error: "Invalid credentials" });
+
+      if (!user.verified) {
+        return res.status(403).json({ error: "Email not verified" });
+      }
+
+      req.session.userId = user._id.toString();
+      res.json({ ok: true, user: projectSafeUser(user) });
+    } catch (err) {
+      console.error("Login error", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) console.error("Session destroy error", err);
+      res.clearCookie("sid");
+      res.json({ ok: true });
+    });
+  });
+
+  app.get("/api/me", async (req, res) => {
+    try {
+      if (!req.session.userId) return res.status(401).json({ user: null });
+
+      const user = await db
+        .collection("users")
+        .findOne({ _id: new ObjectId(req.session.userId) });
+
+      if (!user) return res.status(401).json({ user: null });
+      res.json({ user: projectSafeUser(user) });
+    } catch (err) {
+      console.error("Me error", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  app.post("/api/auth/resend-verification", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: "Email required" });
+
+      const user = await db.collection("users").findOne({ email });
+      if (!user) return res.status(400).json({ error: "No such user" });
+      if (user.verified) return res.status(400).json({ error: "Already verified" });
+
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const verificationExpires = new Date(Date.now() + 1000 * 60 * 60 * 24);
+
+      await db.collection("users").updateOne(
+        { _id: user._id },
+        { $set: { verificationToken, verificationExpires } }
+      );
+
+      const base = process.env.APP_BASE_URL || "http://localhost:3000";
+      const verifyUrl =
+        `${base}/api/auth/verify-email?token=${verificationToken}` +
+        `&email=${encodeURIComponent(email)}`;
+
+      await transporter.sendMail({
+        from: `"NumDate" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: "New verification link",
+        text: `Here is your new verification link: ${verifyUrl}`,
+      });
+
+      res.json({ ok: true, message: "Verification email sent" });
+    } catch (err) {
+      console.error("Resend verification error", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // -------------------- PROFILE --------------------
+  app.get("/api/profile", requireAuth, async (req, res) => {
+    try {
+      const userId = new ObjectId(req.session.userId);
+      const profile = await db
+        .collection("profile")
+        .findOne({ userId }, { projection: { _id: 0 } });
+
+      if (!profile) return res.status(404).json({ error: "Profile not found" });
+
+      res.json({ ...profile, userId: profile.userId.toString() });
+    } catch (err) {
+      console.error("Profile error", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  app.get("/api/profile/:userId", requireAuth, async (req, res) => {
+    try {
+      const otherId = new ObjectId(req.params.userId);
+      const profile = await db
+        .collection("profile")
+        .findOne({ userId: otherId }, { projection: { _id: 0 } });
+
+      if (!profile) return res.status(404).json({ error: "Profile not found" });
+
+      res.json({ ...profile, userId: profile.userId.toString() });
+    } catch (e) {
+      console.error(e);
+      res.status(400).json({ error: "Invalid userId" });
+    }
+  });
+
+  // =========================================================
+  // ✅ OTHERSPROFILE (SESSION-BASED) — TOKEN/URL userId АШИГЛАХГҮЙ
+  // =========================================================
+
+  // 1) Frontend-ээс "энэ хүнийг үзье" гэж session-д хадгална
+  app.post("/api/othersprofile/select", requireAuth, async (req, res) => {
+    try {
+      const { userId } = req.body || {};
+      if (!userId) return res.status(400).json({ error: "Missing userId" });
+
+      const idStr = String(userId);
+      if (!ObjectId.isValid(idStr)) return res.status(400).json({ error: "Invalid userId" });
+
+      // ✅ session дээр хадгална
+      req.session.viewingUserId = idStr;
+
+      // session save (зарим store дээр хэрэгтэй байж болно)
+      await new Promise((resolve, reject) =>
+        req.session.save((err) => (err ? reject(err) : resolve()))
+      );
+
+      res.json({ ok: true });
+    } catch (e) {
+      console.error("POST /api/othersprofile/select failed:", e);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // 2) OthersProfile component зөвхөн энэ route-г дуудна
+  app.get("/api/othersprofile", requireAuth, async (req, res) => {
+    try {
+      const idStr = String(req.session.viewingUserId || "");
+      if (!idStr) return res.status(400).json({ error: "No selected profile" });
+      if (!ObjectId.isValid(idStr)) return res.status(400).json({ error: "Invalid selected profile" });
+
+      const otherId = new ObjectId(idStr);
+
+      const profile = await db.collection("profile").findOne(
+        { userId: otherId },
+        { projection: { _id: 0 } }
+      );
+
+      if (!profile) return res.status(404).json({ error: "Profile not found" });
+
+      res.json({ ...profile, userId: profile.userId.toString() });
+    } catch (e) {
+      console.error("GET /api/othersprofile failed:", e);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  // -------------------- PROFILES LIST --------------------
+  app.get("/api/profiles", async (req, res) => {
+    try {
+      const profiles = await db
+        .collection("profile")
+        .find({})
+        .project({
+          _id: 0,
+          userId: 1,
+          name: 1,
+          age: 1,
+          avatar: 1,
+          major: 1,
+          school: 1,
+          year: 1,
+          bio: 1,
+          about: 1,
+          relationshipGoal: 1,
+          loveLanguage: 1,
+          interests: 1,
+        })
+        .toArray();
+
+      const formatted = profiles.map((p) => ({
+        ...p,
+        userId: p.userId?.toString?.() || p.userId,
+        image: p.avatar || "img/default-profile.jpg",
+      }));
+
+      res.json(formatted);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  // -------------------- SWIPES --------------------
+  app.post("/api/swipes", requireAuth, async (req, res) => {
+    try {
+      const { action, targetUserId, targetName, at } = req.body;
+
+      if (!action || !["like", "pass"].includes(action)) {
+        return res.status(400).json({ error: "Invalid action" });
+      }
+      if (!targetUserId) {
+        return res.status(400).json({ error: "Missing targetUserId" });
+      }
+
+      const fromUserIdObj = new ObjectId(req.session.userId);
+      const targetStr = String(targetUserId);
+
+      const doc = {
+        fromUserId: fromUserIdObj,
+        action,
+        targetName: targetName || null,
+        at: at ? new Date(at) : new Date(),
+        targetUserIdObj: ObjectId.isValid(targetStr) ? new ObjectId(targetStr) : null,
+        targetUserIdStr: ObjectId.isValid(targetStr) ? null : targetStr,
+      };
+
+      await db.collection("swipes").insertOne(doc);
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("POST /api/swipes error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  app.get("/api/swipes/me", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      const docs = await db
+        .collection("swipes")
+        .find({ fromUserId: me })
+        .project({ _id: 0, action: 1, targetUserIdObj: 1, targetUserIdStr: 1, at: 1 })
+        .sort({ at: -1 })
+        .limit(200)
+        .toArray();
+
+      res.json({
+        items: docs.map((d) => ({
+          action: d.action,
+          targetUserId: d.targetUserIdObj?.toString?.() || d.targetUserIdStr || null,
+          at: d.at,
+        })),
+      });
+    } catch (e) {
+      console.error("GET /api/swipes/me failed:", e);
+      res.status(500).json({ items: [] });
+    }
+  });
+
+  // -------------------- LIKES --------------------
+  app.get("/api/likes/me", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      const docs = await db
+        .collection("likes")
+        .find({ fromUserId: me })
+        .project({ _id: 0, toUserId: 1 })
+        .toArray();
+
+      res.json({ ids: docs.map((d) => d.toUserId.toString()) });
+    } catch (e) {
+      console.error("GET /api/likes/me failed:", e);
+      res.status(500).json({ ids: [] });
+    }
+  });
+
+  // ✅ Like хийх
+  app.post("/api/like", requireAuth, async (req, res) => {
+    try {
+      const meStr = String(req.session.userId || "");
+      const toStr = String(req.body?.toUserId || "");
+
+      if (!ObjectId.isValid(meStr)) return res.status(401).json({ ok: false, error: "not_logged_in" });
+      if (!ObjectId.isValid(toStr)) return res.status(400).json({ ok: false, error: "bad_toUserId" });
+
+      const me = new ObjectId(meStr);
+      const other = new ObjectId(toStr);
+
+      // 1) like upsert
+      await db.collection("likes").updateOne(
+        { fromUserId: me, toUserId: other },
+        { $setOnInsert: { fromUserId: me, toUserId: other, createdAt: new Date() } },
+        { upsert: true }
+      );
+
+      // 2) mutual like шалгах (other -> me)
+      const reverse = await db.collection("likes").findOne({ fromUserId: other, toUserId: me });
+      if (!reverse) return res.json({ ok: true, matched: false });
+
+      // 3) match үүсгэх
+      const users = [me, other].sort((a, b) => a.toString().localeCompare(b.toString()));
+      await db.collection("matches").updateOne(
+        { users },
+        { $setOnInsert: { users, createdAt: new Date() } },
+        { upsert: true }
+      );
+
+      const matchDoc = await db.collection("matches").findOne({ users }, { projection: { _id: 1 } });
+      const matchId = matchDoc._id;
+
+      // 4) notifications 2 талд нь
+      await db.collection("notifications").updateOne(
+        { userId: me, type: "match", matchId },
+        {
+          $setOnInsert: {
+            userId: me,
+            type: "match",
+            matchId,
+            otherUserId: other,
+            createdAt: new Date(),
+            seen: false,
+            seenAt: null,
+            read: false,
+          },
+        },
+        { upsert: true }
+      );
+
+      await db.collection("notifications").updateOne(
+        { userId: other, type: "match", matchId },
+        {
+          $setOnInsert: {
+            userId: other,
+            type: "match",
+            matchId,
+            otherUserId: me,
+            createdAt: new Date(),
+            seen: false,
+            seenAt: null,
+            read: false,
+          },
+        },
+        { upsert: true }
+      );
+
+      return res.json({ ok: true, matched: true, matchId: matchId.toString() });
+    } catch (e) {
+      console.error("POST /api/like failed:", e);
+      return res.status(500).json({ ok: false, error: "server_error" });
+    }
+  });
+
+  // -------------------- OTHER ROUTES --------------------
+  app.get("/api/dateideas", async (req, res) => {
+    try {
+      const [cats, topCards, catCards] = await Promise.all([
+        db.collection("date_categories").find({}).sort({ order: 1 }).toArray(),
+        db.collection("date_cards").find({ isTop: true }).sort({ order: 1 }).toArray(),
+        db.collection("date_cards").find({ isTop: false }).sort({ categoryId: 1, order: 1 }).toArray(),
+      ]);
+
+      const topPicks = topCards.map((c) => ({
+        id: c._id,
+        title: c.title,
+        displayTitle: c.displayTitle || c.title,
+        subtitle: c.subtitle || "",
+        detail: c.detail || "",
+        image: c.image || "",
+        meta: c.meta || "",
+        tags: Array.isArray(c.tags) ? c.tags : [],
+      }));
+
+      const categories = cats.map((cat) => {
+        const cards = catCards
+          .filter((c) => String(c.categoryId) === String(cat._id))
+          .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
+          .map((c) => ({
+            id: c._id,
+            title: c.title,
+            displayTitle: c.displayTitle || c.title,
+            detail: c.detail || "",
+            image: c.image || "",
+            meta: c.meta || "",
+            tags: Array.isArray(c.tags) ? c.tags : [],
+          }));
+
+        return { id: cat._id, name: cat.name, desc: cat.desc || "", cards };
+      });
+
+      res.json({ topPicks, categories });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to load date ideas" });
+    }
+  });
+
+  app.get("/api/recipients", async (req, res) => {
+    try {
+      const docs = await db.collection("recipients").find({}).sort({ order: 1 }).toArray();
+      res.json(docs.map((r) => ({ id: r.id, name: r.name, avatar: r.avatar })));
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: "Failed to load recipients" });
+    }
+  });
+
+  // ✅ Notification list
+// ✅ Notification list (FIXED)
+app.get("/api/notifications", requireAuth, async (req, res) => {
+  try {
+    const me = new ObjectId(req.session.userId);
+
+    // 1) notifs авна
+    const notifs = await db.collection("notifications")
+      .find({ userId: me })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .toArray();
+
+    // 2) peerId: match бол otherUserId, dateidea бол fromUserId
+    const peerIdOf = (n) => (n.type === "match" ? n.otherUserId : n.fromUserId);
+
+    // 3) peer profile join хийх ids
+    const otherIds = notifs.map(peerIdOf).filter(Boolean);
+
+    let byId = new Map();
+    if (otherIds.length) {
+      const others = await db.collection("profile")
+        .find({ userId: { $in: otherIds } })
+        .project({ _id: 0, userId: 1, name: 1, avatar: 1, major: 1, gender: 1 })
+        .toArray();
+
+      byId = new Map(others.map((p) => [p.userId.toString(), p]));
+    }
+
+    // 4) items map
+    const items = notifs.map((n) => {
+      const peerId = peerIdOf(n)?.toString?.() || "";
+      const peer = byId.get(peerId);
+
+      const base = {
+        id: n._id.toString(),
+        type: n.type,
+        createdAt: n.createdAt,
+        read: !!n.read,
+        seen: !!n.seen,
+        other: {
+          userId: peerId || null,
+          name: peer?.name || "Unknown",
+          avatar: peer?.avatar || "",
+          major: peer?.major || "",
+          gender: peer?.gender || "",
+        },
+      };
+
+      if (n.type === "match") {
+        return { ...base, matchId: n.matchId?.toString?.() || null };
+      }
+
+      if (n.type === "dateidea") {
+        return {
+          ...base,
+          cardId: n.cardId || null,
+          title: n.title || "",
+          meta: n.meta || "",
+          tags: Array.isArray(n.tags) ? n.tags : [],
+        };
+      }
+
+      return base;
     });
 
-    app.get("/api/me", async (req, res) => {
-        try {
-            if (!req.session.userId) return res.status(401).json({ user: null });
+    res.json({ items });
+  } catch (e) {
+    console.error("GET /api/notifications failed:", e);
+    res.status(500).json({ items: [] });
+  }
+});
 
-            const user = await db
-                .collection("users")
-                .findOne({ _id: new ObjectId(req.session.userId) });
 
-            if (!user) return res.status(401).json({ user: null });
-            res.json({ user: projectSafeUser(user) });
-        } catch (err) {
-            console.error("Me error", err);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
+  app.get("/api/notifications/unread-count", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      const count = await db.collection("notifications").countDocuments({ userId: me, read: false });
+      res.json({ count });
+    } catch (e) {
+      console.error("GET /api/notifications/unread-count failed:", e);
+      res.status(500).json({ count: 0 });
+    }
+  });
 
-    app.post("/api/auth/resend-verification", async (req, res) => {
-        try {
-            const { email } = req.body;
-            if (!email) return res.status(400).json({ error: "Email required" });
+  app.post("/api/notifications/mark-read", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      await db.collection("notifications").updateMany(
+        { userId: me, read: false },
+        { $set: { read: true } }
+      );
+      res.json({ ok: true });
+    } catch (e) {
+      console.error("mark-read failed", e);
+      res.status(500).json({ ok: false });
+    }
+  });
 
-            const user = await db.collection("users").findOne({ email });
-            if (!user) return res.status(400).json({ error: "No such user" });
-            if (user.verified) return res.status(400).json({ error: "Already verified" });
+  app.get("/api/notifications/matches", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      const items = await db.collection("notifications")
+        .find({ userId: me, type: "match", read: false })
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .toArray();
 
-            const verificationToken = crypto.randomBytes(32).toString("hex");
-            const verificationExpires = new Date(Date.now() + 1000 * 60 * 60 * 24);
+      res.json({ items });
+    } catch (e) {
+      res.status(500).json({ items: [] });
+    }
+  });
 
-            await db.collection("users").updateOne(
-                { _id: user._id },
-                { $set: { verificationToken, verificationExpires } }
-            );
+  app.post("/api/notifications/matches/seen", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      await db.collection("notifications").updateMany(
+        { userId: me, type: "match", read: false },
+        { $set: { read: true, readAt: new Date() } }
+      );
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ ok: false });
+    }
+  });
 
-            const base = process.env.APP_BASE_URL || "http://localhost:3000";
-            const verifyUrl =
-                `${base}/api/auth/verify-email?token=${verificationToken}` +
-                `&email=${encodeURIComponent(email)}`;
+  // -------------------- MESSAGES --------------------
+  app.post("/api/messages", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      const { other, text, type } = req.body;
 
-            await transporter.sendMail({
-                from: `"NumDate" <${process.env.SMTP_USER}>`,
-                to: email,
-                subject: "New verification link",
-                text: `Here is your new verification link: ${verifyUrl}`,
-            });
+      if (!ObjectId.isValid(other)) return res.status(400).json({ error: "bad_other" });
+      if (!text || !String(text).trim()) return res.status(400).json({ error: "empty_text" });
 
-            res.json({ ok: true, message: "Verification email sent" });
-        } catch (err) {
-            console.error("Resend verification error", err);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
+      const otherId = new ObjectId(other);
+      const doc = {
+        fromUserId: me,
+        toUserId: otherId,
+        text: String(text),
+        type: type || "text",
+        createdAt: new Date(),
+      };
 
-    app.get("/api/profile", requireAuth, async (req, res) => {
+      await db.collection("messages").insertOne(doc);
+      res.json({ ok: true });
+    } catch (e) {
+      console.error("POST /api/messages failed:", e);
+      res.status(500).json({ error: "server_error" });
+    }
+  });
+
+  app.get("/api/messages", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      const other = String(req.query.other || "");
+      const limit = Math.min(Number(req.query.limit || 200), 500);
+
+      if (!ObjectId.isValid(other)) return res.status(400).json({ error: "bad_other" });
+      const otherId = new ObjectId(other);
+
+      const msgs = await db.collection("messages")
+        .find({
+          $or: [
+            { fromUserId: me, toUserId: otherId },
+            { fromUserId: otherId, toUserId: me },
+          ],
+        })
+        .sort({ createdAt: 1 })
+        .limit(limit)
+        .toArray();
+
+      res.json(msgs);
+    } catch (e) {
+      console.error("GET /api/messages failed:", e);
+      res.status(500).json({ error: "server_error" });
+    }
+  });
+
+app.get("/api/matches", requireAuth, async (req, res) => {
+  try {
+    const me = new ObjectId(req.session.userId);
+
+    const matches = await db.collection("matches")
+      .find({ users: me })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    const otherIds = matches
+      .map((m) => (m.users || []).find((u) => String(u) !== String(me)))
+      .filter(Boolean);
+
+    if (!otherIds.length) return res.json([]);
+
+    const people = await db.collection("profile")
+      .find({ userId: { $in: otherIds } })
+      .project({
+        _id: 0,
+        userId: 1,
+        name: 1,
+        lname: 1,
+        avatar: 1,
+        gender: 1,
+        major: 1,
+        school: 1,
+        year: 1,
+        dob: 1,
+        about: 1,
+        relationshipGoal: 1,
+        loveLanguage: 1,
+        interests: 1,
+        interestedIn: 1,
+      })
+      .toArray();
+
+    const map = new Map(people.map((p) => [String(p.userId), p]));
+    const ordered = otherIds.map((id) => map.get(String(id))).filter(Boolean);
+
+    // ✅ IMPORTANT: userId-г string болгоод буцаана
+    const safe = ordered.map((p) => ({
+      ...p,
+      userId: p.userId?.toString?.() || String(p.userId || ""),
+    }));
+
+    res.json(safe);
+  } catch (e) {
+    console.error("GET /api/matches failed:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.patch("/api/profile", requireAuth, async (req, res) => {
         try {
             const userId = new ObjectId(req.session.userId);
-            const profile = await db
-                .collection("profile")
-                .findOne({ userId }, { projection: { _id: 0 } });
-
-            if (!profile) return res.status(404).json({ error: "Profile not found" });
-
-            res.json({ ...profile, userId: profile.userId.toString() });
-        } catch (err) {
-            console.error("Profile error", err);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
-
-    app.get("/api/profile/:userId", requireAuth, async (req, res) => {
-        try {
-            const otherId = new ObjectId(req.params.userId);
-            const profile = await db
-                .collection("profile")
-                .findOne({ userId: otherId }, { projection: { _id: 0 } });
-
-            if (!profile) return res.status(404).json({ error: "Profile not found" });
-
-            res.json({ ...profile, userId: profile.userId.toString() });
-        } catch (e) {
-            console.error(e);
-            res.status(400).json({ error: "Invalid userId" });
-        }
-    });
-    app.post("/api/othersprofile/select", requireAuth, async (req, res) => {
-        try {
-            const { userId } = req.body || {};
-            if (!userId) return res.status(400).json({ error: "Missing userId" });
-
-            const idStr = String(userId);
-            if (!ObjectId.isValid(idStr)) return res.status(400).json({ error: "Invalid userId" });
-
-            req.session.viewingUserId = idStr;
-            await new Promise((resolve, reject) =>
-                req.session.save((err) => (err ? reject(err) : resolve()))
-            );
-
-            res.json({ ok: true });
-        } catch (e) {
-            console.error("POST /api/othersprofile/select failed:", e);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
-    app.get("/api/othersprofile", requireAuth, async (req, res) => {
-        try {
-            const idStr = String(req.session.viewingUserId || "");
-            if (!idStr) return res.status(400).json({ error: "No selected profile" });
-            if (!ObjectId.isValid(idStr)) return res.status(400).json({ error: "Invalid selected profile" });
-
-            const otherId = new ObjectId(idStr);
-
-            const profile = await db.collection("profile").findOne(
-                { userId: otherId },
-                { projection: { _id: 0 } }
-            );
-
-            if (!profile) return res.status(404).json({ error: "Profile not found" });
-
-            res.json({ ...profile, userId: profile.userId.toString() });
-        } catch (e) {
-            console.error("GET /api/othersprofile failed:", e);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
-    app.get("/api/profiles", async (req, res) => {
-        try {
-            const profiles = await db
-                .collection("profile")
-                .find({})
-                .project({
-                    _id: 0,
-                    userId: 1,
-                    name: 1,
-                    age: 1,
-                    avatar: 1,
-                    major: 1,
-                    school: 1,
-                    year: 1,
-                    bio: 1,
-                    about: 1,
-                    relationshipGoal: 1,
-                    loveLanguage: 1,
-                    interests: 1,
-                })
-                .toArray();
-
-            const formatted = profiles.map((p) => ({
-                ...p,
-                userId: p.userId?.toString?.() || p.userId,
-                image: p.avatar || "img/default-profile.jpg",
-            }));
-
-            res.json(formatted);
-        } catch (e) {
-            console.error(e);
-            res.status(500).json({ error: "Database error" });
-        }
-    });
-    app.post("/api/swipes", requireAuth, async (req, res) => {
-        try {
-            const { action, targetUserId, targetName, at } = req.body;
-
-            if (!action || !["like", "pass"].includes(action)) {
-                return res.status(400).json({ error: "Invalid action" });
+            const { set = {}, unset = {} } = req.body;
+ 
+            if (Object.prototype.hasOwnProperty.call(set, "interests")) {
+            const x = set.interests;
+ 
+            if (!x || typeof x !== "object" || Array.isArray(x)) {
+                return res.status(400).json({ error: "interests_bad_type" });
             }
-            if (!targetUserId) {
-                return res.status(400).json({ error: "Missing targetUserId" });
+ 
+            const filledCount = Object.keys(x).filter(k => String(x[k] ?? "").trim()).length;
+            if (filledCount < 3) {
+                return res.status(400).json({ error: "interests_min_3" });
             }
-
-            const fromUserIdObj = new ObjectId(req.session.userId);
-            const targetStr = String(targetUserId);
-
-            const doc = {
-                fromUserId: fromUserIdObj,
-                action,
-                targetName: targetName || null,
-                at: at ? new Date(at) : new Date(),
-                targetUserIdObj: ObjectId.isValid(targetStr) ? new ObjectId(targetStr) : null,
-                targetUserIdStr: ObjectId.isValid(targetStr) ? null : targetStr,
-            };
-
-            await db.collection("swipes").insertOne(doc);
+            }
+ 
+           
+            if (Object.prototype.hasOwnProperty.call(unset, "interests")) {
+            return res.status(400).json({ error: "interests_required" });
+            }
+ 
+            const update = { $set: { ...set, updatedAt: new Date() } };
+            if (unset && Object.keys(unset).length) update.$unset = unset;
+ 
+            await db.collection("profile").updateOne({ userId }, update);
             res.json({ ok: true });
-        } catch (err) {
-            console.error("POST /api/swipes error:", err);
-            res.status(500).json({ error: "Server error" });
-        }
-    });
-
-    app.get("/api/swipes/me", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const docs = await db
-                .collection("swipes")
-                .find({ fromUserId: me })
-                .project({ _id: 0, action: 1, targetUserIdObj: 1, targetUserIdStr: 1, at: 1 })
-                .sort({ at: -1 })
-                .limit(200)
-                .toArray();
-
-            res.json({
-                items: docs.map((d) => ({
-                    action: d.action,
-                    targetUserId: d.targetUserIdObj?.toString?.() || d.targetUserIdStr || null,
-                    at: d.at,
-                })),
-            });
-        } catch (e) {
-            console.error("GET /api/swipes/me failed:", e);
-            res.status(500).json({ items: [] });
-        }
-    });
-    app.get("/api/likes/me", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const docs = await db
-                .collection("likes")
-                .find({ fromUserId: me })
-                .project({ _id: 0, toUserId: 1 })
-                .toArray();
-
-            res.json({ ids: docs.map((d) => d.toUserId.toString()) });
-        } catch (e) {
-            console.error("GET /api/likes/me failed:", e);
-            res.status(500).json({ ids: [] });
-        }
-    });
-    app.post("/api/like", requireAuth, async (req, res) => {
-        try {
-            const meStr = String(req.session.userId || "");
-            const toStr = String(req.body?.toUserId || "");
-
-            if (!ObjectId.isValid(meStr)) return res.status(401).json({ ok: false, error: "not_logged_in" });
-            if (!ObjectId.isValid(toStr)) return res.status(400).json({ ok: false, error: "bad_toUserId" });
-
-            const me = new ObjectId(meStr);
-            const other = new ObjectId(toStr);
-
-            await db.collection("likes").updateOne(
-                { fromUserId: me, toUserId: other },
-                { $setOnInsert: { fromUserId: me, toUserId: other, createdAt: new Date() } },
-                { upsert: true }
-            );
-            const reverse = await db.collection("likes").findOne({ fromUserId: other, toUserId: me });
-            if (!reverse) return res.json({ ok: true, matched: false });
-
-            const users = [me, other].sort((a, b) => a.toString().localeCompare(b.toString()));
-            await db.collection("matches").updateOne(
-                { users },
-                { $setOnInsert: { users, createdAt: new Date() } },
-                { upsert: true }
-            );
-
-            const matchDoc = await db.collection("matches").findOne({ users }, { projection: { _id: 1 } });
-            const matchId = matchDoc._id;
-            await db.collection("notifications").updateOne(
-                { userId: me, type: "match", matchId },
-                {
-                    $setOnInsert: {
-                        userId: me,
-                        type: "match",
-                        matchId,
-                        otherUserId: other,
-                        createdAt: new Date(),
-                        seen: false,
-                        seenAt: null,
-                        read: false,
-                    },
-                },
-                { upsert: true }
-            );
-
-            await db.collection("notifications").updateOne(
-                { userId: other, type: "match", matchId },
-                {
-                    $setOnInsert: {
-                        userId: other,
-                        type: "match",
-                        matchId,
-                        otherUserId: me,
-                        createdAt: new Date(),
-                        seen: false,
-                        seenAt: null,
-                        read: false,
-                    },
-                },
-                { upsert: true }
-            );
-
-            return res.json({ ok: true, matched: true, matchId: matchId.toString() });
-        } catch (e) {
-            console.error("POST /api/like failed:", e);
-            return res.status(500).json({ ok: false, error: "server_error" });
-        }
-    });
-    app.get("/api/dateideas", async (req, res) => {
-        try {
-            const [cats, topCards, catCards] = await Promise.all([
-                db.collection("date_categories").find({}).sort({ order: 1 }).toArray(),
-                db.collection("date_cards").find({ isTop: true }).sort({ order: 1 }).toArray(),
-                db.collection("date_cards").find({ isTop: false }).sort({ categoryId: 1, order: 1 }).toArray(),
-            ]);
-
-            const topPicks = topCards.map((c) => ({
-                id: c._id,
-                title: c.title,
-                displayTitle: c.displayTitle || c.title,
-                subtitle: c.subtitle || "",
-                detail: c.detail || "",
-                image: c.image || "",
-                meta: c.meta || "",
-                tags: Array.isArray(c.tags) ? c.tags : [],
-            }));
-
-            const categories = cats.map((cat) => {
-                const cards = catCards
-                    .filter((c) => String(c.categoryId) === String(cat._id))
-                    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
-                    .map((c) => ({
-                        id: c._id,
-                        title: c.title,
-                        displayTitle: c.displayTitle || c.title,
-                        detail: c.detail || "",
-                        image: c.image || "",
-                        meta: c.meta || "",
-                        tags: Array.isArray(c.tags) ? c.tags : [],
-                    }));
-
-                return { id: cat._id, name: cat.name, desc: cat.desc || "", cards };
-            });
-
-            res.json({ topPicks, categories });
         } catch (e) {
             console.error(e);
-            res.status(500).json({ error: "Failed to load date ideas" });
-        }
-    });
-
-    app.get("/api/recipients", async (req, res) => {
-        try {
-            const docs = await db.collection("recipients").find({}).sort({ order: 1 }).toArray();
-            res.json(docs.map((r) => ({ id: r.id, name: r.name, avatar: r.avatar })));
-        } catch (e) {
-            console.error(e);
-            res.status(500).json({ error: "Failed to load recipients" });
-        }
-    });
-    app.get("/api/notifications", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const notifs = await db.collection("notifications")
-                .find({ userId: me })
-                .sort({ createdAt: -1 })
-                .limit(50)
-                .toArray();
-            const peerIdOf = (n) => (n.type === "match" ? n.otherUserId : n.fromUserId);
-            const otherIds = notifs.map(peerIdOf).filter(Boolean);
-
-            let byId = new Map();
-            if (otherIds.length) {
-                const others = await db.collection("profile")
-                    .find({ userId: { $in: otherIds } })
-                    .project({ _id: 0, userId: 1, name: 1, avatar: 1, major: 1, gender: 1 })
-                    .toArray();
-
-                byId = new Map(others.map((p) => [p.userId.toString(), p]));
-            }
-            const items = notifs.map((n) => {
-                const peerId = peerIdOf(n)?.toString?.() || "";
-                const peer = byId.get(peerId);
-
-                const base = {
-                    id: n._id.toString(),
-                    type: n.type,
-                    createdAt: n.createdAt,
-                    read: !!n.read,
-                    seen: !!n.seen,
-                    other: {
-                        userId: peerId || null,
-                        name: peer?.name || "Unknown",
-                        avatar: peer?.avatar || "",
-                        major: peer?.major || "",
-                        gender: peer?.gender || "",
-                    },
-                };
-
-                if (n.type === "match") {
-                    return { ...base, matchId: n.matchId?.toString?.() || null };
-                }
-
-                if (n.type === "dateidea") {
-                    return {
-                        ...base,
-                        cardId: n.cardId || null,
-                        title: n.title || "",
-                        meta: n.meta || "",
-                        tags: Array.isArray(n.tags) ? n.tags : [],
-                    };
-                }
-
-                return base;
-            });
-
-            res.json({ items });
-        } catch (e) {
-            console.error("GET /api/notifications failed:", e);
-            res.status(500).json({ items: [] });
-        }
-    });
-
-    app.get("/api/notifications/unread-count", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const count = await db.collection("notifications").countDocuments({ userId: me, read: false });
-            res.json({ count });
-        } catch (e) {
-            console.error("GET /api/notifications/unread-count failed:", e);
-            res.status(500).json({ count: 0 });
-        }
-    });
-
-    app.post("/api/notifications/mark-read", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            await db.collection("notifications").updateMany(
-                { userId: me, read: false },
-                { $set: { read: true } }
-            );
-            res.json({ ok: true });
-        } catch (e) {
-            console.error("mark-read failed", e);
-            res.status(500).json({ ok: false });
-        }
-    });
-
-    app.get("/api/notifications/matches", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const items = await db.collection("notifications")
-                .find({ userId: me, type: "match", read: false })
-                .sort({ createdAt: -1 })
-                .limit(50)
-                .toArray();
-
-            res.json({ items });
-        } catch (e) {
-            res.status(500).json({ items: [] });
-        }
-    });
-
-    app.post("/api/notifications/matches/seen", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            await db.collection("notifications").updateMany(
-                { userId: me, type: "match", read: false },
-                { $set: { read: true, readAt: new Date() } }
-            );
-            res.json({ ok: true });
-        } catch (e) {
-            res.status(500).json({ ok: false });
-        }
-    });
-    app.post("/api/messages", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const { other, text, type } = req.body;
-
-            if (!ObjectId.isValid(other)) return res.status(400).json({ error: "bad_other" });
-            if (!text || !String(text).trim()) return res.status(400).json({ error: "empty_text" });
-
-            const otherId = new ObjectId(other);
-            const doc = {
-                fromUserId: me,
-                toUserId: otherId,
-                text: String(text),
-                type: type || "text",
-                createdAt: new Date(),
-            };
-
-            await db.collection("messages").insertOne(doc);
-            res.json({ ok: true });
-        } catch (e) {
-            console.error("POST /api/messages failed:", e);
             res.status(500).json({ error: "server_error" });
         }
     });
+ 
+ 
+  app.post("/api/upload/image", requireAuth, upload.single("image"), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: "Файл ирсэнгүй." });
 
-    app.get("/api/messages", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const other = String(req.query.other || "");
-            const limit = Math.min(Number(req.query.limit || 200), 500);
+      const { type, index } = req.body;
+      const url = `/img/uploads/${req.file.filename}`;
+      const userId = new ObjectId(req.session.userId);
 
-            if (!ObjectId.isValid(other)) return res.status(400).json({ error: "bad_other" });
-            const otherId = new ObjectId(other);
+      if (type === "avatar") {
+        await db.collection("profile").updateOne(
+          { userId },
+          { $set: { avatar: url, updatedAt: new Date() } }
+        );
+      } else if (type === "gallery") {
+        const idx = Number(index);
+        if (!Number.isInteger(idx) || idx < 0 || idx > 3) {
+          return res.status(400).json({ error: "index буруу (0-3)" });
+        }class DateIdea extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
 
-            const msgs = await db.collection("messages")
-                .find({
-                    $or: [
-                        { fromUserId: me, toUserId: otherId },
-                        { fromUserId: otherId, toUserId: me },
-                    ],
-                })
-                .sort({ createdAt: 1 })
-                .limit(limit)
-                .toArray();
+    this.handleCardClick = this.handleCardClick.bind(this);
 
-            res.json(msgs);
-        } catch (e) {
-            console.error("GET /api/messages failed:", e);
-            res.status(500).json({ error: "server_error" });
-        }
+    this.closeModal = this.closeModal.bind(this);
+    this.handleModalKeydown = this.handleModalKeydown.bind(this);
+    this.handleSendClick = this.handleSendClick.bind(this);
+
+    this.topPicks = [];
+    this.categories = [];
+    this.cardById = new Map();
+
+    
+    this.matches = []; 
+    this.recipientButtons = null;
+  }
+
+  connectedCallback() {
+    (async () => {
+      await Promise.all([this.loadDateIdeas(), this.loadMatches()]);
+      this.render();
+      this.initCardSelection();
+      this.initModal();
+    })();
+  }
+
+  disconnectedCallback() {
+    this.teardownCardSelection();
+    this.teardownModal();
+  }
+
+  /* =========================
+     LOAD DATE IDEAS
+     ========================= */
+  async loadDateIdeas() {
+    try {
+      const res = await fetch("/api/dateideas");
+      if (!res.ok) throw new Error(`HTTP ${res.status} on /api/dateideas`);
+
+      const data = await res.json();
+      this.topPicks = Array.isArray(data.topPicks) ? data.topPicks : [];
+      this.categories = Array.isArray(data.categories) ? data.categories : [];
+
+      this.buildCardIndex();
+    } catch (err) {
+      console.error("Failed to load date ideas:", err);
+      this.topPicks = [];
+      this.categories = [];
+      this.cardById = new Map();
+    }
+  }
+
+  buildCardIndex() {
+    this.cardById = new Map();
+
+    this.topPicks.forEach((c) => {
+      if (!c?.id) return;
+      this.cardById.set(String(c.id), {
+        id: String(c.id),
+        source: "top",
+        title: c.title || c.displayTitle || "",
+        displayTitle: c.displayTitle || c.title || "",
+        subtitle: c.subtitle || "",
+        detail: c.detail || "",
+        image: c.image || "",
+        meta: c.meta || "",
+        tags: Array.isArray(c.tags) ? c.tags : [],
+      });
     });
 
-    app.get("/api/matches", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-
-            const matches = await db.collection("matches")
-                .find({ users: me })
-                .sort({ createdAt: -1 })
-                .toArray();
-
-            const otherIds = matches
-                .map((m) => (m.users || []).find((u) => String(u) !== String(me)))
-                .filter(Boolean);
-
-            if (!otherIds.length) return res.json([]);
-
-            const people = await db.collection("profile")
-                .find({ userId: { $in: otherIds } })
-                .project({
-                    _id: 0,
-                    userId: 1,
-                    name: 1,
-                    lname: 1,
-                    avatar: 1,
-                    gender: 1,
-                    major: 1,
-                    school: 1,
-                    year: 1,
-                    dob: 1,
-                    about: 1,
-                    relationshipGoal: 1,
-                    loveLanguage: 1,
-                    interests: 1,
-                    interestedIn: 1,
-                })
-                .toArray();
-
-            const map = new Map(people.map((p) => [String(p.userId), p]));
-            const ordered = otherIds.map((id) => map.get(String(id))).filter(Boolean);
-            const safe = ordered.map((p) => ({
-                ...p,
-                userId: p.userId?.toString?.() || String(p.userId || ""),
-            }));
-
-            res.json(safe);
-        } catch (e) {
-            console.error("GET /api/matches failed:", e);
-            res.status(500).json({ error: "Server error" });
-        }
+    this.categories.forEach((cat) => {
+      const catId = String(cat?.id ?? "");
+      const cards = Array.isArray(cat?.cards) ? cat.cards : [];
+      cards.forEach((c) => {
+        if (!c?.id) return;
+        this.cardById.set(String(c.id), {
+          id: String(c.id),
+          source: "category",
+          categoryId: catId,
+          title: c.title || c.displayTitle || "",
+          displayTitle: c.displayTitle || c.title || "",
+          detail: c.detail || "",
+          image: c.image || "",
+          meta: c.meta || "",
+          tags: Array.isArray(c.tags) ? c.tags : [],
+        });
+      });
     });
-    app.post("/api/upload/image", requireAuth, upload.single("image"), async (req, res) => {
-        try {
-            if (!req.file) return res.status(400).json({ error: "Файл ирсэнгүй." });
+  }
 
-            const { type, index } = req.body;
-            const url = `/img/uploads/${req.file.filename}`;
-            const userId = new ObjectId(req.session.userId);
+ 
+  async loadMatches() {
+    try {
+    
+      const res = await fetch("/api/matches/me", { credentials: "include" });
+      if (!res.ok) throw new Error(`HTTP ${res.status} on /api/matches/me`);
 
-            if (type === "avatar") {
-                await db.collection("profile").updateOne(
-                    { userId },
-                    { $set: { avatar: url, updatedAt: new Date() } }
-                );
-            } else if (type === "gallery") {
-                const idx = Number(index);
-                if (!Number.isInteger(idx) || idx < 0 || idx > 3) {
-                    return res.status(400).json({ error: "index буруу (0-3)" });
-                } class DateIdea extends HTMLElement {
-                    constructor() {
-                        super();
-                        this.attachShadow({ mode: "open" });
+      const data = await res.json();
 
-                        this.handleCardClick = this.handleCardClick.bind(this);
+ 
+      const list = Array.isArray(data) ? data : Array.isArray(data?.matches) ? data.matches : [];
 
-                        this.closeModal = this.closeModal.bind(this);
-                        this.handleModalKeydown = this.handleModalKeydown.bind(this);
-                        this.handleSendClick = this.handleSendClick.bind(this);
-
-                        this.topPicks = [];
-                        this.categories = [];
-                        this.cardById = new Map();
-                        this.matches = [];
-                        this.recipientButtons = null;
-                    }
-
-                    connectedCallback() {
-                        (async () => {
-                            await Promise.all([this.loadDateIdeas(), this.loadMatches()]);
-                            this.render();
-                            this.initCardSelection();
-                            this.initModal();
-                        })();
-                    }
-
-                    disconnectedCallback() {
-                        this.teardownCardSelection();
-                        this.teardownModal();
-                    }
-                    async loadDateIdeas() {
-                        try {
-                            const res = await fetch("/api/dateideas");
-                            if (!res.ok) throw new Error(`HTTP ${res.status} on /api/dateideas`);
-
-                            const data = await res.json();
-                            this.topPicks = Array.isArray(data.topPicks) ? data.topPicks : [];
-                            this.categories = Array.isArray(data.categories) ? data.categories : [];
-
-                            this.buildCardIndex();
-                        } catch (err) {
-                            console.error("Failed to load date ideas:", err);
-                            this.topPicks = [];
-                            this.categories = [];
-                            this.cardById = new Map();
-                        }
-                    }
-
-                    buildCardIndex() {
-                        this.cardById = new Map();
-
-                        this.topPicks.forEach((c) => {
-                            if (!c?.id) return;
-                            this.cardById.set(String(c.id), {
-                                id: String(c.id),
-                                source: "top",
-                                title: c.title || c.displayTitle || "",
-                                displayTitle: c.displayTitle || c.title || "",
-                                subtitle: c.subtitle || "",
-                                detail: c.detail || "",
-                                image: c.image || "",
-                                meta: c.meta || "",
-                                tags: Array.isArray(c.tags) ? c.tags : [],
-                            });
-                        });
-
-                        this.categories.forEach((cat) => {
-                            const catId = String(cat?.id ?? "");
-                            const cards = Array.isArray(cat?.cards) ? cat.cards : [];
-                            cards.forEach((c) => {
-                                if (!c?.id) return;
-                                this.cardById.set(String(c.id), {
-                                    id: String(c.id),
-                                    source: "category",
-                                    categoryId: catId,
-                                    title: c.title || c.displayTitle || "",
-                                    displayTitle: c.displayTitle || c.title || "",
-                                    detail: c.detail || "",
-                                    image: c.image || "",
-                                    meta: c.meta || "",
-                                    tags: Array.isArray(c.tags) ? c.tags : [],
-                                });
-                            });
-                        });
-                    }
-                    async loadMatches() {
-                        try {
-                            const res = await fetch("/api/matches/me", { credentials: "include" });
-                            if (!res.ok) throw new Error(`HTTP ${res.status} on /api/matches/me`);
-
-                            const data = await res.json();
+      this.matches = list
+        .map((m) => ({
+          userId: String(m.userId || m.id || m._id || ""),
+          name: m.name || m.fullName || m.username || "",
+          avatar: m.avatar || m.photo || m.image || "",
+        }))
+        .filter((x) => x.userId);
+    } catch (err) {
+      console.error("Failed to load matches:", err);
+      this.matches = [];
+    }
+  }
 
 
-                            const list = Array.isArray(data) ? data : Array.isArray(data?.matches) ? data.matches : [];
+  categoryIconSvg(catId) {
+ 
+    const id = String(catId || "").toLowerCase();
 
-                            this.matches = list
-                                .map((m) => ({
-                                    userId: String(m.userId || m.id || m._id || ""),
-                                    name: m.name || m.fullName || m.username || "",
-                                    avatar: m.avatar || m.photo || m.image || "",
-                                }))
-                                .filter((x) => x.userId);
-                        } catch (err) {
-                            console.error("Failed to load matches:", err);
-                            this.matches = [];
-                        }
-                    }
-                    categoryIconSvg(catId) {
+    if (id === "coffee") {
+      return `...`; 
+    }
 
-                        const id = String(catId || "").toLowerCase();
+    if (id === "sport" || id === "sporty" || id === "extreme") {
+      return `...`;
+    }
 
-                        if (id === "coffee") {
-                            return `...`;
-                        }
+    if (id === "food" || id === "restaurant" || id === "restaurants") {
+      return `...`;
+    }
 
-                        if (id === "sport" || id === "sporty" || id === "extreme") {
-                            return `...`;
-                        }
+    return `...`;
+  }
 
-                        if (id === "food" || id === "restaurant" || id === "restaurants") {
-                            return `...`;
-                        }
+  renderTopCardsHtml() {
+    if (!this.topPicks.length) {
+      return `<div style="padding:10px;color:#64748b;font-size:13px;">No top picks found.</div>`;
+    }
 
-                        return `...`;
-                    }
+    return this.topPicks
+      .map((c) => {
+        const id = String(c.id || "");
+        const title = c.title || c.displayTitle || "";
+        const displayTitle = c.displayTitle || c.title || "";
+        const subtitle = c.subtitle || "";
+        const detail = c.detail || "";
+        const image = c.image || "";
 
-                    renderTopCardsHtml() {
-                        if (!this.topPicks.length) {
-                            return `<div style="padding:10px;color:#64748b;font-size:13px;">No top picks found.</div>`;
-                        }
+        return `
+          <div
+            class="top-card"
+            data-date-card
+            data-id="${id}"
+            data-title="${this.escapeAttr(title)}"
+            data-detail="${this.escapeAttr(detail)}"
+            role="button"
+            tabindex="0"
+            aria-pressed="false"
+          >
+            <div class="top-card__image">
+              <img src="${this.escapeAttr(image)}" alt="${this.escapeAttr(title)}">
+            </div>
+            <div class="top-card__content">
+              <div class="top-card__title" data-card-title>${this.escapeHtml(displayTitle)}</div>
+              <div class="top-card__subtitle">${this.escapeHtml(subtitle)}</div>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  }
 
-                        return this.topPicks
-                            .map((c) => {
-                                const id = String(c.id || "");
-                                const title = c.title || c.displayTitle || "";
-                                const displayTitle = c.displayTitle || c.title || "";
-                                const subtitle = c.subtitle || "";
-                                const detail = c.detail || "";
-                                const image = c.image || "";
+  renderCategoriesHtml() {
+    if (!this.categories.length) {
+      return `<div style="padding:10px;color:#64748b;font-size:13px;">No categories found.</div>`;
+    }
 
-                                return `
-                                <div
-                                    class="top-card"
-                                    data-date-card
-                                    data-id="${id}"
-                                    data-title="${this.escapeAttr(title)}"
-                                    data-detail="${this.escapeAttr(detail)}"
-                                    role="button"
-                                    tabindex="0"
-                                    aria-pressed="false"
-                                >
-                                    <div class="top-card__image">
-                                    <img src="${this.escapeAttr(image)}" alt="${this.escapeAttr(title)}">
-                                    </div>
-                                    <div class="top-card__content">
-                                    <div class="top-card__title" data-card-title>${this.escapeHtml(displayTitle)}</div>
-                                    <div class="top-card__subtitle">${this.escapeHtml(subtitle)}</div>
-                                    </div>
-                                </div>
-                                `;
-                            })
-                            .join("");
-                    }
-                    renderCategoriesHtml() {
-                        if (!this.categories.length) {
-                            return `<div style="padding:10px;color:#64748b;font-size:13px;">No categories found.</div>`;
-                        }
+    return this.categories
+      .map((cat) => {
+        const catId = String(cat.id || "");
+        const catName = cat.name || "";
+        const catDesc = cat.desc || "";
+        const cards = Array.isArray(cat.cards) ? cat.cards : [];
 
-                        return this.categories
-                            .map((cat) => {
-                                const catId = String(cat.id || "");
-                                const catName = cat.name || "";
-                                const catDesc = cat.desc || "";
-                                const cards = Array.isArray(cat.cards) ? cat.cards : [];
+        return `
+          <div class="category-row">
+            <div class="category-badge">
+              ${this.categoryIconSvg(catId)}
+            </div>
 
-                                return `
-                                    <div class="category-row">
-                                        <div class="category-badge">
-                                        ${this.categoryIconSvg(catId)}
-                                        </div>
+            <div class="category-text">
+              <h3>${this.escapeHtml(catName)}</h3>
+              <p>${this.escapeHtml(catDesc)}</p>
+            </div>
 
-                                        <div class="category-text">
-                                        <h3>${this.escapeHtml(catName)}</h3>
-                                        <p>${this.escapeHtml(catDesc)}</p>
-                                        </div>
+            <div class="category-cards">
+              ${
+                cards.length
+                  ? cards
+                      .map((c) => {
+                        const id = String(c.id || "");
+                        const title = c.title || c.displayTitle || "";
+                        const displayTitle = c.displayTitle || c.title || "";
+                        const detail = c.detail || "";
+                        const meta = c.meta || "";
+                        const tags = Array.isArray(c.tags) ? c.tags : [];
+                        const image = c.image || "";
 
-                                        <div class="category-cards">
-                                        ${cards.length
-                                        ? cards
-                                            .map((c) => {
-                                                const id = String(c.id || "");
-                                                const title = c.title || c.displayTitle || "";
-                                                const displayTitle = c.displayTitle || c.title || "";
-                                                const detail = c.detail || "";
-                                                const meta = c.meta || "";
-                                                const tags = Array.isArray(c.tags) ? c.tags : [];
-                                                const image = c.image || "";
+                        return `
+                          <article
+                            class="date-card"
+                            data-date-card
+                            data-id="${id}"
+                            data-title="${this.escapeAttr(title)}"
+                            data-detail="${this.escapeAttr(detail)}"
+                            role="button"
+                            tabindex="0"
+                            aria-pressed="false"
+                            style="--card-image: url('${this.escapeAttr(image)}')"
+                          >
+                            <div class="date-card__content">
+                              <div class="date-card__title" data-card-title>${this.escapeHtml(displayTitle)}</div>
+                              <div class="date-card__meta">${this.escapeHtml(meta)}</div>
+                              <div class="date-card__tags">
+                                ${tags
+                                  .map((t) => `<span class="date-card__tag">${this.escapeHtml(String(t))}</span>`)
+                                  .join("")}
+                              </div>
+                            </div>
+                          </article>
+                        `;
+                      })
+                      .join("")
+                  : `<div style="color:#94a3b8;font-size:13px;">No cards</div>`
+              }
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  }
 
-                                                return `
-                                                <article
-                                                    class="date-card"
-                                                    data-date-card
-                                                    data-id="${id}"
-                                                    data-title="${this.escapeAttr(title)}"
-                                                    data-detail="${this.escapeAttr(detail)}"
-                                                    role="button"
-                                                    tabindex="0"
-                                                    aria-pressed="false"
-                                                    style="--card-image: url('${this.escapeAttr(image)}')"
-                                                >
-                                                    <div class="date-card__content">
-                                                    <div class="date-card__title" data-card-title>${this.escapeHtml(displayTitle)}</div>
-                                                    <div class="date-card__meta">${this.escapeHtml(meta)}</div>
-                                                    <div class="date-card__tags">
-                                                        ${tags
-                                                        .map((t) => `<span class="date-card__tag">${this.escapeHtml(String(t))}</span>`)
-                                                        .join("")}
-                                                    </div>
-                                                    </div>
-                                                </article>
-                                                `;
-                                            })
-                                            .join("")
-                                        : `<div style="color:#94a3b8;font-size:13px;">No cards</div>`
-                                    }
-                                    </div>
-                                </div>
-                                `;
-                            })
-                            .join("");
-                    }
-                    renderRecipientsHtml() {
-                        if (!this.matches.length) {
-                            return `<div style="color:#94a3b8;font-size:13px;">Match болсон хүн алга байна.</div>`;
-                        }
 
-                        return this.matches
-                            .map((m) => {
-                                const id = this.escapeAttr(m.userId);
-                                const name = this.escapeHtml(m.name || "Unknown");
-                                const avatar = m.avatar ? this.escapeAttr(m.avatar) : "";
+  renderRecipientsHtml() {
+    if (!this.matches.length) {
+      return `<div style="color:#94a3b8;font-size:13px;">Match болсон хүн алга байна.</div>`;
+    }
 
-                                const avatarHtml = avatar
-                                    ? `<img src="${avatar}" alt="${name}" />`
-                                    : `<span>${name.slice(0, 1).toUpperCase()}</span>`;
+    return this.matches
+      .map((m) => {
+        const id = this.escapeAttr(m.userId);
+        const name = this.escapeHtml(m.name || "Unknown");
+        const avatar = m.avatar ? this.escapeAttr(m.avatar) : "";
 
-                                return `
-                                <button type="button" class="recipient-chip" data-recipient-id="${id}">
-                                    <span class="recipient-chip__avatar">${avatarHtml}</span>
-                                    <span class="recipient-chip__name recipient-name">${name}</span>
-                                </button>
-                                `;
-                            })
-                            .join("");
-                    }
-                    escapeHtml(str) {
-                        return String(str ?? "")
-                            .replaceAll("&", "&amp;")
-                            .replaceAll("<", "&lt;")
-                            .replaceAll(">", "&gt;")
-                            .replaceAll('"', "&quot;")
-                            .replaceAll("'", "&#039;");
-                    }
+        const avatarHtml = avatar
+          ? `<img src="${avatar}" alt="${name}" />`
+          : `<span>${name.slice(0, 1).toUpperCase()}</span>`;
 
-                    escapeAttr(str) {
-                        return this.escapeHtml(str).replaceAll("\n", " ").replaceAll("\r", " ");
-                    }
+        return `
+          <button type="button" class="recipient-chip" data-recipient-id="${id}">
+            <span class="recipient-chip__avatar">${avatarHtml}</span>
+            <span class="recipient-chip__name recipient-name">${name}</span>
+          </button>
+        `;
+      })
+      .join("");
+  }
 
-                    render() {
-                        this.shadowRoot.innerHTML = `
+  escapeHtml(str) {
+    return String(str ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  escapeAttr(str) {
+    return this.escapeHtml(str).replaceAll("\n", " ").replaceAll("\r", " ");
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
       <style>
+      
       </style>
 
       <section class="date-layout" aria-label="Date ideas picker">
@@ -1190,6 +1303,8 @@ async function start() {
 
             <div class="date-modal__recipients">
               <div class="date-modal__recipients-label">Хэнд илгээх вэ?</div>
+
+              <!-- ✅ dynamic recipients -->
               <div class="date-modal__recipients-list" id="date-modal-recipients">
                 ${this.renderRecipientsHtml()}
               </div>
@@ -1208,427 +1323,447 @@ async function start() {
         </div>
       </section>
     `;
-                    }
-                    initCardSelection() {
-                        this.teardownCardSelection();
+  }
 
-                        this.allCards = this.shadowRoot.querySelectorAll("[data-date-card]");
-                        this.infoEl = this.shadowRoot.getElementById("chosen-message");
+  //CARD SELECTION
 
-                        if (!this.allCards.length || !this.infoEl) return;
+  initCardSelection() {
+    this.teardownCardSelection();
 
-                        this.infoEl.hidden = true;
+    this.allCards = this.shadowRoot.querySelectorAll("[data-date-card]");
+    this.infoEl = this.shadowRoot.getElementById("chosen-message");
 
-                        this.allCards.forEach((card) => {
-                            card.addEventListener("click", this.handleCardClick);
+    if (!this.allCards.length || !this.infoEl) return;
 
-                            const keyHandler = (evt) => {
-                                if (evt.key === "Enter" || evt.key === " ") {
-                                    evt.preventDefault();
-                                    card.click();
-                                }
-                            };
-                            card._dateKeyHandler = keyHandler;
-                            card.addEventListener("keydown", keyHandler);
-                        });
-                    }
+    this.infoEl.hidden = true;
 
-                    teardownCardSelection() {
-                        if (!this.allCards) return;
+    this.allCards.forEach((card) => {
+      card.addEventListener("click", this.handleCardClick);
 
-                        this.allCards.forEach((card) => {
-                            card.removeEventListener("click", this.handleCardClick);
-                            if (card._dateKeyHandler) {
-                                card.removeEventListener("keydown", card._dateKeyHandler);
-                                delete card._dateKeyHandler;
-                            }
-                        });
-
-                        this.allCards = null;
-                    }
-
-                    handleCardClick(evt) {
-                        const cardEl = evt.currentTarget;
-                        const id = cardEl.getAttribute("data-id");
-                        const data = this.cardById?.get(String(id || ""));
-
-                        const titleFallback =
-                            cardEl.getAttribute("data-title") ||
-                            cardEl.querySelector("[data-card-title]")?.textContent?.trim() ||
-                            "this idea";
-
-                        const title = data?.title || titleFallback;
-
-                        if (this.allCards) {
-                            this.allCards.forEach((c) => {
-                                c.classList.remove("date-card--selected", "top-card--selected");
-                                c.setAttribute("aria-pressed", "false");
-                            });
-                        }
-
-                        if (cardEl.classList.contains("top-card")) {
-                            cardEl.classList.add("top-card--selected");
-                        } else {
-                            cardEl.classList.add("date-card--selected");
-                        }
-                        cardEl.setAttribute("aria-pressed", "true");
-
-                        if (this.infoEl) {
-                            this.infoEl.textContent = "You chose: " + title;
-                            this.infoEl.hidden = false;
-                        }
-
-                        this.dispatchEvent(
-                            new CustomEvent("dateidea-select", {
-                                detail: {
-                                    id: data?.id || String(id || ""),
-                                    title,
-                                    source: data?.source || (cardEl.classList.contains("top-card") ? "top" : "category"),
-                                },
-                                bubbles: true,
-                                composed: true,
-                            })
-                        );
-
-                        if (data) this.openModalByData(data);
-                        else this.openModal(cardEl, title);
-                    }
-                    initModal() {
-                        this.modalEl = this.shadowRoot.getElementById("date-modal");
-                        if (!this.modalEl) return;
-
-                        this.modalBackdropEl = this.shadowRoot.getElementById("date-modal-backdrop");
-                        this.modalTitleEl = this.shadowRoot.getElementById("date-modal-title");
-                        this.modalBodyEl = this.shadowRoot.getElementById("date-modal-body");
-                        this.modalMetaEl = this.shadowRoot.getElementById("date-modal-meta");
-                        this.modalTagsEl = this.shadowRoot.getElementById("date-modal-tags");
-                        this.modalCloseBtn = this.shadowRoot.querySelector(".date-modal__close");
-                        this.modalSendBtn = this.shadowRoot.getElementById("date-modal-send");
-                        this.modalRecipientsEl = this.shadowRoot.getElementById("date-modal-recipients");
-
-                        this.modalOpen = false;
-                        this.selectedCardForSend = null;
-                        this.selectedRecipient = null;
-
-                        this.modalBackdropEl?.addEventListener("click", this.closeModal);
-                        this.modalCloseBtn?.addEventListener("click", this.closeModal);
-                        this.modalSendBtn?.addEventListener("click", this.handleSendClick);
-                        this.shadowRoot.addEventListener("keydown", this.handleModalKeydown);
-
-                        if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-                        if (this.modalRecipientsEl) {
-                            this.recipientButtons = this.modalRecipientsEl.querySelectorAll(".recipient-chip");
-                            this.recipientButtons.forEach((btn) => {
-                                const handler = () => this.handleRecipientClick(btn);
-                                btn._recipientHandler = handler;
-                                btn.addEventListener("click", handler);
-                            });
-                        }
-                    }
-
-                    teardownModal() {
-                        if (!this.modalEl) return;
-
-                        this.modalBackdropEl?.removeEventListener("click", this.closeModal);
-                        this.modalCloseBtn?.removeEventListener("click", this.closeModal);
-                        this.modalSendBtn?.removeEventListener("click", this.handleSendClick);
-                        this.shadowRoot.removeEventListener("keydown", this.handleModalKeydown);
-
-                        if (this.recipientButtons) {
-                            this.recipientButtons.forEach((btn) => {
-                                if (btn._recipientHandler) {
-                                    btn.removeEventListener("click", btn._recipientHandler);
-                                    delete btn._recipientHandler;
-                                }
-                            });
-                        }
-
-                        this.modalEl = null;
-                        this.modalBackdropEl = null;
-                        this.modalTitleEl = null;
-                        this.modalBodyEl = null;
-                        this.modalMetaEl = null;
-                        this.modalTagsEl = null;
-                        this.modalCloseBtn = null;
-                        this.modalSendBtn = null;
-                        this.modalRecipientsEl = null;
-                        this.recipientButtons = null;
-                        this.selectedRecipient = null;
-                        this.selectedCardForSend = null;
-                    }
-
-                    openModalByData(data) {
-                        if (!this.modalEl) return;
-
-                        this.selectedCardForSend = data;
-
-                        const title = data.title || "Date idea";
-                        const detail = data.detail || "Энэ date idea-г хүмүүст явуулах уу?";
-                        const meta = data.meta || "";
-                        const tags = Array.isArray(data.tags) ? data.tags : [];
-
-                        if (this.modalTitleEl) this.modalTitleEl.textContent = title;
-                        if (this.modalBodyEl) this.modalBodyEl.textContent = detail;
-                        if (this.modalMetaEl) this.modalMetaEl.textContent = meta;
-
-                        if (this.modalTagsEl) {
-                            this.modalTagsEl.innerHTML = "";
-                            tags.forEach((t) => {
-                                const span = document.createElement("span");
-                                span.className = "date-modal__tag";
-                                span.textContent = String(t);
-                                this.modalTagsEl.appendChild(span);
-                            });
-                        }
-
-                        this.selectedRecipient = null;
-                        if (this.recipientButtons) {
-                            this.recipientButtons.forEach((b) => b.classList.remove("recipient-chip--selected"));
-                        }
-                        if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-
-                        this.modalEl.hidden = false;
-                        this.modalOpen = true;
-                        this.modalSendBtn?.focus();
-                    }
-
-                    openModal(card, titleFromClick) {
-                        if (!this.modalEl) return;
-
-                        this.selectedCardForSend = null;
-
-                        const title =
-                            titleFromClick ||
-                            card.getAttribute("data-title") ||
-                            card.querySelector("[data-card-title]")?.textContent?.trim() ||
-                            "Date idea";
-
-                        const detail =
-                            card.getAttribute("data-detail") ||
-                            card.querySelector(".top-card__subtitle")?.textContent?.trim() ||
-                            card.querySelector(".date-card__meta")?.textContent?.trim() ||
-                            "";
-
-                        const meta = card.querySelector(".date-card__meta")?.textContent?.trim() || "";
-                        const tagEls = card.querySelectorAll(".date-card__tag");
-                        const tags = Array.from(tagEls).map((el) => el.textContent.trim()).filter(Boolean);
-
-                        if (this.modalTitleEl) this.modalTitleEl.textContent = title;
-                        if (this.modalBodyEl) this.modalBodyEl.textContent = detail || "Энэ date idea-г хүмүүст явуулах уу?";
-                        if (this.modalMetaEl) this.modalMetaEl.textContent = meta;
-
-                        if (this.modalTagsEl) {
-                            this.modalTagsEl.innerHTML = "";
-                            tags.forEach((t) => {
-                                const span = document.createElement("span");
-                                span.className = "date-modal__tag";
-                                span.textContent = t;
-                                this.modalTagsEl.appendChild(span);
-                            });
-                        }
-
-                        this.selectedRecipient = null;
-                        if (this.recipientButtons) {
-                            this.recipientButtons.forEach((b) => b.classList.remove("recipient-chip--selected"));
-                        }
-                        if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-
-                        this.modalEl.hidden = false;
-                        this.modalOpen = true;
-                        this.modalSendBtn?.focus();
-                    }
-
-                    closeModal() {
-                        if (!this.modalEl) return;
-                        this.modalEl.hidden = true;
-                        this.modalOpen = false;
-                        this.selectedCardForSend = null;
-                        this.selectedRecipient = null;
-                        if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-                    }
-
-                    handleModalKeydown(evt) {
-                        if (evt.key === "Escape" && this.modalOpen) {
-                            evt.stopPropagation();
-                            this.closeModal();
-                        }
-                    }
-
-                    handleRecipientClick(btn) {
-                        this.selectedRecipient = {
-                            id: btn.getAttribute("data-recipient-id"),
-                            name: btn.querySelector(".recipient-name")?.textContent?.trim() || "",
-                            avatar: btn.querySelector("img")?.getAttribute("src") || "",
-                        };
-
-                        if (this.recipientButtons) {
-                            this.recipientButtons.forEach((b) => b.classList.remove("recipient-chip--selected"));
-                        }
-
-                        btn.classList.add("recipient-chip--selected");
-
-                        if (this.modalSendBtn) this.modalSendBtn.disabled = false;
-                    }
-
-                    handleSendClick() {
-                        const data = this.selectedCardForSend;
-
-                        if (!this.selectedRecipient) {
-                            if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-                            return;
-                        }
-                        if (!data) {
-                            this.closeModal();
-                            return;
-                        }
-
-                        this.dispatchEvent(
-                            new CustomEvent("dateidea-send", {
-                                detail: {
-                                    id: data.id,
-                                    title: data.title,
-                                    meta: data.meta || "",
-                                    tags: Array.isArray(data.tags) ? data.tags : [],
-                                    source: data.source,
-                                    recipient: this.selectedRecipient,
-                                },
-                                bubbles: true,
-                                composed: true,
-                            })
-                        );
-
-                        this.closeModal();
-                    }
-                }
-
-                window.customElements.define("com-dateidea", DateIdea);
-                await db.collection("profile").updateOne(
-                    { userId },
-                    { $set: { [`photos.${idx}`]: url, updatedAt: new Date() } }
-                );
-            }
-
-            return res.json({ url });
-        } catch (err) {
-            console.error("Upload error:", err);
-            return res.status(500).json({ error: "Upload дотор алдаа гарлаа." });
+      const keyHandler = (evt) => {
+        if (evt.key === "Enter" || evt.key === " ") {
+          evt.preventDefault();
+          card.click();
         }
+      };
+      card._dateKeyHandler = keyHandler;
+      card.addEventListener("keydown", keyHandler);
     });
-    app.get("/api/matches/:matchId", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-            const matchIdStr = String(req.params.matchId || "");
+  }
 
-            if (!ObjectId.isValid(matchIdStr)) {
-                return res.status(400).json({ error: "bad_matchId" });
-            }
+  teardownCardSelection() {
+    if (!this.allCards) return;
 
-            const matchId = new ObjectId(matchIdStr);
+    this.allCards.forEach((card) => {
+      card.removeEventListener("click", this.handleCardClick);
+      if (card._dateKeyHandler) {
+        card.removeEventListener("keydown", card._dateKeyHandler);
+        delete card._dateKeyHandler;
+      }
+    });
 
-            const m = await db.collection("matches").findOne({ _id: matchId });
-            if (!m) return res.status(404).json({ error: "match_not_found" });
+    this.allCards = null;
+  }
 
-            const inMatch = (m.users || []).some((u) => String(u) === String(me));
-            if (!inMatch) return res.status(403).json({ error: "forbidden" });
+  handleCardClick(evt) {
+    const cardEl = evt.currentTarget;
+    const id = cardEl.getAttribute("data-id");
+    const data = this.cardById?.get(String(id || ""));
 
-            const otherId = (m.users || []).find((u) => String(u) !== String(me));
-            if (!otherId) return res.status(500).json({ error: "bad_match_users" });
+    const titleFallback =
+      cardEl.getAttribute("data-title") ||
+      cardEl.querySelector("[data-card-title]")?.textContent?.trim() ||
+      "this idea";
 
-            const [meP, otherP] = await Promise.all([
-                db.collection("profile").findOne(
-                    { userId: me },
-                    { projection: { _id: 0, userId: 1, name: 1, gender: 1, avatar: 1 } }
-                ),
-                db.collection("profile").findOne(
-                    { userId: otherId },
-                    { projection: { _id: 0, userId: 1, name: 1, gender: 1, avatar: 1 } }
-                ),
-            ]);
+    const title = data?.title || titleFallback;
 
-            return res.json({
-                matchId: matchIdStr,
-                left: {
-                    userId: otherP?.userId?.toString?.() || null,
-                    name: otherP?.name || "Unknown",
-                    gender: otherP?.gender || "",
-                    img: otherP?.avatar || "img/default-profile.jpg",
-                },
-                right: {
-                    userId: meP?.userId?.toString?.() || null,
-                    name: meP?.name || "Me",
-                    gender: meP?.gender || "",
-                    img: meP?.avatar || "img/default-profile.jpg",
-                },
-                createdAt: m.createdAt,
-            });
-        } catch (e) {
-            console.error("GET /api/matches/:matchId failed:", e);
-            res.status(500).json({ error: "server_error" });
+    if (this.allCards) {
+      this.allCards.forEach((c) => {
+        c.classList.remove("date-card--selected", "top-card--selected");
+        c.setAttribute("aria-pressed", "false");
+      });
+    }
+
+    if (cardEl.classList.contains("top-card")) {
+      cardEl.classList.add("top-card--selected");
+    } else {
+      cardEl.classList.add("date-card--selected");
+    }
+    cardEl.setAttribute("aria-pressed", "true");
+
+    if (this.infoEl) {
+      this.infoEl.textContent = "You chose: " + title;
+      this.infoEl.hidden = false;
+    }
+
+    this.dispatchEvent(
+      new CustomEvent("dateidea-select", {
+        detail: {
+          id: data?.id || String(id || ""),
+          title,
+          source: data?.source || (cardEl.classList.contains("top-card") ? "top" : "category"),
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+
+    if (data) this.openModalByData(data);
+    else this.openModal(cardEl, title);
+  }
+
+  //MODAL
+  initModal() {
+    this.modalEl = this.shadowRoot.getElementById("date-modal");
+    if (!this.modalEl) return;
+
+    this.modalBackdropEl = this.shadowRoot.getElementById("date-modal-backdrop");
+    this.modalTitleEl = this.shadowRoot.getElementById("date-modal-title");
+    this.modalBodyEl = this.shadowRoot.getElementById("date-modal-body");
+    this.modalMetaEl = this.shadowRoot.getElementById("date-modal-meta");
+    this.modalTagsEl = this.shadowRoot.getElementById("date-modal-tags");
+    this.modalCloseBtn = this.shadowRoot.querySelector(".date-modal__close");
+    this.modalSendBtn = this.shadowRoot.getElementById("date-modal-send");
+    this.modalRecipientsEl = this.shadowRoot.getElementById("date-modal-recipients");
+
+    this.modalOpen = false;
+    this.selectedCardForSend = null;
+    this.selectedRecipient = null;
+
+    this.modalBackdropEl?.addEventListener("click", this.closeModal);
+    this.modalCloseBtn?.addEventListener("click", this.closeModal);
+    this.modalSendBtn?.addEventListener("click", this.handleSendClick);
+    this.shadowRoot.addEventListener("keydown", this.handleModalKeydown);
+
+    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+
+  
+    if (this.modalRecipientsEl) {
+      this.recipientButtons = this.modalRecipientsEl.querySelectorAll(".recipient-chip");
+      this.recipientButtons.forEach((btn) => {
+        const handler = () => this.handleRecipientClick(btn);
+        btn._recipientHandler = handler;
+        btn.addEventListener("click", handler);
+      });
+    }
+  }
+
+  teardownModal() {
+    if (!this.modalEl) return;
+
+    this.modalBackdropEl?.removeEventListener("click", this.closeModal);
+    this.modalCloseBtn?.removeEventListener("click", this.closeModal);
+    this.modalSendBtn?.removeEventListener("click", this.handleSendClick);
+    this.shadowRoot.removeEventListener("keydown", this.handleModalKeydown);
+
+    if (this.recipientButtons) {
+      this.recipientButtons.forEach((btn) => {
+        if (btn._recipientHandler) {
+          btn.removeEventListener("click", btn._recipientHandler);
+          delete btn._recipientHandler;
         }
-    });
+      });
+    }
+
+    this.modalEl = null;
+    this.modalBackdropEl = null;
+    this.modalTitleEl = null;
+    this.modalBodyEl = null;
+    this.modalMetaEl = null;
+    this.modalTagsEl = null;
+    this.modalCloseBtn = null;
+    this.modalSendBtn = null;
+    this.modalRecipientsEl = null;
+    this.recipientButtons = null;
+    this.selectedRecipient = null;
+    this.selectedCardForSend = null;
+  }
+
+  openModalByData(data) {
+    if (!this.modalEl) return;
+
+    this.selectedCardForSend = data;
+
+    const title = data.title || "Date idea";
+    const detail = data.detail || "Энэ date idea-г хүмүүст явуулах уу?";
+    const meta = data.meta || "";
+    const tags = Array.isArray(data.tags) ? data.tags : [];
+
+    if (this.modalTitleEl) this.modalTitleEl.textContent = title;
+    if (this.modalBodyEl) this.modalBodyEl.textContent = detail;
+    if (this.modalMetaEl) this.modalMetaEl.textContent = meta;
+
+    if (this.modalTagsEl) {
+      this.modalTagsEl.innerHTML = "";
+      tags.forEach((t) => {
+        const span = document.createElement("span");
+        span.className = "date-modal__tag";
+        span.textContent = String(t);
+        this.modalTagsEl.appendChild(span);
+      });
+    }
+
+    this.selectedRecipient = null;
+    if (this.recipientButtons) {
+      this.recipientButtons.forEach((b) => b.classList.remove("recipient-chip--selected"));
+    }
+    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+
+    this.modalEl.hidden = false;
+    this.modalOpen = true;
+    this.modalSendBtn?.focus();
+  }
+
+  openModal(card, titleFromClick) {
+    if (!this.modalEl) return;
+
+    this.selectedCardForSend = null;
+
+    const title =
+      titleFromClick ||
+      card.getAttribute("data-title") ||
+      card.querySelector("[data-card-title]")?.textContent?.trim() ||
+      "Date idea";
+
+    const detail =
+      card.getAttribute("data-detail") ||
+      card.querySelector(".top-card__subtitle")?.textContent?.trim() ||
+      card.querySelector(".date-card__meta")?.textContent?.trim() ||
+      "";
+
+    const meta = card.querySelector(".date-card__meta")?.textContent?.trim() || "";
+    const tagEls = card.querySelectorAll(".date-card__tag");
+    const tags = Array.from(tagEls).map((el) => el.textContent.trim()).filter(Boolean);
+
+    if (this.modalTitleEl) this.modalTitleEl.textContent = title;
+    if (this.modalBodyEl) this.modalBodyEl.textContent = detail || "Энэ date idea-г хүмүүст явуулах уу?";
+    if (this.modalMetaEl) this.modalMetaEl.textContent = meta;
+
+    if (this.modalTagsEl) {
+      this.modalTagsEl.innerHTML = "";
+      tags.forEach((t) => {
+        const span = document.createElement("span");
+        span.className = "date-modal__tag";
+        span.textContent = t;
+        this.modalTagsEl.appendChild(span);
+      });
+    }
+
+    this.selectedRecipient = null;
+    if (this.recipientButtons) {
+      this.recipientButtons.forEach((b) => b.classList.remove("recipient-chip--selected"));
+    }
+    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+
+    this.modalEl.hidden = false;
+    this.modalOpen = true;
+    this.modalSendBtn?.focus();
+  }
+
+  closeModal() {
+    if (!this.modalEl) return;
+    this.modalEl.hidden = true;
+    this.modalOpen = false;
+    this.selectedCardForSend = null;
+    this.selectedRecipient = null;
+    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+  }
+
+  handleModalKeydown(evt) {
+    if (evt.key === "Escape" && this.modalOpen) {
+      evt.stopPropagation();
+      this.closeModal();
+    }
+  }
+
+  handleRecipientClick(btn) {
+    this.selectedRecipient = {
+      id: btn.getAttribute("data-recipient-id"), 
+      name: btn.querySelector(".recipient-name")?.textContent?.trim() || "",
+      avatar: btn.querySelector("img")?.getAttribute("src") || "",
+    };
+
+    if (this.recipientButtons) {
+      this.recipientButtons.forEach((b) => b.classList.remove("recipient-chip--selected"));
+    }
+
+    btn.classList.add("recipient-chip--selected");
+
+    if (this.modalSendBtn) this.modalSendBtn.disabled = false;
+  }
+
+  handleSendClick() {
+    const data = this.selectedCardForSend;
+
+    if (!this.selectedRecipient) {
+      if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+      return;
+    }
 
 
-    app.post("/api/dateideas/send", requireAuth, async (req, res) => {
-        try {
-            const fromUserId = new ObjectId(req.session.userId);
+    if (!data) {
+      this.closeModal();
+      return;
+    }
 
-            const { toUserId, cardId, title, meta, tags } = req.body || {};
+    this.dispatchEvent(
+      new CustomEvent("dateidea-send", {
+        detail: {
+          id: data.id,
+          title: data.title,
+          meta: data.meta || "",
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          source: data.source,
+          recipient: this.selectedRecipient, 
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
 
-            if (!toUserId || !ObjectId.isValid(String(toUserId))) {
-                return res.status(400).json({ error: "bad_toUserId" });
-            }
-            if (!cardId) {
-                return res.status(400).json({ error: "missing_cardId" });
-            }
-
-            const toUserObj = new ObjectId(String(toUserId));
-            const users = [fromUserId, toUserObj].sort((a, b) =>
-                a.toString().localeCompare(b.toString())
-            );
-            const isMatch = await db.collection("matches").findOne({ users });
-            if (!isMatch) return res.status(403).json({ error: "not_matched" });
-            const doc = {
-                userId: toUserObj,
-                type: "dateidea",
-                fromUserId,
-                cardId: String(cardId),
-                title: String(title || ""),
-                meta: String(meta || ""),
-                tags: Array.isArray(tags) ? tags.map(String) : [],
-                createdAt: new Date(),
-                seen: false,
-                read: false,
-            };
-
-            await db.collection("notifications").insertOne(doc);
-
-            res.json({ ok: true });
-        } catch (e) {
-            console.error("POST /api/dateideas/send failed:", e);
-            res.status(500).json({ error: "server_error" });
-        }
-    });
-
-    app.post("/api/notifications/dateideas/seen", requireAuth, async (req, res) => {
-        try {
-            const me = new ObjectId(req.session.userId);
-
-            await db.collection("notifications").updateMany(
-                { userId: me, type: "dateidea", read: false },
-                { $set: { read: true, readAt: new Date(), seen: true, seenAt: new Date() } }
-            );
-
-            res.json({ ok: true });
-        } catch (e) {
-            console.error("dateideas/seen failed:", e);
-            res.status(500).json({ ok: false });
-        }
-    });
-    app.listen(PORT, () => {
-        console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
+    this.closeModal();
+  }
 }
+
+window.customElements.define("com-dateidea", DateIdea);
+
+
+        await db.collection("profile").updateOne(
+          { userId },
+          { $set: { [`photos.${idx}`]: url, updatedAt: new Date() } }
+        );
+      }
+
+      return res.json({ url });
+    } catch (err) {
+      console.error("Upload error:", err);
+      return res.status(500).json({ error: "Upload дотор алдаа гарлаа." });
+    }
+  });
+
+  app.get("/api/matches/:matchId", requireAuth, async (req, res) => {
+    try {
+      const me = new ObjectId(req.session.userId);
+      const matchIdStr = String(req.params.matchId || "");
+
+      if (!ObjectId.isValid(matchIdStr)) {
+        return res.status(400).json({ error: "bad_matchId" });
+      }
+
+      const matchId = new ObjectId(matchIdStr);
+
+      const m = await db.collection("matches").findOne({ _id: matchId });
+      if (!m) return res.status(404).json({ error: "match_not_found" });
+
+      const inMatch = (m.users || []).some((u) => String(u) === String(me));
+      if (!inMatch) return res.status(403).json({ error: "forbidden" });
+
+      const otherId = (m.users || []).find((u) => String(u) !== String(me));
+      if (!otherId) return res.status(500).json({ error: "bad_match_users" });
+
+      const [meP, otherP] = await Promise.all([
+        db.collection("profile").findOne(
+          { userId: me },
+          { projection: { _id: 0, userId: 1, name: 1, gender: 1, avatar: 1 } }
+        ),
+        db.collection("profile").findOne(
+          { userId: otherId },
+          { projection: { _id: 0, userId: 1, name: 1, gender: 1, avatar: 1 } }
+        ),
+      ]);
+
+      return res.json({
+        matchId: matchIdStr,
+        left: {
+          userId: otherP?.userId?.toString?.() || null,
+          name: otherP?.name || "Unknown",
+          gender: otherP?.gender || "",
+          img: otherP?.avatar || "img/default-profile.jpg",
+        },
+        right: {
+          userId: meP?.userId?.toString?.() || null,
+          name: meP?.name || "Me",
+          gender: meP?.gender || "",
+          img: meP?.avatar || "img/default-profile.jpg",
+        },
+        createdAt: m.createdAt,
+      });
+    } catch (e) {
+      console.error("GET /api/matches/:matchId failed:", e);
+      res.status(500).json({ error: "server_error" });
+    }
+  });
+
+
+  app.post("/api/dateideas/send", requireAuth, async (req, res) => {
+  try {
+    const fromUserId = new ObjectId(req.session.userId);
+
+    const { toUserId, cardId, title, meta, tags } = req.body || {};
+
+    if (!toUserId || !ObjectId.isValid(String(toUserId))) {
+      return res.status(400).json({ error: "bad_toUserId" });
+    }
+    if (!cardId) {
+      return res.status(400).json({ error: "missing_cardId" });
+    }
+
+    const toUserObj = new ObjectId(String(toUserId));
+s
+    //зөвхөн match болсон хүнд явуулна 
+    const users = [fromUserId, toUserObj].sort((a, b) =>
+      a.toString().localeCompare(b.toString())
+    );
+    const isMatch = await db.collection("matches").findOne({ users });
+    if (!isMatch) return res.status(403).json({ error: "not_matched" });
+
+    // notification  (to user-д)
+    const doc = {
+      userId: toUserObj,           
+      type: "dateidea",
+      fromUserId,
+      cardId: String(cardId),
+      title: String(title || ""),
+      meta: String(meta || ""),
+      tags: Array.isArray(tags) ? tags.map(String) : [],
+      createdAt: new Date(),
+      seen: false,
+      read: false,
+    };
+
+    await db.collection("notifications").insertOne(doc);
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("POST /api/dateideas/send failed:", e);
+    res.status(500).json({ error: "server_error" });
+  }
+});
+
+app.post("/api/notifications/dateideas/seen", requireAuth, async (req, res) => {
+  try {
+    const me = new ObjectId(req.session.userId);
+
+    await db.collection("notifications").updateMany(
+      { userId: me, type: "dateidea", read: false },
+      { $set: { read: true, readAt: new Date(), seen: true, seenAt: new Date() } }
+    );
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("dateideas/seen failed:", e);
+    res.status(500).json({ ok: false });
+  }
+});
+
+
+  
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}
+
 start().catch((err) => {
-    console.error("Startup error", err);
-    process.exit(1);
+  console.error("Startup error", err);
+  process.exit(1);
 });
