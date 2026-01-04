@@ -705,7 +705,7 @@ class Auth extends HTMLElement {
                                                     <button type="button" id="pickAvatarBtn" class="btn secondary" style="max-width:140px;">Choose</button>
                                                     </div>
 
-                                                    <input id="avatarInput" type="file" accept="image/*" hidden />
+                                                    <input id="avatarInput" type="file" accept="image
                                                     <div id="avatarErr" class="err"></div>
                                                 </div>
 

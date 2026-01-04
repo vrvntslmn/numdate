@@ -1,11 +1,9 @@
 import './com-home.js';
+import './com-profile.js';
+import './com-match.js';
 import './com-dateidea.js';
 import './com-messenger.js';
-import './com-profile.js';
-
-import './com-match.js';
 import './com-notif.js';
-
 import './com-route.js';
 import './com-routes.js';
 import './com-router.js';
@@ -13,6 +11,7 @@ import './com-auth.js';
 import './com-othersprofile.js';
 import './nm-mini-profile.js';
 import './apiClient.js';
+import { api } from "./apiClient.js"; 
 
 class App extends HTMLElement {
   constructor() {
@@ -22,7 +21,7 @@ class App extends HTMLElement {
     this._notifTimer = null;
     this._refreshing = false;
 
-    // ✅ notif checkbox event handler (toggle үед open class sync хийнэ)
+    
     this._onNotifToggle = this._onNotifToggle.bind(this);
   }
 
@@ -36,54 +35,42 @@ class App extends HTMLElement {
     if (this._notifTimer) clearInterval(this._notifTimer);
     this._notifTimer = null;
 
-    // ✅ listener цэвэрлэнэ
+    
     const input = this.querySelector('#notif');
     if (input) input.removeEventListener('change', this._onNotifToggle);
   }
 
 
-  async bootstrap() {
-    try {
-      const res = await fetch('/api/me', { credentials: 'include' });
+async bootstrap() {
+  try {
+    const data = await api.me(); // ✅ fetch биш
 
-      if (!res.ok) {
-        this.renderLogin();
-        return;
-      }
-
-
-      const data = await res.json();
-
-
-      if (!data.user) {
-        this.renderLogin();
-      } else {
-        this.user = data.user;
-        this.render();
-
-
-        // ✅ render хийсний дараа badge шалгана + polling эхлүүлнэ
-        this.refreshNotifBadge();
-        this._startNotifPolling();
-
-        // ✅ notif panel toggle sync (open class)
-        this._bindNotifToggleSync();
-      }
-    } catch (err) {
-      console.error('bootstrap /api/me error', err);
+    if (!data?.user) {
       this.renderLogin();
+      return;
     }
+
+    this.user = data.user;
+    this.render();
+
+    this.refreshNotifBadge();
+    this._startNotifPolling();
+    this._bindNotifToggleSync();
+  } catch (err) {
+    console.error("bootstrap api.me error", err);
+    this.renderLogin();
   }
+}
 
   _bindNotifToggleSync() {
     const input = this.querySelector('#notif');
     if (!input) return;
 
-    // өмнөхийг цэвэрлээд дахиж холбоно
+
     input.removeEventListener('change', this._onNotifToggle);
     input.addEventListener('change', this._onNotifToggle);
 
-    // ✅ refresh-аар checked байвал open болгоно (хоосон хайрцаг үлдэхээс хамгаална)
+   
     this._syncNotifOpenState();
   }
 
@@ -103,41 +90,29 @@ class App extends HTMLElement {
   _startNotifPolling() {
     if (this._notifTimer) clearInterval(this._notifTimer);
 
-    // ✅ 5 секунд тутам refresh
+
     this._notifTimer = setInterval(() => {
       this.refreshNotifBadge();
     }, 5000);
   }
 
+async refreshNotifBadge() {
+  const badge = this.querySelector("#notifBadge");
+  if (!badge) return;
 
-  async refreshNotifBadge() {
-    const badge = this.querySelector('#notifBadge');
-    if (!badge) return;
+  if (this._refreshing) return;
+  this._refreshing = true;
 
-    if (this._refreshing) return;
-    this._refreshing = true;
-
-    try {
-      const res = await fetch('/api/notifications/unread-count', {
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        badge.hidden = true;
-        return;
-      }
-
-      const data = await res.json();
-      const count = Number(data.count || 0);
-
-      // red dot only
-      badge.hidden = count === 0;
-    } catch (e) {
-      badge.hidden = true;
-    } finally {
-      this._refreshing = false;
-    }
+  try {
+    const data = await api.getUnreadNotifCount(); // ✅ fetch биш
+    const count = Number(data?.count || 0);
+    badge.hidden = count === 0;
+  } catch (e) {
+    badge.hidden = true;
+  } finally {
+    this._refreshing = false;
   }
+}
 
   render() {
     this.innerHTML = `
@@ -305,9 +280,9 @@ class App extends HTMLElement {
           box-sizing: content-box;
         }
 
-        /* ✅ notif panel (DESKTOP) */
+      
         com-notif{
-          display: none; /* ✅ default hidden */
+          display: none; 
           height: 90%;
           background-color: var(--panel-bg, white); 
           border-radius: var(--brderRad-m);
@@ -318,20 +293,18 @@ class App extends HTMLElement {
           z-index: 20;
         }
         com-notif.open{
-          display: block; /* ✅ open class үед л харагдана */
+          display: block; 
         }
 
-        /* content area */
+       
         #content{
           min-height: calc(100vh - var(--header-height));
         }
 
-        /* =========================
-           MOBILE: Bottom navbar
-           ========================= */
+       
         @media (max-width: 768px) {
 
-          /* notif label төвөөр байрлуулах */
+      
           header nav ul label.notif{
             width: 100%;
             display: flex;
@@ -339,7 +312,7 @@ class App extends HTMLElement {
             align-items: center;
           }
 
-          /* notifWrap нь icon-оо яг төвд нь барина */
+
           header nav ul .notifWrap{
             position: relative;
             display: inline-flex;
@@ -349,7 +322,7 @@ class App extends HTMLElement {
             height: 40px;
           }
 
-          /* mobile дээр dot-оо арай илүү тод/төвд гаргах */
+         
           header nav ul .notifBadge{
             top: 6px;
             right: 8px;
@@ -358,7 +331,7 @@ class App extends HTMLElement {
             border: 2px solid #fff;
           }
 
-          /* mobile bottom nav дээр notif icon-ийн өнгө */
+          
           header nav ul label.notif svg path{
             fill: var(--second-color);
           }
@@ -430,9 +403,8 @@ class App extends HTMLElement {
             fill: var(--second-color);
           }
 
-          /* ✅ notif panel (MOBILE) — голлуулж, nav-ийн дээр гаргана */
+
           com-notif{
-            display: none; /* ✅ default hidden */
             position: fixed;
 
             left: 50%;
@@ -454,7 +426,7 @@ class App extends HTMLElement {
             z-index: 999;
           }
           com-notif.open{
-            display: block; /* ✅ open class үед л харагдана */
+            display: block; 
           }
         }
           com-match{

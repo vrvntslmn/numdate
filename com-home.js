@@ -520,7 +520,6 @@ class Home extends HTMLElement {
             @media (prefers-color-scheme: dark) {
                 com-home {
                     background: #0b0f14;
-                    /* messenger-ish dark */
                     color: #e7eaf0;
                 }
 
@@ -652,7 +651,18 @@ class Home extends HTMLElement {
             <section class="swipe">
                 <div class="profile">
                     <div>
-                        <div><img src="img/image.jpeg" alt="img1" width="200px" height="300px"></div>
+                        <div>
+                        <img
+  src="img/image.jpeg"
+  alt="img1"
+  width="200"
+  height="300"
+  fetchpriority="high"
+  loading="eager"
+  decoding="async"
+>
+
+                        </div>
                     </div>
                     <h1>Jennie Kim, 28</h1>
                     <p>Программ хангамж</p>
@@ -1268,11 +1278,19 @@ class ProfileSwipe {
     }
 
     init() {
+
+        if (this.profileImage) {
+            this.profileImage.setAttribute("fetchpriority", "high");
+            this.profileImage.setAttribute("loading", "eager");
+            this.profileImage.setAttribute("decoding", "async");
+        }
+
         this.setupTransitions();
         this.attachEventListeners();
         this.setupTouchControls();
         this.checkRefreshLimit();
     }
+
     async saveSwipe(action, profile) {
         if (!profile) return;
 
@@ -1378,6 +1396,12 @@ class ProfileSwipe {
 
         this.profileElement.style.opacity = '0';
 
+
+        if (this._firstPaint) {
+            this.profileImage.src = currentProfile.image || 'img/image.jpeg';
+            this._firstPaint = false;
+            return;
+        }
         setTimeout(() => {
             this.profileImage.onerror = () => {
                 this.profileImage.src = 'img/default-profile.jpg';
@@ -1387,7 +1411,7 @@ class ProfileSwipe {
             this.profileName.textContent = `${currentProfile.name}, ${currentProfile.age}`;
             this.profileAge.textContent = currentProfile.major || 'Программ хангамж';
             this.profileElement.style.opacity = '1';
-        }, 300);
+        });
     }
 
     refresh() {

@@ -38,41 +38,32 @@ class OthersProfile extends HTMLElement {
     return new URLSearchParams(q);
   }
 
-  async _fetchProfileSessionBased() {
-    const res = await fetch(`/api/othersprofile`, { credentials: "include" });
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      const err = new Error(data?.error || "Profile fetch failed");
-      err.status = res.status;
-      err.data = data;
-      throw err;
-    }
-    return data;
-  }
+  
 
   async load() {
-    if (this._loading) return;
-    this._loading = true;
+  if (this._loading) return;
+  this._loading = true;
 
-    try {
-      this.renderSkeleton();
-      this.profile = await this._fetchProfileSessionBased();
-      this.render();
-      this.fill();
-    } catch (e) {
-      console.error("OthersProfile load failed:", e);
-      const status = e?.status ? ` (${e.status})` : "";
-      const msg =
-        e?.data?.error ||
-        e?.data?.message ||
-        e?.message ||
-        "Профайл ачаалж чадсангүй";
-      this.innerHTML = `<p style="padding:16px;">${msg}${status}</p>`;
-    } finally {
-      this._loading = false;
-    }
+  try {
+    this.renderSkeleton();
+    this.profile = await api.getOthersProfile();
+
+    this.render();
+    this.fill();
+  } catch (e) {
+    console.error("OthersProfile load failed:", e);
+    const status = e?.status ? ` (${e.status})` : "";
+    const msg =
+      e?.data?.error ||
+      e?.data?.message ||
+      e?.message ||
+      "Профайл ачаалж чадсангүй";
+    this.innerHTML = `<p style="padding:16px;">${msg}${status}</p>`;
+  } finally {
+    this._loading = false;
   }
+}
+
 
   ageFromDob(dob) {
     if (!dob) return "";
@@ -168,7 +159,7 @@ class OthersProfile extends HTMLElement {
           }
 
         div.main-container > article {
-          margin: 18px;         /* 20 → 18 */
+          margin: 18px;  
           display: flex;
           flex: 1 0 auto;
           flex-direction: column;
@@ -186,13 +177,13 @@ class OthersProfile extends HTMLElement {
           gap: 10px;
         }
 
-        /* ✅ Mobile үед Profile хажууд гаргах close */
+      
         .close-btn--mobile {
           display: none;
         }
 
         div.avatar {
-          margin: 16px 0px;     /* 20 → 16 */
+          margin: 16px 0px;   
           width: 130px;
           height: 130px;
           border-radius: 50%;
@@ -242,7 +233,7 @@ class OthersProfile extends HTMLElement {
         }
 
         div.main-container > section {
-          margin: 18px; /* 20 → 18 */
+          margin: 18px;
           display: grid;
           grid-template-areas: "ln h3" "ln div";
           grid-template-columns: 30px auto;
@@ -268,14 +259,14 @@ class OthersProfile extends HTMLElement {
 
         .scroll {
           grid-area: div;
-          overflow: auto;       /* scroll → auto */
+          overflow: auto;   
           scrollbar-width: none;
           margin: 0px 3px;
           padding-right: 4px;
         }
 
         .scroll > article {
-          margin-top: 18px;     /* 25 → 18 */
+          margin-top: 18px;     
           height: fit-content;
           display: flex;
           flex-direction: column;
@@ -283,7 +274,7 @@ class OthersProfile extends HTMLElement {
         }
 
         .scroll > article > article {
-          margin: 12px 0px;     /* 15 → 12 */
+          margin: 12px 0px;    
           margin-left: 5px;
         }
 
@@ -398,7 +389,7 @@ class OthersProfile extends HTMLElement {
           div.main-container > section {
             width: 100%;
             min-width: 0;
-            margin: 12px; /* 14 → 12 */
+            margin: 12px; 
           }
 
           div.main-container > section {
@@ -455,7 +446,7 @@ class OthersProfile extends HTMLElement {
 
         
 
-          /* mobile deer X nuuh */
+          // mobile deer X nuuh 
           .info-head .close-btn { display: none; }
            
 

@@ -1,3 +1,5 @@
+import { api } from "./apiClient.js";
+
 class ComNotif extends HTMLElement {
   constructor() {
     super();
@@ -80,22 +82,17 @@ class ComNotif extends HTMLElement {
     window.location.hash = `#/${routeWithQuery}`;
   }
 
-  async _markMatchesSeen() {
-    try {
-      await fetch("/api/notifications/matches/seen", {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (e) { }
-  }
-  async _markDateIdeasSeen() {
-    try {
-      await fetch("/api/notifications/dateideas/seen", {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (e) { }
-  }
+ async _markMatchesSeen() {
+  try {
+    await api.markMatchNotifsSeen();
+  } catch (e) {}
+}
+
+async _markDateIdeasSeen() {
+  try {
+    await api.markDateIdeaNotifsSeen();
+  } catch (e) {}
+}
 
 
   _refreshBadgeFromApp() {
@@ -134,16 +131,15 @@ class ComNotif extends HTMLElement {
     return `${yr}y ago`;
   }
 
-  async _fetchNotifs() {
-    try {
-      const res = await fetch("/api/notifications", { credentials: "include" });
-      if (!res.ok) return [];
-      const data = await res.json();
-      return data.items || [];
-    } catch (e) {
-      return [];
-    }
+async _fetchNotifs() {
+  try {
+    const data = await api.getNotifications();
+    return data?.items || [];
+  } catch (e) {
+    return [];
   }
+}
+
 
   async renderNotif() {
 

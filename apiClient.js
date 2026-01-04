@@ -1,3 +1,5 @@
+
+
 const API_BASE = "";
 
 async function request(path, { method = "GET", body, headers } = {}) {
@@ -27,7 +29,7 @@ async function request(path, { method = "GET", body, headers } = {}) {
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
-    data = text;
+    data = text; // JSON биш байж болно
   }
 
   if (!res.ok) {
@@ -46,6 +48,7 @@ async function request(path, { method = "GET", body, headers } = {}) {
 }
 
 export const api = {
+  // -------- AUTH --------
   login({ email, password }) {
     return request("/api/auth/login", {
       method: "POST",
@@ -79,6 +82,7 @@ export const api = {
     return request("/api/profile");
   },
 
+  // ✅ Home feed profiles
   getProfiles() {
     return request("/api/profiles");
   },
@@ -87,16 +91,19 @@ export const api = {
     return request(`/api/profile/${encodeURIComponent(userId)}`);
   },
 
+  // ⚠️ Зөвхөн profiles collection-ын document _id (profileId) байгаа үед хэрэглэнэ
   getProfileById(profileId) {
     return request(`/api/profiles/${encodeURIComponent(profileId)}`);
   },
 
+  // -------- OTHER --------
   getDateIdeas() {
     return request("/api/dateideas");
   },
 
-  getRecipients() {
-    return request("/api/recipients");
+
+  getOthersProfile() {
+    return request("/api/othersprofile");
   },
 
   like(toUserId) {
@@ -109,32 +116,13 @@ export const api = {
     return request("/api/notifications/matches");
   },
 
-  setPhoto(formData) {
-    return request("/api/upload/image", {
-      method: "POST",
-      body: formData,
-    });
-  },
 
-  matches() {
-    return request("/api/matches");
-  },
 
-  getMessages(otherId, limit = 200) {
-    return request(`/api/messages?other=${encodeURIComponent(otherId)}&limit=${limit}`);
-  },
-
-  sendMessage({ otherId, text, type = "text" }) {
-    return request("/api/messages", {
+  setPhoto(form) {
+    return request("//api/upload/image", {
       method: "POST",
       body: { other: otherId, text, type },
     });
-  },
+  }
 
-  selectOtherProfile(userId) {
-    return request("/api/othersprofile/select", {
-      method: "POST",
-      body: { userId },
-    });
-  },
 };
