@@ -10,9 +10,9 @@ class Home extends HTMLElement {
     }
     async loadLikedIds() {
         try {
-            const res = await fetch("/api/likes/me"); // ✅ likes collection-оос
+            const res = await fetch("/api/likes/me");
             if (!res.ok) throw new Error("failed to load likes");
-            const data = await res.json(); // { ids: [...] }
+            const data = await res.json();
             this.likedIds = new Set((data.ids || []).map(String));
         } catch (e) {
             console.warn("loadLikedIds failed:", e);
@@ -23,9 +23,9 @@ class Home extends HTMLElement {
 
     async loadMe() {
         try {
-            const res = await fetch("/api/profile"); // эсвэл /api/me байвал тэрийгээ
+            const res = await fetch("/api/profile");
             if (!res.ok) throw new Error("failed to load me");
-            this.me = await res.json(); // { userId: "...", ... }
+            this.me = await res.json();
         } catch (e) {
             console.warn("loadMe failed:", e);
             this.me = null;
@@ -34,7 +34,7 @@ class Home extends HTMLElement {
 
     removeMe(list) {
         const myId = this.me?.userId ? String(this.me.userId) : null;
-        if (!myId) return list; // me олдохгүй бол буцаана
+        if (!myId) return list;
         return list.filter(p => String(p.userId) !== myId);
     }
 

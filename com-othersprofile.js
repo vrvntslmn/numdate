@@ -678,7 +678,6 @@ class OthersProfile extends HTMLElement {
       </main>
     `;
 
-    // ✅ close => back (хоёуланг нь bind)
     this.querySelectorAll(".close-btn").forEach((btn) => {
       btn.addEventListener("click", () => history.back());
     });
@@ -690,9 +689,9 @@ class OthersProfile extends HTMLElement {
 
     const photos =
       Array.isArray(p.photos) ? p.photos :
-      Array.isArray(p.images) ? p.images :
-      Array.isArray(p.gallery) ? p.gallery :
-      [];
+        Array.isArray(p.images) ? p.images :
+          Array.isArray(p.gallery) ? p.gallery :
+            [];
 
     const {
       avatar,
@@ -734,7 +733,6 @@ class OthersProfile extends HTMLElement {
     const majorEl = $(".major p");
     if (majorEl) majorEl.textContent = major || "";
 
-    // work (optional)
     const workRow = $(".work");
     const workP = $(".work p");
     if (workRow && workP) {
@@ -746,7 +744,6 @@ class OthersProfile extends HTMLElement {
       }
     }
 
-    // about block
     const aboutBlock = $(".about");
     const hasAbout = about && (about.height || about.zodiac || about.mbti);
     if (aboutBlock) {

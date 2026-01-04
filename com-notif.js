@@ -42,33 +42,30 @@ class ComNotif extends HTMLElement {
     }
   }
 
-_onClick(e) {
-  const item = e.target.closest(".notifArt[data-open]");
-  if (!item) return;
+  _onClick(e) {
+    const item = e.target.closest(".notifArt[data-open]");
+    if (!item) return;
 
-  const openWhat = item.getAttribute("data-open");
+    const openWhat = item.getAttribute("data-open");
 
-  if (openWhat === "match") {
-    const matchId = item.getAttribute("data-match-id");
-    const pairKey = item.getAttribute("data-pair-key");
+    if (openWhat === "match") {
+      const matchId = item.getAttribute("data-match-id");
+      const pairKey = item.getAttribute("data-pair-key");
 
-    if (matchId) {
-      this._goTo(`match?matchId=${encodeURIComponent(matchId)}`);
-    } else {
-      console.warn("notif item дээр matchId алга байна");
-      this._goTo("match");
+      if (matchId) {
+        this._goTo(`match?matchId=${encodeURIComponent(matchId)}`);
+      } else {
+        console.warn("notif item дээр matchId алга байна");
+        this._goTo("match");
+      }
+
+      this._closePanel();
+      return;
     }
-
-    this._closePanel();
-    return;
+    if (openWhat === "dateidea") {
+      return;
+    }
   }
-
-  // ✅ dateidea дархад юу ч хийхгүй
-  if (openWhat === "dateidea") {
-    return;
-  }
-}
-
   _onDocClick(e) {
     if (e.target.closest("label.notif")) return;
     if (e.target.closest("com-notif")) return;

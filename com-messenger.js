@@ -525,33 +525,29 @@ class ComMessenger extends HTMLElement {
           }
               
          .chat-profile-link{
-         display:flex;
-        align-items:center;
-        gap:12px;
-        cursor:pointer;
-        user-select:none;
-        border-radius:12px;
-        padding:6px 8px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            cursor:pointer;
+            user-select:none;
+            border-radius:12px;
+            padding:6px 8px;
+            color: var(--text);
+            transition: background .15s ease, box-shadow .15s ease;
+          }
 
-       color: var(--text);
-      transition: background .15s ease, box-shadow .15s ease;
-}
+          .chat-profile-link:hover{
+            background: color-mix(in srgb, var(--panel) 85%, var(--text) 15%);
+          }
 
-.chat-profile-link:hover{
-  background: color-mix(in srgb, var(--panel) 85%, var(--text) 15%);
-}
+          .chat-profile-link:active{
+            background: color-mix(in srgb, var(--panel) 78%, var(--text) 22%);
+          }
 
-.chat-profile-link:active{
-  background: color-mix(in srgb, var(--panel) 78%, var(--text) 22%);
-}
-
-.chat-profile-link:focus-visible{
-  outline: 2px solid color-mix(in srgb, var(--text) 35%, transparent);
-  outline-offset: 2px;
-}
-
-          
-
+          .chat-profile-link:focus-visible{
+            outline: 2px solid color-mix(in srgb, var(--text) 35%, transparent);
+            outline-offset: 2px;
+          }
           .message-row {
               display: flex;
               gap: 8px;
@@ -1357,7 +1353,6 @@ class ComMessenger extends HTMLElement {
       const text = messageInput.value.trim();
       if (!text) return;
 
-      // optimistic UI
       const row = document.createElement("div");
       row.className = "message-row outgoing";
       row.innerHTML = `<div class="message-bubble">${this.escapeHtml(text)}</div>`;
@@ -1407,14 +1402,11 @@ class ComMessenger extends HTMLElement {
         });
       });
     }
-
-
     if (emptyNewMessageBtn) {
       emptyNewMessageBtn.addEventListener("click", () => {
         if (searchInput) searchInput.focus();
       });
     }
-
     this.els.emojiBtn.addEventListener("click", (e) => {
       e.preventDefault();
       const user = this.getActiveUserName();
@@ -1433,9 +1425,6 @@ class ComMessenger extends HTMLElement {
         this.els.messageInput.focus();
       });
     });
-
-
-    // Date
     this.els.dateBtn.addEventListener("click", (e) => {
       e.preventDefault();
       const user = this.getActiveUserName();
@@ -1484,8 +1473,6 @@ class ComMessenger extends HTMLElement {
         this.openConfirmOverlay({ type: "block", userName });
       }
     });
-
-
     this.els.reportBtn.addEventListener("click", () => {
       const userName = this.getActiveUserName();
       if (!userName) return;
@@ -1520,7 +1507,6 @@ class ComMessenger extends HTMLElement {
         });
       });
     }
-
     if (deleteChatBtn) {
       deleteChatBtn.addEventListener("click", () => {
         const userName = this.getActiveUserName();
@@ -1629,12 +1615,11 @@ class ComMessenger extends HTMLElement {
         this.els.detailsPanel.classList.remove("is-open");
       }
     });
-    // ✅ Chat header profile click -> OthersProfile (session based)
     if (this.els.chatProfileLink) {
       this.els.chatProfileLink.addEventListener("click", (e) => {
         e.preventDefault();
 
-        const otherId = this.activeOtherId; // ✅ чи энд already set хийж байгаа
+        const otherId = this.activeOtherId;
         if (!otherId) {
           console.warn("No activeOtherId yet. Select a conversation first.");
           return;
@@ -1643,9 +1628,7 @@ class ComMessenger extends HTMLElement {
         this.openOthersProfileBySession(otherId);
       });
     }
-
   }
-
   async openOthersProfileBySession(otherId) {
     if (!otherId) {
       console.warn("openOthersProfileBySession: missing otherId");
@@ -1963,7 +1946,5 @@ class ComMessenger extends HTMLElement {
       console.error("loadMessages error", e);
     }
   }
-
-
 }
 window.customElements.define("com-messenger", ComMessenger);
