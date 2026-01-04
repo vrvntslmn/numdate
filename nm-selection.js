@@ -520,12 +520,12 @@ class NmSelection extends HTMLElement {
         const profileEl = this.closest('com-profile');
         if (!profileEl) return;
 
-        const options = NmSelection.INTERESTS; // {art:"Урлаг", ...}
+        const options = NmSelection.INTERESTS;
 
         const curObj = this._getInterestsObj(profileEl);
         const selected = Object.keys(curObj).length
-        ? { ...curObj }                  // if saved data exists
-        : this._readInterestsFromDOM(profileEl); // otherwise use DOM display
+        ? { ...curObj }
+        : this._readInterestsFromDOM(profileEl);
 
 
         const content = Object.entries(options).map(([key, label]) => `
@@ -568,7 +568,6 @@ class NmSelection extends HTMLElement {
             if (saveBtn) saveBtn.disabled = n < 3;
         };
 
-        // ✅ toggle select
         this.querySelectorAll('#editSelect > div[data-key]').forEach(card => {
             card.addEventListener('click', () => {
             const key = card.dataset.key;
@@ -578,22 +577,19 @@ class NmSelection extends HTMLElement {
                 delete selected[key];
                 card.classList.remove('selected');
             } else {
-                selected[key] = options[key]; // store label
+                selected[key] = options[key];
                 card.classList.add('selected');
             }
             updateUI();
             });
         });
 
-        // ✅ SAVE -> update DOM section.interests divs
         saveBtn?.addEventListener('click', () => {
         const n = Object.keys(selected).length;
         if (n < 3) return alert('Хамгийн багадаа 3 сонирхол сонгоно уу.');
 
-        // save object
         this._setInterestsObj(profileEl, selected);
 
-        // ✅ update DOM: likes > article/section.interests доторх div-үүдийг show/hide
         const likesField = profileEl.querySelector('.likes');
         const interestsSection = likesField?.querySelector('section.interests');
         if (!interestsSection) return;
