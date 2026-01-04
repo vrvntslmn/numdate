@@ -5,10 +5,12 @@ import './nm-selection.js';
 class Profile extends HTMLElement {
     static GOAL = 'Харилцааны хэлбэр';
     static LOVELANG = 'Хайрын хэл';
-    static ZODIAC = 'Орд';
-    static MBTI = 'MBTI';
-    static MAJOR = 'ХӨТӨЛБӨР';
+    // static ZODIAC = 'Орд';
+    // static MBTI = 'MBTI';
+    // static MAJOR = 'ХӨТӨЛБӨР';
     static INTERESTS = 'Сонирхол';
+    static ABOUT = 'Миний тухай';
+    static JOB = 'Ажил';
 
     constructor() {
         super();
@@ -30,6 +32,18 @@ class Profile extends HTMLElement {
             } else if (target.closest('#exit')) {
                 this.render();
             } else if (target.closest('#save')) {
+                const payload = this.collectPayload();
+                if (payload?.error) {
+                    alert('Сонирхол дор хаяж 3 байх ёстой!');
+                    return;
+                }
+
+                api.setMyProfile(payload).then(res => {
+                    if (!res.ok) console.log("res is not ok bro");
+                })
+                    .catch(err => {
+                        console.log("error to save", err);
+                    });
                 this.render();
             }
         });
@@ -59,7 +73,7 @@ class Profile extends HTMLElement {
             loveLanguage,
             about = {},
             likes = {},
-            interests = [],
+            interests = {},
             major,
         } = p;
 
@@ -162,7 +176,7 @@ class Profile extends HTMLElement {
                     --inputBorder: #D9D9D9;
                     --subInfoTitle-col: #55565A;
                 }
-                :host{
+		:host{
                     color-scheme: light dark;
                 }
                 
@@ -498,22 +512,132 @@ class Profile extends HTMLElement {
                 }
 
                 .out{
-                    display: grid;
-                    place-items: center;
+                    width: min(320px, 100%);
                     margin-top: 50px;
-                    height: 30%;
-                    background-color: var(--back-col-white);
-                    padding: 20px;
-                    border-radius: 41px;
-                    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-                    min-width: 300px;
-
-                    & > div{
-                        display: flex;
-                        width: 80%;
-                        border: 1px solid var(--first-color);
-                    }
+                    display: flex;
+                    padding-right: 10px;
+                    flex-direction: column;
+                    gap: 12px;
                 }
+
+                .out > .item{
+                    width: 95%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 16px 16px 16px 18px;
+                    border-radius: 18px;
+                    border: 1px solid rgba(0,0,0,.08);
+                    background: rgba(255,255,255,.9);
+                    cursor: pointer;
+                    user-select: none;
+                    transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+
+                .out > .item::before{
+                content:"";
+                position:absolute;
+                left:0;
+                top:0;
+                height:100%;
+                width:6px;
+                background: var(--first-color);
+                opacity: .9;
+                }
+
+                .out > .item h4{
+                margin: 0;
+                font-size: 20px;
+                letter-spacing: .2px;
+                }
+
+                .out .item .ico{
+                    width: 22px;
+                    height: 22px;
+                    flex: 0 0 22px;
+                    margin-left: auto;
+                    stroke: currentColor;  
+                    fill: none;
+                    opacity: .7;
+                    }
+                .out .item .ico path{
+                    stroke: currentColor !important;
+                    }
+
+                .out > .item::after{
+                font-size: 26px;
+                line-height: 1;
+                opacity: .6;
+                transform: translateX(0);
+                transition: transform .12s ease, opacity .12s ease;
+                }
+
+                .out > .item:hover{
+                transform: translateY(-1px);
+                box-shadow: 0 10px 24px rgba(0,0,0,.10);
+                border-color: rgba(0,0,0,.14);
+                }
+                .out > .item:hover::after{
+                opacity: .9;
+                transform: translateX(2px);
+                }
+                .out > .item:active{
+                transform: translateY(0px) scale(.99);
+                }
+
+                .out > .item.logout::before{
+                background: linear-gradient(180deg, var(--first-color), var(--second-color));
+                }
+                .out > .item.delete{
+                box-shadow: 0 10px 24px rgba(0,0,0,.10);
+                border-color: rgba(0,0,0,.14);
+                }
+                .out > .item.delete::before{
+                background: linear-gradient(180deg, #ff0b55, #b0003a);
+                }
+                .out > .item.delete h4{
+                color: var(--second-color);
+                }
+
+                @media (prefers-color-scheme: dark){
+                .out{
+                    background: #0f131a !important;
+                    border-color: rgba(255,255,255,.10) !important;
+                    box-shadow: 0 14px 35px rgba(0,0,0,.55) !important;
+                }
+                .out > .item{
+                    background: rgba(255,255,255,.04) !important;
+                    border-color: rgba(255,255,255,.14) !important;
+                }
+                .out > .item:hover{
+                    border-color: rgba(255,255,255,.20) !important;
+                    box-shadow: 0 16px 34px rgba(0,0,0,.55) !important;
+                }
+                .out > .item::after{
+                    color: rgba(232,236,243,.9);
+                }
+                .out > .item.delete{
+                    background: rgba(255,11,85,.10) !important;
+                    border-color: rgba(255,11,85,.35) !important;
+                }
+                }
+                html.dark .out, body.dark .out{
+                background: #0f131a !important;
+                border-color: rgba(255,255,255,.10) !important;
+                box-shadow: 0 14px 35px rgba(0,0,0,.55) !important;
+                }
+                html.dark .out > .item, body.dark .out > .item{
+                background: rgba(255,255,255,.04) !important;
+                border-color: rgba(255,255,255,.14) !important;
+                }
+                html.dark .out > .item.delete, body.dark .out > .item.delete{
+                background: rgba(255,11,85,.10) !important;
+                border-color: rgba(255,11,85,.35) !important;
+                }
+
 
                 .description p{
                     font-size: 12px;
@@ -578,8 +702,8 @@ class Profile extends HTMLElement {
                 .computer{display:none;}
                 .travel{display:none;}
                 .book{display:none;}
-                
-                @media (prefers-color-scheme: dark) {
+		
+		@media (prefers-color-scheme: dark) {
                     body{
                         background-color: #0b0d10 !important;
                     }
@@ -657,12 +781,101 @@ class Profile extends HTMLElement {
                     svg path[fill="black"]{
                         fill: rgba(232,236,243,.85) !important;
                     }
+                    .nm-confirm{
+                        background: rgba(0,0,0,.55);
+                    }
+                    .nm-confirm__panel{
+                        background: #0f131a;
+                        border-color: rgba(255,255,255,.12);
+                        box-shadow: 0 24px 70px rgba(0,0,0,.65);
+                    }
+                    .nm-confirm__title{ color: #e8ecf3; }
+                    .nm-confirm__msg{ color: rgba(232,236,243,.75); }
+                    .nm-confirm__btn{
+                        border-color: rgba(255,255,255,.14);
+                        background: rgba(255,255,255,.06);
+                        color: #e8ecf3;
+                    }
+                }
+                .nm-confirm{
+                    position: fixed;
+                    inset: 0;
+                    z-index: 9999;
+                    display: grid;
+                    place-items: center;
+                    padding: 16px;
+
+                    background: rgba(0,0,0,.35);
+                    backdrop-filter: blur(6px);
+                    -webkit-backdrop-filter: blur(6px);
+
+                    opacity: 0;
+                    transition: opacity .15s ease;
                     }
 
-                    html.dark body,
+                    .nm-confirm.open{ opacity: 1; }
+
+                    .nm-confirm__panel{
+                    width: min(460px, 92vw);
+                    border-radius: 22px;
+                    padding: 18px 18px 16px;
+                    background: var(--back-col-white);
+                    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+                    border: 1px solid rgba(0,0,0,.08);
+                    transform: translateY(6px) scale(.98);
+                    transition: transform .15s ease;
+                    }
+
+                    .nm-confirm.open .nm-confirm__panel{
+                    transform: translateY(0) scale(1);
+                    }
+
+                    .nm-confirm__title{
+                    margin: 0;
+                    font-family: var(--font-header);
+                    font-size: 26px;
+                    color: #111;
+                    }
+
+                    .nm-confirm__msg{
+                    margin: 10px 0 14px;
+                    font-family: var(--font-body);
+                    color: rgba(0,0,0,.75);
+                    line-height: 1.35;
+                    }
+
+                    .nm-confirm__actions{
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    }
+
+                    .nm-confirm__btn{
+                    min-width: 120px;
+                    padding: 10px 14px;
+                    border-radius: 12px;
+                    font-family: var(--font-body);
+                    font-weight: 700;
+                    cursor: pointer;
+                    border: 1px solid rgba(0,0,0,.10);
+                    background: rgba(0,0,0,.03);
+                    }
+
+                    .nm-confirm__btn:hover{ filter: brightness(.98); }
+
+                    .nm-ok{
+                    background: var(--first-color);
+                    border-color: rgba(0,0,0,.06);
+                    color: white;
+                    }
+
+                    .nm-ok.is-danger{
+                    background: var(--second-color);
+                    }
+                html.dark body,
                     body.dark{
                     background-color: #0b0d10 !important;
-                    }
+                }
 
                     html.dark div.main-container,
                     html.dark article.subscription,
@@ -676,7 +889,7 @@ class Profile extends HTMLElement {
                     body.dark h2, body.dark h3, body.dark h4, body.dark h5, body.dark p{
                     color: #e8ecf3 !important;
                     }
-
+                
             </style>
             <main>
 
@@ -695,10 +908,10 @@ class Profile extends HTMLElement {
                         <p class="name">, <span>21</span></p>
                         <p class="bio">Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулдаг ялагдашгүй нэгдэл юм.</p>
                         <div class="user-image-container">
-                            <img class="border-red" src="./img/image.jpeg" alt="user photo">
-                            <img class="border-red" src="./img/image.jpeg" alt="user photo">
-                            <img class="border-red" src="./img/image.jpeg" alt="user photo">
-                            <img class="border-red" src="./img/image.jpeg" alt="user photo">
+                            <img class="border-red" data-index="0" src="./img/image.jpeg" alt="user photo">
+                            <img class="border-red" data-index="1" src="./img/image.jpeg" alt="user photo">
+                            <img class="border-red" data-index="2" src="./img/image.jpeg" alt="user photo">
+                            <img class="border-red" data-index="3" src="./img/image.jpeg" alt="user photo">
                         </div>
                         <div class="voice">
                             <label>
@@ -908,25 +1121,60 @@ class Profile extends HTMLElement {
                     </article>
                     
                     <article class="out">
-                        <div class="item logout">
-                            <h4>Log out</h4>
-                        </div>
+                    <div class="item logout">
+                        <h4>Log out</h4>
+                        <svg class="ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 12L13 12" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18 15L20.913 12.087V12.087C20.961 12.039 20.961 11.961 20.913 11.913V11.913L18 9" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 5V4.5V4.5C16 3.67157 15.3284 3 14.5 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H14.5C15.3284 21 16 20.3284 16 19.5V19.5V19" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
 
-                        <div class="item delete">
-                            <h4>Delete account</h4>
-                        </div>
+                    <div class="item delete">
+                        <h4>Delete account</h4>
+                        <svg class="ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                        <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 7H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                     </article>
+
                 </aside>
             </main>
         `;
 
-        this.querySelector('.logout').addEventListener('click', () => {
+        this.querySelector('.logout')?.addEventListener('click', async () => {
+            const ok = await this.confirmDialog({
+                title: "Гарахдаа итгэлтэй байна уу?",
+                message: "Та одоогийн session-ээс гарна.",
+                confirmText: "Гарах",
+                variant: "danger"
+            });
+            if (!ok) return;
+
             api.logout().then(() => {
                 window.location.href = '/';
             }).catch((e) => {
                 console.error('Can not log out!', e);
             });
         });
+
+        this.querySelector('.delete')?.addEventListener('click', async () => {
+            const ok = await this.confirmDialog({
+                title: "Хаягаа устгахад итгэлтэй байна уу?",
+                message: "Энэ үйлдлийг буцаах боломжгүй бөгөөд таны мэдээлэл бүр мөсөн устах болно.",
+                confirmText: "Устгах",
+                variant: "danger"
+            });
+            if (!ok) return;
+            api.deleteAccount?.()
+                ?.then(() => window.location.href = '/')
+                .catch((e) => console.error("Delete failed", e));
+        });
+
 
         if (this.profile) this.loadUser();
     }
@@ -992,7 +1240,7 @@ class Profile extends HTMLElement {
                     </svg>
                     <h4>BIO</h4>
                 </div>
-                <textarea maxlength="140" class="bio" rows="3" placeholder="Оролдлого, тэвчээр, хөлс 3 нь амжилт дагуулагдашгүй нэгдэл юм." ></textarea>
+                <textarea maxlength="140" class="bio" rows="3" placeholder="Та юу бичмээр байна?" ></textarea>
                 <div class="title">                                       
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16.2 21H6.93137C6.32555 21 6.02265 21 5.88238 20.8802C5.76068 20.7763 5.69609 20.6203 5.70865 20.4608C5.72312 20.2769 5.93731 20.0627 6.36569 19.6343L14.8686 11.1314C15.2646 10.7354 15.4627 10.5373 15.691 10.4632C15.8918 10.3979 16.1082 10.3979 16.309 10.4632C16.5373 10.5373 16.7354 10.7354 17.1314 11.1314L21 15V16.2M16.2 21C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2M16.2 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V7.8C3 6.11984 3 5.27976 3.32698 4.63803C3.6146 4.07354 4.07354 3.6146 4.63803 3.32698C5.27976 3 6.11984 3 7.8 3H16.2C17.8802 3 18.7202 3 19.362 3.32698C19.9265 3.6146 20.3854 4.07354 20.673 4.63803C21 5.27976 21 6.11984 21 7.8V16.2M10.5 8.5C10.5 9.60457 9.60457 10.5 8.5 10.5C7.39543 10.5 6.5 9.60457 6.5 8.5C6.5 7.39543 7.39543 6.5 8.5 6.5C9.60457 6.5 10.5 7.39543 10.5 8.5Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1000,10 +1248,10 @@ class Profile extends HTMLElement {
                     <h4>ЗУРАГ</h4>
                 </div>
                 <div class="user-image-container">
-                    <img class="border-red" value="0" src="./img/image.jpeg" alt="user photo">
-                    <img class="border-red" value="1" src="./img/image.jpeg" alt="user photo">
-                    <img class="border-red" value="2" src="./img/image.jpeg" alt="user photo">
-                    <img class="border-red" value="3" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" data-index="0" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" data-index="1" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" data-index="2" src="./img/image.jpeg" alt="user photo">
+                    <img class="border-red" data-index="3" src="./img/image.jpeg" alt="user photo">
                 </div>
                 <div class="voice">
                     <p class="item">Voice</p>
@@ -1057,7 +1305,7 @@ class Profile extends HTMLElement {
                                 <path d="M14.5559 8.93863C14.9302 8.27337 15.2422 7.67308 15.4346 7.21618C16.3691 4.99757 15.4451 2.44556 13.1863 1.40457C10.9274 0.36358 8.65922 1.443 7.66376 3.52712C5.76014 2.22021 3.22078 2.41214 1.8204 4.45163C0.420021 6.49111 0.859523 9.15551 2.77754 10.6094C3.64803 11.2692 5.36963 12.2417 6.99048 13.107M15.3082 10.7655C14.8857 8.49462 12.9545 6.83381 10.5229 7.28521C8.0913 7.73662 6.51903 9.93157 6.84776 12.3166C7.11186 14.2328 8.56967 18.7286 9.13259 20.4221C9.2094 20.6531 9.24781 20.7687 9.32386 20.8493C9.3901 20.9195 9.47819 20.9703 9.57206 20.9926C9.67983 21.0182 9.79905 20.9937 10.0375 20.9448C11.7848 20.5858 16.4051 19.601 18.1958 18.8718C20.4246 17.9641 21.5748 15.5058 20.7132 13.1717C19.8517 10.8375 17.485 9.99608 15.3082 10.7655Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
-                                <h4>Сонгох<h4>
+                                <h4>Сонгох</h4>
                             </div>
                         </article>
                     </article>
@@ -1078,7 +1326,7 @@ class Profile extends HTMLElement {
                                 <path d="M11.7563 3.88125L13.0688 5.19375M9.13132 6.50625L10.4438 7.81875M6.50632 9.13125L7.81882 10.4438M3.88132 11.7563L5.19382 13.0688M1.31376 14.4388L4.69881 17.8238C4.87206 17.9971 4.95869 18.0837 5.05859 18.1162C5.14646 18.1447 5.24111 18.1447 5.32898 18.1162C5.42887 18.0837 5.5155 17.9971 5.68876 17.8238L17.8238 5.68876C17.9971 5.5155 18.0837 5.42887 18.1162 5.32898C18.1447 5.24111 18.1447 5.14646 18.1162 5.05859C18.0837 4.95869 17.9971 4.87206 17.8238 4.69881L14.4388 1.31376C14.2655 1.1405 14.1789 1.05387 14.079 1.02141C13.9911 0.992862 13.8965 0.992862 13.8086 1.02141C13.7087 1.05387 13.6221 1.1405 13.4488 1.31376L1.31376 13.4488C1.1405 13.6221 1.05387 13.7087 1.02141 13.8086C0.992862 13.8965 0.992862 13.9911 1.02141 14.079C1.05387 14.1789 1.1405 14.2655 1.31376 14.4388Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
-                                <h4>Сонгох<h4>
+                                <h4>Сонгох</h4>
                             </div>
                         </article>
                         <article class="zodiac">
@@ -1088,7 +1336,7 @@ class Profile extends HTMLElement {
                                 <path d="M19.0017 5.00022C21.6667 8.54505 21.6661 13.4578 19 17.0021M11 21C12.5711 21 14.0575 20.6377 15.3803 19.9921C15.2542 19.9974 15.1274 20 15 20C10.0294 20 6 15.9706 6 11C6 6.02944 10.0294 2 15 2C15.1274 2 15.2542 2.00265 15.3803 2.00789C14.0575 1.36229 12.5711 1 11 1C5.47715 1 1 5.47715 1 11C1 16.5228 5.47715 21 11 21Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
-                                <h4>Сонгох<h4>
+                                <h4>Сонгох</h4>
                             </div>
                         </article>
                         <article class="mbti">
@@ -1098,10 +1346,10 @@ class Profile extends HTMLElement {
                                 <path d="M1 12.1111H19.7614C20.3181 12.1111 20.5964 12.1111 20.7554 12.0034C20.894 11.9094 20.9825 11.7652 20.9984 11.6071C21.0167 11.4258 20.8735 11.2055 20.5871 10.7649L18.1484 7.01289C18.0404 6.84661 17.9863 6.76347 17.9652 6.67472C17.9465 6.59621 17.9465 6.5149 17.9652 6.4364C17.9863 6.34764 18.0404 6.2645 18.1484 6.09823L20.5871 2.34622C20.8735 1.90559 21.0167 1.68527 20.9984 1.50399C20.9825 1.34593 20.894 1.20171 20.7554 1.10776C20.5964 1 20.3181 1 19.7614 1H1L1 21" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
-                                <h4>Сонгох<h4>
+                                <h4>Сонгох</h4>
                             </div>
                         </article>
-                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
+                        <button class="plus-btn" id="plusAbout">НЭМЭХ</button>
                     </article>
                     <article class='job'>
                         <label>
@@ -1126,7 +1374,7 @@ class Profile extends HTMLElement {
                             <h5>Ажил</h5>
                             <div><p></p></div>
                         </article>
-                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
+                        <button class="plus-btn" id="plusJob">НЭМЭХ</button>
                     </article>
                     <article class='likes'>
                         <label>
@@ -1150,7 +1398,7 @@ class Profile extends HTMLElement {
                             <h5>Дуу</h5>
                             <div><p></p></div>
                         </article>
-                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
+                        <button class="plus-btn" id="plusLikes">НЭМЭХ</button>
                         <section class="interests">
                             <h5>Сонирхол</h5>
                             <div class="art">                                      
@@ -1170,7 +1418,7 @@ class Profile extends HTMLElement {
                             <div class="travel"><p></p></div>
                             <div class="book"><p></p></div>
                         </section>
-                        <button class="plus-btn" id="durtai">НЭМЭХ</button>
+                        <button class="plus-btn" id="plusInterests">НЭМЭХ</button>
                     </article>
                 </div>
             </section>
@@ -1178,7 +1426,8 @@ class Profile extends HTMLElement {
                 <button id="exit">EXIT</button>
                 <button id="save">SAVE</button>
             </div>
-            <input type="file" id="imageFile" accept="image/*" hidden>
+            <input type="file" id="avatarFile" accept="image/*" hidden>
+            <input type="file" id="galleryFile" accept="image/*" hidden>
         `;
 
         elMain.insertAdjacentHTML('beforeend', `
@@ -1487,6 +1736,7 @@ class Profile extends HTMLElement {
                         </svg>
                     </div>
                 `;
+                this.setupGalleryUpload(edit, img);
                 this.enableExit(edit);
             });
         });
@@ -1534,42 +1784,204 @@ class Profile extends HTMLElement {
             });
         }
 
-        const mbti = this.querySelector('.mbti');
-
-        if (mbti) {
-            mbti.addEventListener('click', () => {
-                edit.style.display = 'grid';
-                edit.innerHTML = `
+        this.querySelector('#plusAbout').addEventListener('click', () => {
+            edit.style.display = 'grid';
+            edit.innerHTML = `
                     <style>
                         nm-selection{
                             width: 50%;
                             height: 60%;
                         }
                     </style>
-                    <nm-selection name="${Profile.MBTI}" select="mbti"></nm-selection>
+                    <nm-selection name="${Profile.ABOUT}" select="about" isMulti="true"></nm-selection>
                 `;
-                this.enableExit(edit);
-            });
-        }
+            this.enableExit(edit);
+        });
+
+        this.querySelector('#plusJob').addEventListener('click', () => {
+            edit.style.display = 'grid';
+            edit.innerHTML = `
+                    <style>
+                        nm-selection{
+                            width: 50%;
+                            height: 60%;
+                        }
+                    </style>
+                    <nm-selection name="${Profile.JOB}" select="job" isMulti="true"></nm-selection>
+                `;
+            this.enableExit(edit);
+        });
 
 
         if (this.profile) this.loadUser();
     }
 
-    setupAvatarUpload(edit) {
-        const fileInput = edit.querySelector('#avatarFile');
-        const uploadBtn = edit.querySelector('#avatarUploadBtn');
-        const previewImg = edit.querySelector('.preview');
-        const avatarImg = this.querySelector('.avatar img'); // үндсэн profile дээрх зураг
+    collectPayload() {
+        const set = {};
+        const unset = {};
+        const p = this.profile || {};
+        const $ = (sel) => this.querySelector(sel);
 
-        if (!fileInput || !uploadBtn || !previewImg || !avatarImg) return;
+        const setOrUnset = (path, newVal, oldVal) => {
+            const n = (newVal ?? '').toString().trim();
+            const o = (oldVal ?? '').toString().trim();
 
-        // "Оруулах" дээр дарвал file chooser нээнэ
-        uploadBtn.addEventListener('click', () => {
-            fileInput.click();
+            if (n === o) return;
+
+            if (n === '') unset[path] = 1;
+            else set[path] = n;
+        };
+
+        setOrUnset('relationshipGoal', $('.goal p')?.textContent, p.relationshipGoal);
+        setOrUnset('loveLanguage', $('.loveLang p')?.textContent, p.loveLanguage);
+        setOrUnset('bio', $('textarea.bio')?.value, p.bio);
+        setOrUnset('major', $('.major p')?.textContent, p.major);
+
+        setOrUnset('about.height', $('.height p')?.textContent, p.about?.height);
+        setOrUnset('about.mbti', $('.mbti p')?.textContent, p.about?.mbti);
+        setOrUnset('about.zodiac', $('.zodiac p')?.textContent, p.about?.zodiac);
+
+        const interestKeys = ['art', 'sport', 'music', 'computer', 'travel', 'book'];
+        const newInterests = {};
+        for (const k of interestKeys) {
+            const val = $(`.interests .${k} p`)?.textContent?.trim() ?? '';
+            if (val) newInterests[k] = val;
+        }
+
+        if (Object.keys(newInterests).length < 3) {
+            return { error: 'interests_min_3' };
+        }
+
+        const oldRaw = (p.interests && typeof p.interests === 'object' && !Array.isArray(p.interests))
+            ? p.interests
+            : {};
+
+        const oldInterests = {};
+        for (const k of Object.keys(oldRaw)) {
+            const v = (oldRaw[k] ?? '').toString().trim();
+            if (v) oldInterests[k] = v;
+        }
+
+        const same = JSON.stringify(newInterests) === JSON.stringify(oldInterests);
+        if (!same) set.interests = newInterests;
+
+        const payload = { set, unset };
+
+        this.applyPayloadToLocalProfile(payload);
+
+        return payload;
+    }
+
+
+    applyPayloadToLocalProfile(payload) {
+        if (!this.profile) this.profile = {};
+        const { set = {}, unset = {} } = payload;
+
+        const setByPath = (obj, path, value) => {
+            const parts = path.split('.');
+            let cur = obj;
+            for (let i = 0; i < parts.length - 1; i++) {
+                const k = parts[i];
+                if (!cur[k] || typeof cur[k] !== 'object') cur[k] = {};
+                cur = cur[k];
+            }
+            cur[parts[parts.length - 1]] = value;
+        };
+
+        const deleteByPath = (obj, path) => {
+            const parts = path.split('.');
+            let cur = obj;
+            for (let i = 0; i < parts.length - 1; i++) {
+                cur = cur?.[parts[i]];
+                if (!cur || typeof cur !== 'object') return;
+            }
+            delete cur[parts[parts.length - 1]];
+        };
+
+        for (const [path, value] of Object.entries(set)) {
+            setByPath(this.profile, path, value);
+        }
+
+        for (const path of Object.keys(unset)) {
+            deleteByPath(this.profile, path);
+        }
+    }
+    confirmDialog({ title, message = "", confirmText = "OK", cancelText = "Cancel", variant = "danger" } = {}) {
+        return new Promise((resolve) => {
+            let modal = this.querySelector('#nmConfirm');
+            if (!modal) {
+                this.insertAdjacentHTML('beforeend', `
+                    <div id="nmConfirm" class="nm-confirm" style="display:none;">
+                    <div class="nm-confirm__panel" role="dialog" aria-modal="true">
+                        <div class="nm-confirm__head">
+                        <h3 class="nm-confirm__title"></h3>
+                        </div>
+                        <p class="nm-confirm__msg"></p>
+                        <div class="nm-confirm__actions">
+                        <button class="nm-confirm__btn nm-cancel" type="button"></button>
+                        <button class="nm-confirm__btn nm-ok" type="button"></button>
+                        </div>
+                    </div>
+                    </div>
+                `);
+                modal = this.querySelector('#nmConfirm');
+
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) close(false);
+                });
+
+                window.addEventListener('keydown', (e) => {
+                    if (modal.style.display !== 'none' && e.key === 'Escape') close(false);
+                });
+            }
+
+            const panel = modal.querySelector('.nm-confirm__panel');
+            const titleEl = modal.querySelector('.nm-confirm__title');
+            const msgEl = modal.querySelector('.nm-confirm__msg');
+            const cancelBtn = modal.querySelector('.nm-cancel');
+            const okBtn = modal.querySelector('.nm-ok');
+
+            titleEl.textContent = title || "";
+            msgEl.textContent = message || "";
+            cancelBtn.textContent = cancelText;
+            okBtn.textContent = confirmText;
+
+            okBtn.classList.toggle('is-danger', variant === 'danger');
+
+            const close = (val) => {
+                modal.style.display = 'none';
+                modal.classList.remove('open');
+                cancelBtn.onclick = null;
+                okBtn.onclick = null;
+                resolve(val);
+            };
+
+            cancelBtn.onclick = () => close(false);
+            okBtn.onclick = () => close(true);
+
+            modal.style.display = 'grid';
+            requestAnimationFrame(() => modal.classList.add('open'));
+
+            okBtn.focus();
         });
+    }
 
-        fileInput.addEventListener('change', async (e) => {
+
+
+
+    setupAvatarUpload(edit) {
+        const fileInput = this.querySelector('#avatarFile');
+        const avatarImg = this.querySelector('.avatar img');
+        const uploadBtn = edit.querySelector('#uploadBtn');
+
+        if (!avatarImg || !fileInput || !uploadBtn) return;
+
+        uploadBtn.onclick = () => {
+            fileInput.value = '';
+            fileInput.click();
+        };
+
+        fileInput.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -1610,100 +2022,70 @@ class Profile extends HTMLElement {
             // // credentials: 'include',
             // // body: JSON.stringify({ avatar: data.url }),
             // // });
+            fileInput.value = '';
 
-        });
+        };
     }
 
-    setupGalleryUpload() {
-        const fileInput = this.querySelector('#imageFile');
-        const images = this.querySelectorAll('.user-image-container img');
+    setupGalleryUpload(edit, img) {
+        const fileInput = this.querySelector('#galleryFile');
         const uploadBtn = edit.querySelector('#uploadBtn');
-        const prevImg = this.querySelector('.prevContainer img');
-        let value;
+        const prevImg = edit.querySelector('.prevContainer img');
 
-        if (!fileInput || !images.length || !uploadBtn || !prevImg) return;
+        if (!fileInput || !uploadBtn || !prevImg || !img) return;
 
-        uploadBtn.addEventListener('click', () => {
+        const index = String(img.dataset.index);
+
+        uploadBtn.onclick = () => {
+            fileInput.value = '';
             fileInput.click();
-        });
 
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
+        };
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files?.[0];
             if (!file) return;
-            const img = this.querySelector(
-                `.user-image-container img[value="${value}"]`
-            );
-            if (!img) return;
 
             const localUrl = URL.createObjectURL(file);
+
             img.src = localUrl;
             prevImg.src = localUrl;
 
             const form = new FormData();
             form.append('image', file);
             form.append('type', 'gallery');
-            form.append('index', String(index));
+            form.append('index', index);
 
-            switch (value) {
+            switch (index) {
                 case '0':
                     this.image0 = form;
                     break;
                 case '1':
-                    this.image0 = form;
+                    this.image1 = form;
                     break;
                 case '2':
-                    this.image0 = form;
+                    this.image2 = form;
                     break;
                 case '3':
-                    this.image0 = form;
+                    this.image3 = form;
                     break;
             }
 
-            // const res = await fetch('/api/upload/image', {
-            // method: 'POST',
-            // body: form,
-            // credentials: 'include',
-            // });
-
-            // if (!res.ok) {
-            // const text = await res.text();
-            // throw new Error(`Upload failed: ${res.status} ${text}`);
-            // }
-
-            // const data = await res.json(); // { url: '/uploads/...' }
-
-            // if (!this.profile) this.profile = {};
-            // if (!Array.isArray(this.profile.photos)) {
-            // this.profile.photos = [];
-            // }
-            // this.profile.photos[index] = data.url;
-
-            // // Профайл хадгалах (optional)
-            // await fetch('/api/profile/me', {
-            // method: 'PATCH',
-            // headers: { 'Content-Type': 'application/json' },
-            // credentials: 'include',
-            // body: JSON.stringify({ photos: this.profile.photos }),
-            // });
-
-            // } catch (err) {
-            //     console.error(err);
-            //     alert('Gallery зураг upload хийхэд алдаа гарлаа.');
-            // } finally {
-            //     fileInput.value = '';
-            //     this._currentRole = null;
-            //     this._currentPhotoIndex = null;
-            // }
-        });
+            fileInput.value = '';
+        };
     }
+
+
 
 
     enableExit(edit) {
-        this.querySelector('.exit').addEventListener('click', () => {
-            edit.style.display = `none`;
+        const exitBtn = edit.querySelector('.exit');
+        if (!exitBtn) return;
+
+        exitBtn.addEventListener('click', () => {
+            edit.style.display = 'none';
+            edit.innerHTML = '';
         });
     }
-
 }
-
 window.customElements.define('com-profile', Profile);

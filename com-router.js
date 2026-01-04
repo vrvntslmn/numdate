@@ -6,7 +6,7 @@ class Route extends HTMLElement {
 
 
       const hash = window.location.hash || "#/";
-      const clean = hash.replace(/^#\/?/, "");   
+      const clean = hash.replace(/^#\/?/, "");
       const path = (clean.split("?")[0] || "").toLowerCase(); // "match"
 
       switch (path) {
@@ -35,19 +35,22 @@ class Route extends HTMLElement {
     };
 
     window.addEventListener("hashchange", onRoute);
-
-
     onRoute();
   }
+  constructor() {
+    super();
+    this.routes = new Map();
+  }
 
-  urlBurtguuleh(url){
-        this.routes.set(url.path, url.content);
-    }
+  urlBurtguuleh(path, com) {
+    if (!this.routes) this.routes = new Map();
+    this.routes.set(path, com);
+  }
+
 }
-
 window.customElements.define("com-router", Route);
 
-    
 
-    
+
+
 
