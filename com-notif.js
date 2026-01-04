@@ -40,35 +40,32 @@ class ComNotif extends HTMLElement {
     }
   }
 
-  _onClick(e) {
-    const item = e.target.closest(".notifArt[data-open]");
-    if (!item) return;
+_onClick(e) {
+  const item = e.target.closest(".notifArt[data-open]");
+  if (!item) return;
 
-    const openWhat = item.getAttribute("data-open");
-    if (openWhat === "match") {
-      const matchId = item.getAttribute("data-match-id");
-      const pairKey = item.getAttribute("data-pair-key");
+  const openWhat = item.getAttribute("data-open");
 
-      if (matchId) {
-        this._goTo(`match?matchId=${encodeURIComponent(matchId)}`);
-      /** } else if (pairKey) {
-        this._goTo(`match?pairKey=${encodeURIComponent(pairKey)}`);
-        */
-      } else {
-        console.warn("notif item дээр matchId алга байна");
-        this._goTo("match");
-      }
+  if (openWhat === "match") {
+    const matchId = item.getAttribute("data-match-id");
+    const pairKey = item.getAttribute("data-pair-key");
 
-      this._closePanel();
-      return;
-    }
-
-    if (openWhat === "dateidea") {
+    if (matchId) {
+      this._goTo(`match?matchId=${encodeURIComponent(matchId)}`);
+    } else {
+      console.warn("notif item дээр matchId алга байна");
       this._goTo("match");
-      this._closePanel();
-      return;
     }
+
+    this._closePanel();
+    return;
   }
+
+  // ✅ dateidea дархад юу ч хийхгүй
+  if (openWhat === "dateidea") {
+    return;
+  }
+}
 
   _onDocClick(e) {
     if (e.target.closest("label.notif")) return;

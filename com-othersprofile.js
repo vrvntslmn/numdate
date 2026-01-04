@@ -159,12 +159,13 @@ class OthersProfile extends HTMLElement {
           background-color: white;
           border-radius: var(--brderRad-big);
           display: flex;
-          flex: 0 1 880px;      /* 800 → 880 (жаахан амьсгаа) */
+          flex: 0 1 880px;  
           z-index: 0;
           flex-wrap: wrap;
           justify-content: space-between;
           box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
-        }
+           position: relative;
+          }
 
         div.main-container > article {
           margin: 18px;         /* 20 → 18 */
@@ -452,31 +453,34 @@ class OthersProfile extends HTMLElement {
             height: 110px;
           }
 
-          /* mobile deer X btn haruulna */
-          .close-btn--mobile { display: inline-flex; }
+        
 
           /* mobile deer X nuuh */
           .info-head .close-btn { display: none; }
+           
+
+          .close-btn--mobile {
+          display: inline-flex;
+           position: absolute;
+          top: 12px;
+          right: 12px;
+          z-index: 50;
+          align-items: center;
+          justify-content: center;
+         padding: 0;
+         line-height: 0;
+
         }
 
-        @media (max-width: 520px) {
-          main { padding: 10px; }
-
-          div.main-container > article,
-          div.main-container > section {
-            margin: 10px;
-          }
-
-          h2, h3 { font-size: 26px; }
-          .bio { font-size: 13px; }
-
-          .border-red { height: 96px; }
-
-          .close-btn svg {
-            width: 34px;
-            height: 34px;
-            margin-right: 25px;
-          }
+       
+         @media (max-width: 520px) {
+  
+         .close-btn--mobile svg {
+         margin-right: 0 !important;
+         width: 34px;
+         height: 34px;
+         }
+         }
         }
       </style>
 
@@ -486,7 +490,6 @@ class OthersProfile extends HTMLElement {
             <div class="profile-head">
               <h2>Profile</h2>
 
-              <!-- ✅ mobile үед Profile хажууд -->
               <button class="close-btn close-btn--mobile" aria-label="Close" title="Close">
                 <svg width="42" height="42" viewBox="0 0 24 24" fill="none"
                   xmlns="http://www.w3.org/2000/svg">
