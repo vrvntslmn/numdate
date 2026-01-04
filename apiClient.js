@@ -1,26 +1,42 @@
 const API_BASE = "";
 
-async function request(path, { method = "GET", body } = {}) {
+async function request(path, { method = "GET", body, headers } = {}) {
+  const isFormData =
+    typeof FormData !== "undefined" && body instanceof FormData;
+  const isBodyPresent = body !== undefined && body !== null;
+
   const res = await fetch(API_BASE + path, {
     method,
-    headers: body ? { "Content-Type": "application/json" } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
     credentials: "include",
+    headers: {
+      ...(headers || {}),
+      ...(isBodyPresent && !isFormData
+        ? { "Content-Type": "application/json" }
+        : {}),
+    },
+    body: !isBodyPresent
+      ? undefined
+      : isFormData
+        ? body
+        : JSON.stringify(body),
   });
 
-  const text = await res.text();
+  const text = await res.text().catch(() => "");
   let data = null;
 
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
-    data = text; // JSON биш байж болно
+    data = text;
   }
 
   if (!res.ok) {
-    const err = new Error(
-      data?.error || data?.message || `Request failed with ${res.status}`
-    );
+    const msg =
+      (data && typeof data === "object" && (data.error || data.message)) ||
+      (typeof data === "string" && data) ||
+      `Request failed with ${res.status}`;
+
+    const err = new Error(msg);
     err.status = res.status;
     err.data = data;
     throw err;
@@ -30,7 +46,6 @@ async function request(path, { method = "GET", body } = {}) {
 }
 
 export const api = {
-  // -------- AUTH --------
   login({ email, password }) {
     return request("/api/auth/login", {
       method: "POST",
@@ -60,28 +75,22 @@ export const api = {
     });
   },
 
-  // -------- PROFILES --------
-  // ✅ MY profile (logged-in user) — ID хэрэггүй
   getMyProfile() {
     return request("/api/profile");
   },
 
-  // ✅ Home feed profiles
   getProfiles() {
     return request("/api/profiles");
   },
 
-  // ✅ OTHERS profile (userId-гаар нь авах) — чи яг үүнийг ашиглах ёстой
   getOtherProfileByUserId(userId) {
     return request(`/api/profile/${encodeURIComponent(userId)}`);
   },
 
-  // ⚠️ Зөвхөн profiles collection-ын document _id (profileId) байгаа үед хэрэглэнэ
   getProfileById(profileId) {
     return request(`/api/profiles/${encodeURIComponent(profileId)}`);
   },
 
-  // -------- OTHER --------
   getDateIdeas() {
     return request("/api/dateideas");
   },
@@ -96,18 +105,36 @@ export const api = {
       body: { toUserId },
     });
   },
-
   getMatchNotifications() {
     return request("/api/notifications/matches");
   },
 
-  
-
-  setPhoto(form){
-    return request("//api/upload/image", {
+  setPhoto(formData) {
+    return request("/api/upload/image", {
       method: "POST",
-      body: form,
+      body: formData,
     });
-  }
-  
+  },
+
+  matches() {
+    return request("/api/matches");
+  },
+
+  getMessages(otherId, limit = 200) {
+    return request(`/api/messages?other=${encodeURIComponent(otherId)}&limit=${limit}`);
+  },
+
+  sendMessage({ otherId, text, type = "text" }) {
+    return request("/api/messages", {
+      method: "POST",
+      body: { other: otherId, text, type },
+    });
+  },
+
+  selectOtherProfile(userId) {
+    return request("/api/othersprofile/select", {
+      method: "POST",
+      body: { userId },
+    });
+  },
 };

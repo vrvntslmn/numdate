@@ -1,3 +1,4 @@
+import { api } from "./apiClient.js";
 class Home extends HTMLElement {
     constructor() {
         super();
@@ -6,38 +7,40 @@ class Home extends HTMLElement {
         this.profileSwipe = null;
         this.dropdownFilter = null;
         this.likedIds = new Set();
-
+        this.me = null;
+        this.meId = "";
     }
     async loadLikedIds() {
         try {
-            const res = await fetch("/api/likes/me");
-            if (!res.ok) throw new Error("failed to load likes");
-            const data = await res.json();
+            const data = await api.getLikedIds();
             this.likedIds = new Set((data.ids || []).map(String));
         } catch (e) {
             console.warn("loadLikedIds failed:", e);
             this.likedIds = new Set();
         }
     }
-
-
     async loadMe() {
         try {
-            const res = await fetch("/api/profile");
-            if (!res.ok) throw new Error("failed to load me");
-            this.me = await res.json();
+            const data = await api.me();
+            const u = data?.user || data;
+            this.me = u || null;
+            this.meId = String(u?._id || u?.userId || "");
         } catch (e) {
             console.warn("loadMe failed:", e);
             this.me = null;
+            this.meId = "";
         }
     }
 
     removeMe(list) {
-        const myId = this.me?.userId ? String(this.me.userId) : null;
+        const myId = this.meId;
         if (!myId) return list;
-        return list.filter(p => String(p.userId) !== myId);
-    }
 
+        return list.filter(p => {
+            const pid = String(p.userId || p._id || "");
+            return pid !== myId;
+        });
+    }
     getProfileId(profile) {
         return profile?.userId ? String(profile.userId) : null;
     }
@@ -1107,7 +1110,6 @@ class Home extends HTMLElement {
     }
 
 
-
     initializeDropdownColors() {
         const dropdowns = this.querySelectorAll('.dropdown');
         dropdowns.forEach(dropdown => {
@@ -1116,8 +1118,7 @@ class Home extends HTMLElement {
     }
     async fetchProfiles() {
         try {
-            const res = await fetch("/api/profiles");
-            const data = await res.json();
+            const data = await api.getProfiles();
 
             const withoutMe = this.removeMe(data);
             this.allProfiles = this.removeLiked(withoutMe);
@@ -1130,11 +1131,6 @@ class Home extends HTMLElement {
             this.filteredProfiles = [...this.allProfiles];
         }
     }
-
-
-
-
-
     setupEventListeners() {
         const filterButton = this.querySelector('.filter');
         if (filterButton) {
@@ -1160,22 +1156,14 @@ class Home extends HTMLElement {
                 }
 
                 try {
-                    const res = await fetch("/api/othersprofile/select", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                        body: JSON.stringify({ userId }),
-                    });
-
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok) throw new Error(data?.error || "failed to select profile");
-
+                    await api.selectOtherProfile(userId);
                     window.location.hash = "#/othersprofile";
                 } catch (err) {
                     console.error(err);
-                    alert("Профайл сонгож чадсангүй");
+                    alert(err.message || "Профайл сонгож чадсангүй");
                 }
             });
+
         }
 
 
@@ -1285,7 +1273,6 @@ class ProfileSwipe {
         this.setupTouchControls();
         this.checkRefreshLimit();
     }
-
     async saveSwipe(action, profile) {
         if (!profile) return;
 
@@ -1296,38 +1283,21 @@ class ProfileSwipe {
 
         try {
             if (action === "like" && isRealUser) {
-                const likeRes = await fetch("/api/like", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ toUserId: targetUserId }),
-                });
-
-                if (!likeRes.ok) {
-                    const txt = await likeRes.text().catch(() => "");
-                    throw new Error(`POST /api/like failed: ${likeRes.status} ${txt}`);
-                }
+                await api.likeUser(targetUserId);
             }
 
-            const swipeRes = await fetch("/api/swipes", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    action,
-                    targetUserId,
-                    targetName: profile.name || null,
-                    at: new Date().toISOString(),
-                }),
+            await api.swipe({
+                action,
+                targetUserId,
+                targetName: profile.name || null,
+                at: new Date().toISOString(),
             });
-
-            if (!swipeRes.ok) {
-                const txt = await swipeRes.text().catch(() => "");
-                throw new Error(`POST /api/swipes failed: ${swipeRes.status} ${txt}`);
-            }
 
         } catch (err) {
             console.warn("saveSwipe failed:", err);
         }
     }
+
     setupTransitions() {
         this.profileElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
         this.refreshButton.style.transition = 'transform 0.3s ease';
