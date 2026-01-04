@@ -7,7 +7,7 @@ class Route extends HTMLElement {
 
       const hash = window.location.hash || "#/";
       const clean = hash.replace(/^#\/?/, "");
-      const path = (clean.split("?")[0] || "").toLowerCase(); // "match"
+      const path = (clean.split("?")[0] || "").toLowerCase();
 
       switch (path) {
         case "":

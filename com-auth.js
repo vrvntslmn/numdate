@@ -752,9 +752,9 @@ class Auth extends HTMLElement {
         this.loginPw = q('#loginPw');
         this.loginBtn = q('#loginBtn');
 
-        this.loginPwToggle = q('#loginPwToggle');          // FIX: cache pw toggle
-        this.signupPwToggle = q('#signupPwToggle');        // FIX
-        this.signupPwConfirmToggle = q('#signupPwConfirmToggle'); // FIX
+        this.loginPwToggle = q('#loginPwToggle');
+        this.signupPwToggle = q('#signupPwToggle');
+        this.signupPwConfirmToggle = q('#signupPwConfirmToggle');
 
         this.formLogin = q('#formLogin');
         this.formSignup = q('#formSignup');
@@ -788,7 +788,6 @@ class Auth extends HTMLElement {
         this.loginEmail.oninput = () => this.validateLogin();
         this.loginPw.oninput = () => this.validateLogin();
 
-        // FIX: wire up password toggles
         if (this.loginPwToggle) {
             this.loginPwToggle.onclick = () => this.togglePw(this.loginPw, this.loginPwToggle);
         }
@@ -823,7 +822,6 @@ class Auth extends HTMLElement {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // same-origin is default, but explicit is fine
                     credentials: 'same-origin',
                     body: JSON.stringify({ email, password }),
                 });
@@ -1069,9 +1067,6 @@ class Auth extends HTMLElement {
             interests: Object.keys(s.interests || {}),
         };
     }
-
-
-
     mountChips() {
         this.single('mbtiChips', Auth.MBTI, 'mbti');
         this.single('loveLangChips', Auth.LOVE_LANG, 'loveLanguage');
@@ -1079,9 +1074,6 @@ class Auth extends HTMLElement {
         this.single('interestedInChips', Auth.INTERESTED_IN, 'interestedIn');
         this.multi('interestChips', Auth.INTERESTS, 'interests');
     }
-
-
-
     single(id, opts, key) {
         const root = this.querySelector('#' + id);
         if (!root) return;
@@ -1101,7 +1093,6 @@ class Auth extends HTMLElement {
             root.appendChild(b);
         });
     }
-
     multi(id, opts, key) {
         const root = this.querySelector('#' + id);
         if (!root) return;
@@ -1127,15 +1118,12 @@ class Auth extends HTMLElement {
             root.appendChild(b);
         });
     }
-
-
     toggleBtn(btn, ok) {
         if (!btn) return;
         btn.classList.toggle('disabled', !ok);
         btn.setAttribute('aria-disabled', String(!ok));
         btn.disabled = !ok;
     }
-
     togglePw(input, btn) {
         if (!input || !btn) return;
         const isPw = input.type === 'password';
@@ -1143,5 +1131,4 @@ class Auth extends HTMLElement {
         btn.textContent = isPw ? 'Hide' : 'Show';
     }
 }
-
 window.customElements.define('com-auth', Auth);

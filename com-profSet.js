@@ -1,4 +1,4 @@
-import {api} from './apiClient.js';
+import { api } from './apiClient.js';
 
 class ComProfSet extends HTMLElement {
     constructor() {
@@ -58,18 +58,18 @@ class ComProfSet extends HTMLElement {
         const deleteEl = this.querySelector('.delete');
         const input = document.getElementById('prof');
 
-        if (input){
-            input.addEventListener('click', () =>{
-                if(input.checked)
+        if (input) {
+            input.addEventListener('click', () => {
+                if (input.checked)
                     this.render();
                 else this.innerHTML = ``;
             });
-            
+
         }
         if (logoutEl) {
             logoutEl.addEventListener('click', () => {
                 api.logout()
-                    .then( () =>{
+                    .then(() => {
                         window.location.href = '/'
                     }
                     ).catch(e => {
@@ -94,9 +94,7 @@ class ComProfSet extends HTMLElement {
                         const text = await res.text();
                         throw new Error(`HTTP ${res.status}: ${text}`);
                     }
-
-                    // Амжилттай устгасан бол login/home рүү явуулна
-                    window.location.href = '/signup'; // эсвэл '/'
+                    window.location.href = '/signup';
                 } catch (e) {
                     console.error('Delete account failed:', e);
                     alert('Аккаунт устгахад алдаа гарлаа.');
@@ -106,19 +104,13 @@ class ComProfSet extends HTMLElement {
     }
 
     disconnectedCallback() {
-        // Хэрэв дараа нь event listener-үүдээ цэвэрлэмээр байвал энд хадгалсан ref-үүдээ removeEventListener хийнэ
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
-        // Хэрвээ ирээдүйд attribute-аар (жишээ нь redirect-url гэх мэт) удирдмаар байвал энд хийж болно
     }
 
     adoptedCallback() {
-        // Document хооронд нүүх үед хэрэг болно
     }
-
-    // Хэрэв attribute-ыг ажиглах бол:
-    // static get observedAttributes() { return ['logout-redirect', 'delete-redirect']; }
 }
 
 window.customElements.define('com-profset', ComProfSet);
