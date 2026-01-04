@@ -12,12 +12,15 @@ class DateIdea extends HTMLElement {
     this.topPicks = [];
     this.categories = [];
     this.cardById = new Map();
+    this.matches = [];          // ✅ match болсон хүмүүс энд орно
+    this.recipientButtons = null;
+
   }
 
   connectedCallback() {
     (async () => {
-      await this.loadDateIdeas();
-      this.render();
+      await Promise.all([this.loadDateIdeas(), this.loadMatches()]);
+       this.render();
       this.initCardSelection();
       this.initModal();
     })();
@@ -45,6 +48,55 @@ class DateIdea extends HTMLElement {
       this.cardById = new Map();
     }
   }
+   
+  async loadMatches() {
+  try {
+    const res = await fetch("/api/matches", { credentials: "include" }); // ✅ endpoint-оо тааруул
+    if (!res.ok) throw new Error(`HTTP ${res.status} on /api/matches`);
+
+    const data = await res.json();
+
+    const list =
+      Array.isArray(data) ? data :
+      Array.isArray(data?.matches) ? data.matches :
+      [];
+
+    this.matches = list
+      .map((m) => ({
+        userId: String(m.userId || m.id || m._id || ""),
+        name: m.name || m.fullName || m.username || "",
+        avatar: m.avatar || m.photo || m.image || "",
+      }))
+      .filter((x) => x.userId);
+  } catch (e) {
+    console.error("Failed to load matches:", e);
+    this.matches = [];
+  }
+}
+renderRecipientsHtml() {
+  if (!this.matches.length) {
+    return `<div style="color:#94a3b8;font-size:13px;">Match болсон хүн алга байна.</div>`;
+  }
+
+  return this.matches
+    .map((m) => {
+      const id = this.escapeAttr(m.userId);
+      const name = this.escapeHtml(m.name || "Unknown");
+      const avatar = m.avatar ? this.escapeAttr(m.avatar) : "";
+
+      const avatarHtml = avatar
+        ? `<img src="${avatar}" alt="${name}" />`
+        : `<span>${name.slice(0, 1).toUpperCase()}</span>`;
+
+      return `
+        <button type="button" class="recipient-chip" data-recipient-id="${id}">
+          <span class="recipient-chip__avatar">${avatarHtml}</span>
+          <span class="recipient-chip__name recipient-name">${name}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
 
   buildCardIndex() {
     this.cardById = new Map();
@@ -803,31 +855,9 @@ class DateIdea extends HTMLElement {
               <div class="date-modal__recipients-label">Хэнд илгээх вэ?</div>
 
               <div class="date-modal__recipients-list" id="date-modal-recipients">
-                <button type="button" class="recipient-chip" data-recipient-id="1">
-                  <span class="recipient-chip__avatar"><img src="avatar/amina.png" alt="Амина" /></span>
-                  <span class="recipient-chip__name recipient-name">Амина</span>
-                </button>
-
-                <button type="button" class="recipient-chip" data-recipient-id="2">
-                  <span class="recipient-chip__avatar"><img src="avatar/misheel.png" alt="Мишээл" /></span>
-                  <span class="recipient-chip__name recipient-name">Мишээл</span>
-                </button>
-
-                <button type="button" class="recipient-chip" data-recipient-id="3">
-                  <span class="recipient-chip__avatar"><img src="avatar/enguun.png" alt="Энгүүн" /></span>
-                  <span class="recipient-chip__name recipient-name">Энгүүн</span>
-                </button>
-
-                <button type="button" class="recipient-chip" data-recipient-id="4">
-                  <span class="recipient-chip__avatar"><img src="avatar/egshiglen.png" alt="Эгшиглэн" /></span>
-                  <span class="recipient-chip__name recipient-name">Эгшиглэн</span>
-                </button>
-
-                <button type="button" class="recipient-chip" data-recipient-id="5">
-                  <span class="recipient-chip__avatar"><img src="avatar/dulam.png" alt="Дулам" /></span>
-                  <span class="recipient-chip__name recipient-name">Дулам</span>
-                </button>
+             ${this.renderRecipientsHtml()}
               </div>
+
             </div>
 
             <div class="date-modal__actions">
@@ -850,12 +880,9 @@ class DateIdea extends HTMLElement {
     this.teardownCardSelection();
 
     this.allCards = this.shadowRoot.querySelectorAll("[data-date-card]");
-    this.infoEl = this.shadowRoot.getElementById("chosen-message");
+    
 
-    if (!this.allCards.length || !this.infoEl) return;
-
-    this.infoEl.hidden = true;
-
+  
     this.allCards.forEach((card) => {
       card.addEventListener("click", this.handleCardClick);
 
@@ -910,10 +937,7 @@ class DateIdea extends HTMLElement {
     }
     cardEl.setAttribute("aria-pressed", "true");
 
-    if (this.infoEl) {
-      this.infoEl.textContent = "You chose: " + title;
-      this.infoEl.hidden = false;
-    }
+
 
     this.dispatchEvent(
       new CustomEvent("dateidea-select", {
@@ -1102,8 +1126,9 @@ class DateIdea extends HTMLElement {
 
   handleRecipientClick(btn) {
     this.selectedRecipient = {
-      id: btn.getAttribute("data-recipient-id"),
+      id: btn.getAttribute("data-recipient-id"),  
       name: btn.querySelector(".recipient-name")?.textContent?.trim() || "",
+        avatar: btn.querySelector("img")?.getAttribute("src") || "",
     };
 
     if (this.recipientButtons) {
@@ -1114,37 +1139,68 @@ class DateIdea extends HTMLElement {
 
     if (this.modalSendBtn) this.modalSendBtn.disabled = false;
   }
+async handleSendClick() {
+  const data = this.selectedCardForSend;
 
-  handleSendClick() {
-    const data = this.selectedCardForSend;
-
-    if (!this.selectedRecipient) {
-      if (this.modalSendBtn) this.modalSendBtn.disabled = true;
-      return;
-    }
-
-    if (!data) {
-      this.closeModal();
-      return;
-    }
-
-    this.dispatchEvent(
-      new CustomEvent("dateidea-send", {
-        detail: {
-          id: data.id,
-          title: data.title,
-          meta: data.meta || "",
-          tags: Array.isArray(data.tags) ? data.tags : [],
-          source: data.source,
-          recipient: this.selectedRecipient,
-        },
-        bubbles: true,
-        composed: true,
-      })
-    );
-
-    this.closeModal();
+  if (!this.selectedRecipient) {
+    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+    return;
   }
+  if (!data) {
+    this.closeModal();
+    return;
+  }
+
+  // ✅ 1) server руу notification үүсгэж явуулна
+  try {
+    if (this.modalSendBtn) this.modalSendBtn.disabled = true;
+
+    const res = await fetch("/api/dateideas/send", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        toUserId: this.selectedRecipient.id,   // ✅ match хүний userId
+        cardId: data.id,                       // ✅ date card id
+        title: data.title,
+        meta: data.meta || "",
+        tags: Array.isArray(data.tags) ? data.tags : [],
+      }),
+    });
+
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(out?.error || `HTTP ${res.status}`);
+
+    // хүсвэл UI дээр "sent" гэж харуулах
+    // console.log("sent", out);
+
+  } catch (e) {
+    console.error("send dateidea failed:", e);
+    // хүсвэл alert / toast
+  } finally {
+    if (this.modalSendBtn) this.modalSendBtn.disabled = false;
+  }
+
+  // ✅ 2) event dispatch (чи өөр component дээр сонсож байж магадгүй)
+  this.dispatchEvent(
+    new CustomEvent("dateidea-send", {
+      detail: {
+        id: data.id,
+        title: data.title,
+        meta: data.meta || "",
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        source: data.source,
+        recipient: this.selectedRecipient,
+      },
+      bubbles: true,
+      composed: true,
+    })
+  );
+
+  this.closeModal();
+}
+
+
 }
 
 window.customElements.define("com-dateidea", DateIdea);

@@ -330,6 +330,7 @@ class ComMessenger extends HTMLElement {
       emptyNewMessageBtn,
       backBtn,
       chatApp,
+      headerAvatar
     } = this.els;
 
     // details toggle
@@ -386,6 +387,33 @@ class ComMessenger extends HTMLElement {
       this.closeDateOverlay();
       this.els.searchInput?.focus();
     });
+   
+// ✅ header avatar click => open OthersProfile (session-based)
+headerAvatar?.addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  const otherId = this.activeOtherId; // selectConversationEl дээр set болсон
+  if (!otherId) return;
+
+  try {
+    const res = await fetch("/api/othersprofile/select", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ userId: otherId }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || "failed_to_select");
+
+    window.location.hash = "#/othersprofile";
+  } catch (err) {
+    console.error(err);
+    alert("Профайл нээж чадсангүй");
+  }
+});
+
+
 
     // search
     searchInput?.addEventListener("input", () => {
