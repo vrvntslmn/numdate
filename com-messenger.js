@@ -110,7 +110,7 @@ class ComMessenger extends HTMLElement {
 
           .stories-header {
               padding: 16px 20px;
-              border-bottom: 1px solid #EFEFEF;
+              border-bottom: 1px solid var (--border-soft);
           }
 
           .stories-scroll {
@@ -253,7 +253,7 @@ class ComMessenger extends HTMLElement {
               border-radius: 50%;
               border: none;
               background: transparent;
-              color: #262626;
+              color: var(--icon);
               font-size: 28px;
               display: flex;
               justify-content: center;
@@ -262,9 +262,7 @@ class ComMessenger extends HTMLElement {
               transition: background 0.2s ease;
           }
 
-          .back-btn:hover {
-              background: #FAFAFA;
-          }
+         .back-btn:hover { background: color-mix(in srgb, var(--panel) 85%, var(--text) 15%); } 
 
           .chat-user-avatar {
               width: 48px;
@@ -293,10 +291,7 @@ class ComMessenger extends HTMLElement {
               font-family: 'Roboto Condensed', sans-serif;
           }
 
-          .stories-header {
-              padding: 16px 20px;
-              border-bottom: 1px solid #EFEFEF;
-          }
+          
 
           .search-box {
               display: flex;
@@ -387,9 +382,7 @@ class ComMessenger extends HTMLElement {
               background: var(--icon);
           }
 
-          .more-btn:hover {
-              background: #FAFAFA;
-          }
+          .more-btn:hover { background: color-mix(in srgb, var(--panel) 85%, var(--text) 15%); }
 
           .details-panel {
               position: absolute;
@@ -415,7 +408,7 @@ class ComMessenger extends HTMLElement {
               align-items: center;
               justify-content: space-between;
               padding: 14px 18px;
-              border-bottom: 1px solid #EFEFEF;
+              border-bottom: 1px solid var(--border-soft);
               font-family: 'Roboto Condensed', sans-serif;
               font-size: 15px;
               font-weight: 600;
@@ -431,13 +424,11 @@ class ComMessenger extends HTMLElement {
               border-radius: 50%;
           }
 
-          .details-close:hover {
-              background: #F5F5F5;
-          }
+          .details-close:hover { background: color-mix(in srgb, var(--panel) 85%, var(--text) 15%); }
 
           .details-section {
               padding: 14px 18px;
-              border-bottom: 1px solid #F5F5F5;
+              border-bottom: 1px solid var(--border-soft);
               display: flex;
               align-items: center;
               justify-content: space-between;
@@ -452,7 +443,7 @@ class ComMessenger extends HTMLElement {
               display: flex;
               flex-direction: column;
               gap: 6px;
-              border-top: 1px solid #F5F5F5;
+              border-top: 1px solid var(--border-soft);
           }
 
           .details-danger-btn {
@@ -529,22 +520,33 @@ class ComMessenger extends HTMLElement {
               border-radius: 3px;
           }
               
+         .chat-profile-link{
+         display:flex;
+        align-items:center;
+        gap:12px;
+        cursor:pointer;
+        user-select:none;
+        border-radius:12px;
+        padding:6px 8px;
 
-          .chat-profile-link{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            cursor:pointer;
-             user-select:none;
-             border-radius:12px;
-            padding:6px 8px;
-            }
-           .chat-profile-link:hover{
-  background:#FAFAFA;
+       color: var(--text);
+      transition: background .15s ease, box-shadow .15s ease;
 }
-:host([theme="dark"]) .chat-profile-link:hover{
-  background: rgba(255,255,255,0.06);
+
+.chat-profile-link:hover{
+  background: color-mix(in srgb, var(--panel) 85%, var(--text) 15%);
 }
+
+.chat-profile-link:active{
+  background: color-mix(in srgb, var(--panel) 78%, var(--text) 22%);
+}
+
+.chat-profile-link:focus-visible{
+  outline: 2px solid color-mix(in srgb, var(--text) 35%, transparent);
+  outline-offset: 2px;
+}
+
+          
 
           .message-row {
               display: flex;
@@ -804,7 +806,7 @@ class ComMessenger extends HTMLElement {
           .report-sheet {
               width: 430px;
               max-width: 95vw;
-              background: #fff;
+              background: var(--panel); color: var(--text);
               border-radius: 18px;
               overflow: hidden;
               font-family: 'Roboto Condensed', sans-serif;
@@ -816,12 +818,14 @@ class ComMessenger extends HTMLElement {
               align-items: center;
               justify-content: space-between;
               padding: 12px 16px;
-              border-bottom: 1px solid #EFEFEF;
+              border-bottom: 1px solid var(--border-soft);
               font-size: 14px;
               font-weight: 600;
           }
-
-          .report-close {
+          .report-row { background: var(--panel); color: var(--text); }
+          .report-row:hover { background: color-mix(in srgb, var(--panel) 85%, var(--text) 15%); }
+          .report-row + .report-row { border-top: 1px solid var(--border-soft); }
+           .report-close {
               border: none;
               background: transparent;
               cursor: pointer;
@@ -871,14 +875,14 @@ class ComMessenger extends HTMLElement {
               width: 100%;
               border: none;
               padding: 10px 16px 12px;
-              background: #F5F5F5;
+              background: var(--panel-2); color: var(--text);
               font-size: 14px;
               cursor: pointer;
               font-family: 'Roboto Condensed', sans-serif;
           }
 
           .report-back:hover {
-              background: #EBEBEB;
+             background: color-mix(in srgb, var(--panel-2) 85%, var(--text) 15%);
           }
 
           .empty-state {

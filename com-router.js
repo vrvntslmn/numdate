@@ -36,7 +36,7 @@ class Route extends HTMLElement {
 
     window.addEventListener("hashchange", onRoute);
 
-    // ✅ page refresh / initial load дээр шууд render
+
     onRoute();
   }
 

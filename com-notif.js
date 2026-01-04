@@ -51,10 +51,11 @@ class ComNotif extends HTMLElement {
 
       if (matchId) {
         this._goTo(`match?matchId=${encodeURIComponent(matchId)}`);
-      } else if (pairKey) {
+      /** } else if (pairKey) {
         this._goTo(`match?pairKey=${encodeURIComponent(pairKey)}`);
+        */
       } else {
-        console.warn("notif item дээр matchId/pairKey алга байна");
+        console.warn("notif item дээр matchId алга байна");
         this._goTo("match");
       }
 

@@ -10,18 +10,16 @@ class OthersProfile extends HTMLElement {
     this._onHashChange = this._onHashChange.bind(this);
   }
 
-
   connectedCallback() {
     this.renderSkeleton();
     window.addEventListener("hashchange", this._onHashChange);
     const path = this._getPathFromHash();
-  if (path === "othersprofile") this.load();
+    if (path === "othersprofile") this.load();
   }
 
   disconnectedCallback() {
     window.removeEventListener("hashchange", this._onHashChange);
   }
-
 
   _onHashChange() {
     const path = this._getPathFromHash();
@@ -40,21 +38,18 @@ class OthersProfile extends HTMLElement {
     return new URLSearchParams(q);
   }
 
+  async _fetchProfileSessionBased() {
+    const res = await fetch(`/api/othersprofile`, { credentials: "include" });
+    const data = await res.json().catch(() => ({}));
 
-
- async _fetchProfileSessionBased() {
-  const res = await fetch(`/api/othersprofile`, { credentials: "include" });
-  const data = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
-    const err = new Error(data?.error || "Profile fetch failed");
-    err.status = res.status;
-    err.data = data;
-    throw err;
+    if (!res.ok) {
+      const err = new Error(data?.error || "Profile fetch failed");
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
   }
-  return data;
-}
-
 
   async load() {
     if (this._loading) return;
@@ -98,335 +93,390 @@ class OthersProfile extends HTMLElement {
     this.innerHTML = `
       <style>
         :root {
-            --first-color: #FF0B55;
-            --second-color: #CF0F47;
-            --textWithBack: white;
-            --font-header: "Yanone Kaffeesatz", sans-serif;
-            --font-body: "Roboto Condensed", sans-serif;
-            --box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-            --bg-white: white;
-            --brderRad-big: 20px;
-            --brderRad-m: 8px;
-            --brderRad-sm: 2px;
-            --back-col-white: white;
-            --inputBorder: #D9D9D9;
-            --subInfoTitle-col: #55565A;
+          --first-color: #FF0B55;
+          --second-color: #CF0F47;
+          --textWithBack: white;
+          --font-header: "Yanone Kaffeesatz", sans-serif;
+          --font-body: "Roboto Condensed", sans-serif;
+          --box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+          --bg-white: white;
+          --brderRad-big: 20px;
+          --brderRad-m: 8px;
+          --brderRad-sm: 2px;
+          --back-col-white: white;
+          --inputBorder: #D9D9D9;
+          --subInfoTitle-col: #55565A;
         }
 
         :host {
-            display: block;
-            color-scheme: light dark;
+          display: block;
+          color-scheme: light dark;
         }
 
         h2 {
-            font-family: var(--font-header);
-            font-weight: 400;
-            font-size: 36px;
-            margin: 0;
-            color: var(--second-color);
+          font-family: var(--font-header);
+          font-weight: 400;
+          font-size: 36px;
+          margin: 0;
+          color: var(--second-color);
         }
 
         h3 {
-            margin: 0;
-            font-family: var(--font-header);
-            font-size: 36px;
+          margin: 0;
+          font-family: var(--font-header);
+          font-size: 36px;
         }
 
         h4 {
-            font-family: var(--font-header);
-            font-size: 24px;
-            margin: 0;
+          font-family: var(--font-header);
+          font-size: 24px;
+          margin: 0;
         }
 
         h5 {
-            font-family: var(--font-header);
-            font-size: 20px;
-            margin: 0;
-            color: var(--subInfoTitle-col);
+          font-family: var(--font-header);
+          font-size: 20px;
+          margin: 0;
+          color: var(--subInfoTitle-col);
         }
 
         p {
-            font-family: var(--font-body);
-            font-weight: 400;
+          font-family: var(--font-body);
+          font-weight: 400;
         }
 
+        
         main {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 50px;
-            padding: 25px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 28px;            
+          padding: 18px;      
         }
 
         div.main-container {
-            min-height: 500px;
-            background-color: white;
-            border-radius: var(--brderRad-big);
-            display: flex;
-            flex: 0 1 800px;
-            z-index: 0;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+          min-height: 500px;
+          background-color: white;
+          border-radius: var(--brderRad-big);
+          display: flex;
+          flex: 0 1 880px;      /* 800 → 880 (жаахан амьсгаа) */
+          z-index: 0;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
         }
 
-        div.main-container>article {
-            margin: 20px;
-            display: flex;
-            flex: 1 0 auto;
-            flex-direction: column;
-            align-items: center;
-            width: 36%;
-            min-width: 300px;
+        div.main-container > article {
+          margin: 18px;         /* 20 → 18 */
+          display: flex;
+          flex: 1 0 auto;
+          flex-direction: column;
+          align-items: center;
+          width: 36%;
+          min-width: 300px;
         }
 
         div.profile-head {
-            margin: 0px;
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-            align-items: center;
+          margin: 0px;
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+        }
+
+        /* ✅ Mobile үед Profile хажууд гаргах close */
+        .close-btn--mobile {
+          display: none;
         }
 
         div.avatar {
-            margin: 20px 0px;
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            border: 3px solid var(--second-color);
-            justify-content: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
+          margin: 16px 0px;     /* 20 → 16 */
+          width: 130px;
+          height: 130px;
+          border-radius: 50%;
+          border: 3px solid var(--second-color);
+          justify-content: center;
+          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+          overflow: hidden;
         }
 
-        div.avatar>img {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            object-fit: cover;
+        div.avatar > img {
+          width: 130px;
+          height: 130px;
+          border-radius: 50%;
+          object-fit: cover;
         }
 
         .name {
-            margin: 0px;
-            font-family: var(--font-body);
-            font-weight: 600;
-            font-size: 24px;
+          margin: 0px;
+          font-family: var(--font-body);
+          font-weight: 600;
+          font-size: 24px;
         }
 
         .bio {
-            text-align: center;
-            font-size: 14px;
-            font-weight: 400;
-            color: rgba(0, 0, 0, 0.7);
+          text-align: center;
+          font-size: 14px;
+          font-weight: 400;
+          color: rgba(0, 0, 0, 0.7);
+          margin: 8px 0 12px;
         }
 
         .user-image-container {
-            display: flex;
-            max-width: 60vw;
-            width: 100%;
-            justify-content: space-around;
-            gap: 8px;
+          display: flex;
+          max-width: 520px;
+          width: 90%;
+          justify-content: space-around;
+          gap: 10px; 
         }
 
         .border-red {
-            height: 50px;
-            width: 20%;
-            border: 2px solid var(--second-color);
-            border-radius: 7px;
-            object-fit: cover;
-            background: #f2f2f2;
+         width: calc(25% - 8px); 
+         height: 72px;           
+         border: 2px solid var(--second-color);
+         border-radius: 10px;
+         object-fit: cover;
+         background: #f2f2f2;
         }
 
-        div.main-container>section {
-            margin: 20px;
-            display: grid;
-            grid-template-areas: "ln h3" "ln div";
-            grid-template-columns: 30px auto;
-            grid-template-rows: 30px;
-            width: 52%;
-            height: 470px;
+        div.main-container > section {
+          margin: 18px; /* 20 → 18 */
+          display: grid;
+          grid-template-areas: "ln h3" "ln div";
+          grid-template-columns: 30px auto;
+          grid-template-rows: 30px;
+          width: 52%;
+          height: 470px;
         }
 
         .redline {
-            width: 6%;
-            height: 100%;
-            background-color: var(--second-color);
-            grid-area: ln;
+          width: 6%;
+          height: 100%;
+          background-color: var(--second-color);
+          grid-area: ln;
         }
 
         .info-head {
-            grid-area: h3;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-right: 6px;
+          grid-area: h3;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-right: 6px;
         }
 
         .scroll {
-            grid-area: div;
-            overflow: scroll;
-            scrollbar-width: none;
-            margin: 0px 3px;
+          grid-area: div;
+          overflow: auto;       /* scroll → auto */
+          scrollbar-width: none;
+          margin: 0px 3px;
+          padding-right: 4px;
         }
 
-        .scroll>article {
-            margin-top: 25px;
-            height: fit-content;
-            display: flex;
-            flex-direction: column;
+        .scroll > article {
+          margin-top: 18px;     /* 25 → 18 */
+          height: fit-content;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
         }
 
-        .scroll>article>article {
-            margin: 15px 0px;
-            margin-left: 5px;
+        .scroll > article > article {
+          margin: 12px 0px;     /* 15 → 12 */
+          margin-left: 5px;
         }
 
         .scroll label {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+          display: flex;
+          gap: 10px;
+          align-items: center;
         }
 
-        .rowWrap>div {
-            padding: 0px 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .rowWrap > div {
+          padding: 0px 5px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
         }
 
         .rowWrap p {
-            font-size: 20px;
-            margin: 0;
-            width: 80%;
+          font-size: 20px;
+          margin: 0;
+          width: 80%;
         }
 
         button {
-            border: none;
-            background: none;
-            cursor: pointer;
+          border: none;
+          background: none;
+          cursor: pointer;
+          padding: 0;
+          line-height: 0;
         }
 
         .interest-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 10px;
         }
 
         .interest-chip {
-            border: 1px solid var(--inputBorder);
-            border-radius: 999px;
-            padding: 6px 10px;
-            font-family: var(--font-body);
-            font-size: 14px;
-            background: rgba(207, 15, 71, 0.06);
-            color: #111;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .interest-chip {
-                border-color: rgba(255, 255, 255, .18);
-                background: rgba(207, 15, 71, 0.20);
-                color: rgba(232, 236, 243, .95);
-            }
+          border: 1px solid var(--inputBorder);
+          border-radius: 999px;
+          padding: 6px 10px;
+          font-family: var(--font-body);
+          font-size: 14px;
+          background: rgba(207, 15, 71, 0.06);
+          color: #111;
         }
 
         .goal {
-            border-bottom: solid 1px var(--inputBorder);
+          border-bottom: solid 1px var(--inputBorder);
+          padding-bottom: 10px;
         }
 
-        .about {
-            display: none;
-        }
+        .about { display: none; }
+        .height { display: none; }
+        .mbti { display: none; }
+        .zodiac { display: none; }
+        .work { display: none; }
+        .movie { display: none; }
+        .taste { display: none; }
+        .song { display: none; }
 
-        .height {
-            display: none;
-        }
+        .interests { display: block; }
 
-        .mbti {
-            display: none;
-        }
+        .art, .sport, .music, .computer, .travel, .book { display: none; }
 
-        .zodiac {
-            display: none;
-        }
+        .likes > label { margin-bottom: 12px; }
+        .likes > .rowWrap:first-of-type { margin-top: 6px; }
 
-        .work {
-            display: none;
-        }
-
-        .movie {
-            display: none;
-        }
-
-        .taste {
-            display: none;
-        }
-
-        .song {
-            display: none;
-        }
-
-        .interests {
-            display: block;
-        }
-
-        .art,
-        .sport,
-        .music,
-        .computer,
-        .travel,
-        .book {
-            display: none;
-        }
-
-        .likes>label {
-            margin-bottom: 12px;
-        }
-
-        .likes>.rowWrap:first-of-type {
-            margin-top: 6px;
-        }
-
+  
         @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #0b0d10 !important;
-            }
+          body { background-color: #0b0d10 !important; }
 
-            div.main-container {
-                background-color: #0f131a !important;
-                box-shadow: 0px 10px 30px rgba(0, 0, 0, .55) !important;
-            }
+          div.main-container {
+            background-color: #0f131a !important;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, .55) !important;
+          }
 
-            h2,
-            h3,
-            h4,
-            h5,
-            p,
-            label {
-                color: #e8ecf3 !important;
-            }
+          h2, h3, h4, h5, p, label {
+            color: #e8ecf3 !important;
+          }
 
-            .bio,
-            h5 {
-                color: rgba(232, 236, 243, .75) !important;
-            }
+          .bio, h5 { color: rgba(232, 236, 243, .75) !important; }
 
-            .border-red {
-                border-color: rgba(207, 15, 71, .8) !important;
-            }
+          .border-red { border-color: rgba(207, 15, 71, .8) !important; }
 
-            .goal {
-                border-bottom: 1px solid rgba(255, 255, 255, .12) !important;
-            }
+          .goal { border-bottom: 1px solid rgba(255, 255, 255, .12) !important; }
 
-            svg path[stroke="black"] {
-                stroke: rgba(232, 236, 243, .85) !important;
-            }
+          svg path[stroke="black"] { stroke: rgba(232, 236, 243, .85) !important; }
+          svg path[fill="black"] { fill: rgba(232, 236, 243, .85) !important; }
 
-            svg path[fill="black"] {
-                fill: rgba(232, 236, 243, .85) !important;
-            }
+          .interest-chip {
+            border-color: rgba(255, 255, 255, .18);
+            background: rgba(207, 15, 71, 0.20);
+            color: rgba(232, 236, 243, .95);
+          }
+        }
+
+        
+        @media (max-width: 900px) {
+          main {
+            padding: 12px;
+            gap: 16px;
+          }
+
+          div.main-container {
+            flex: 1 1 auto;
+            width: 100%;
+            border-radius: 16px;
+          }
+
+          div.main-container > article,
+          div.main-container > section {
+            width: 100%;
+            min-width: 0;
+            margin: 12px; /* 14 → 12 */
+          }
+
+          div.main-container > section {
+            display: flex;
+            flex-direction: column;
+            height: auto;
+          }
+
+          .redline {
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            margin-bottom: 10px;
+          }
+
+          .info-head {
+            padding-right: 0;
+            margin-bottom: 10px;
+          }
+
+          .scroll {
+            overflow: visible;
+            margin: 0;
+            padding-right: 0;
+          }
+
+          div.avatar {
+            width: 110px;
+            height: 110px;
+          }
+          div.avatar > img {
+            width: 110px;
+            height: 110px;
+          }
+
+          h2, h3 { font-size: 30px; }
+          .name { font-size: 20px; }
+          .rowWrap p { font-size: 16px; }
+
+          .user-image-container {
+            max-width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            justify-content: center;
+            align-content: center;
+            margin-left: -25px;
+          }
+
+          .border-red {
+            width: 100%;
+            height: 110px;
+          }
+
+          /* mobile deer X btn haruulna */
+          .close-btn--mobile { display: inline-flex; }
+
+          /* mobile deer X nuuh */
+          .info-head .close-btn { display: none; }
+        }
+
+        @media (max-width: 520px) {
+          main { padding: 10px; }
+
+          div.main-container > article,
+          div.main-container > section {
+            margin: 10px;
+          }
+
+          h2, h3 { font-size: 26px; }
+          .bio { font-size: 13px; }
+
+          .border-red { height: 96px; }
+
+          .close-btn svg {
+            width: 34px;
+            height: 34px;
+            margin-right: 25px;
+          }
         }
       </style>
 
@@ -435,6 +485,16 @@ class OthersProfile extends HTMLElement {
           <article>
             <div class="profile-head">
               <h2>Profile</h2>
+
+              <!-- ✅ mobile үед Profile хажууд -->
+              <button class="close-btn close-btn--mobile" aria-label="Close" title="Close">
+                <svg width="42" height="42" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M5.29289 5.29289C5.68342 4.90237 6.31658 4.90237 6.70711 5.29289L12 10.5858L17.2929 5.29289C17.6834 4.90237 18.3166 4.90237 18.7071 5.29289C19.0976 5.68342 19.0976 6.31658 18.7071 6.70711L13.4142 12L18.7071 17.2929C19.0976 17.6834 19.0976 18.3166 18.7071 18.7071C18.3166 19.0976 17.6834 19.0976 17.2929 18.7071L12 13.4142L6.70711 18.7071C6.31658 19.0976 5.68342 19.0976 5.29289 18.7071C4.90237 18.3166 4.90237 17.6834 5.29289 17.2929L10.5858 12L5.29289 6.70711C4.90237 6.31658 4.90237 5.68342 5.29289 5.29289Z"
+                    fill="#CF0F47"/>
+                </svg>
+              </button>
             </div>
 
             <div class="avatar">
@@ -458,12 +518,12 @@ class OthersProfile extends HTMLElement {
             <div class="info-head">
               <h3>Мэдээлэл</h3>
               <button class="close-btn" aria-label="Close" title="Close">
-               <svg width="42" height="42" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M5.29289 5.29289C5.68342 4.90237 6.31658 4.90237 6.70711 5.29289L12 10.5858L17.2929 5.29289C17.6834 4.90237 18.3166 4.90237 18.7071 5.29289C19.0976 5.68342 19.0976 6.31658 18.7071 6.70711L13.4142 12L18.7071 17.2929C19.0976 17.6834 19.0976 18.3166 18.7071 18.7071C18.3166 19.0976 17.6834 19.0976 17.2929 18.7071L12 13.4142L6.70711 18.7071C6.31658 19.0976 5.68342 19.0976 5.29289 18.7071C4.90237 18.3166 4.90237 17.6834 5.29289 17.2929L10.5858 12L5.29289 6.70711C4.90237 6.31658 4.90237 5.68342 5.29289 5.29289Z"
-                          fill="#CF0F47"/>
-                      </svg>
+                <svg width="42" height="42" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M5.29289 5.29289C5.68342 4.90237 6.31658 4.90237 6.70711 5.29289L12 10.5858L17.2929 5.29289C17.6834 4.90237 18.3166 4.90237 18.7071 5.29289C19.0976 5.68342 19.0976 6.31658 18.7071 6.70711L13.4142 12L18.7071 17.2929C19.0976 17.6834 19.0976 18.3166 18.7071 18.7071C18.3166 19.0976 17.6834 19.0976 17.2929 18.7071L12 13.4142L6.70711 18.7071C6.31658 19.0976 5.68342 19.0976 5.29289 18.7071C4.90237 18.3166 4.90237 17.6834 5.29289 17.2929L10.5858 12L5.29289 6.70711C4.90237 6.31658 4.90237 5.68342 5.29289 5.29289Z"
+                    fill="#CF0F47"/>
+                </svg>
               </button>
             </div>
 
@@ -606,18 +666,16 @@ class OthersProfile extends HTMLElement {
                 </article>
 
                 <section class="interests">
-           <h5>Сонирхол</h5>
+                  <h5>Сонирхол</h5>
+                  <div class="interest-list"></div>
 
-           <div class="interest-list"></div>
-
-              <div class="art"> ... </div>
-              <div class="sport"><p></p></div>
-              <div class="music"><p></p></div>
-              <div class="computer"> ... </div>
-             <div class="travel"><p></p></div>
-             <div class="book"><p></p></div>
-            </section>
-
+                  <div class="art"> ... </div>
+                  <div class="sport"><p></p></div>
+                  <div class="music"><p></p></div>
+                  <div class="computer"> ... </div>
+                  <div class="travel"><p></p></div>
+                  <div class="book"><p></p></div>
+                </section>
               </article>
 
             </div>
@@ -626,9 +684,10 @@ class OthersProfile extends HTMLElement {
       </main>
     `;
 
-    // close => back
-    const closeBtn = this.querySelector(".close-btn");
-    if (closeBtn) closeBtn.addEventListener("click", () => history.back());
+    // ✅ close => back (хоёуланг нь bind)
+    this.querySelectorAll(".close-btn").forEach((btn) => {
+      btn.addEventListener("click", () => history.back());
+    });
   }
 
   fill() {
@@ -637,9 +696,9 @@ class OthersProfile extends HTMLElement {
 
     const photos =
       Array.isArray(p.photos) ? p.photos :
-        Array.isArray(p.images) ? p.images :
-          Array.isArray(p.gallery) ? p.gallery :
-            [];
+      Array.isArray(p.images) ? p.images :
+      Array.isArray(p.gallery) ? p.gallery :
+      [];
 
     const {
       avatar,
@@ -725,43 +784,33 @@ class OthersProfile extends HTMLElement {
       img.src = photos[i] || "./img/image.jpeg";
     });
 
-    const likesBlock = $(".likes");
     const hasLikes = likes && Object.keys(likes || {}).length > 0;
-    if (likesBlock) {
-      const movieRow = $(".movie");
-      const movieP = $(".movie p");
-      if (movieRow && movieP) {
-        if (likes?.movie) {
-          movieRow.style.display = "block";
-          movieP.textContent = likes.movie;
-        } else movieRow.style.display = "none";
-      }
 
-      const tasteRow = $(".taste");
-      const tasteP = $(".taste p");
-      if (tasteRow && tasteP) {
-        if (likes?.taste) {
-          tasteRow.style.display = "block";
-          tasteP.textContent = likes.taste;
-        } else tasteRow.style.display = "none";
-      }
+    const movieRow = $(".movie");
+    const movieP = $(".movie p");
+    if (movieRow && movieP) {
+      if (likes?.movie) {
+        movieRow.style.display = "block";
+        movieP.textContent = likes.movie;
+      } else movieRow.style.display = "none";
+    }
 
-      const songRow = $(".song");
-      const songP = $(".song p");
-      if (songRow && songP) {
-        if (likes?.song) {
-          songRow.style.display = "block";
-          songP.textContent = likes.song;
-        } else songRow.style.display = "none";
-      }
+    const tasteRow = $(".taste");
+    const tasteP = $(".taste p");
+    if (tasteRow && tasteP) {
+      if (likes?.taste) {
+        tasteRow.style.display = "block";
+        tasteP.textContent = likes.taste;
+      } else tasteRow.style.display = "none";
+    }
 
-      if (
-        !hasLikes &&
-        (!interests ||
-          (Array.isArray(interests) && interests.length === 0) ||
-          (!Array.isArray(interests) && typeof interests === "object" && Object.keys(interests).length === 0))
-      ) {
-      }
+    const songRow = $(".song");
+    const songP = $(".song p");
+    if (songRow && songP) {
+      if (likes?.song) {
+        songRow.style.display = "block";
+        songP.textContent = likes.song;
+      } else songRow.style.display = "none";
     }
 
     ["art", "sport", "music", "computer", "travel", "book"].forEach((k) => {
@@ -771,9 +820,8 @@ class OthersProfile extends HTMLElement {
 
     let interestArr = [];
     if (Array.isArray(interests)) {
-      interestArr = interests.map(x => String(x).trim()).filter(Boolean);
+      interestArr = interests.map((x) => String(x).trim()).filter(Boolean);
     } else if (interests && typeof interests === "object") {
-
       interestArr = Object.entries(interests)
         .filter(([_, v]) => v)
         .map(([k, v]) => (v === true ? String(k) : String(v)).trim())
@@ -781,7 +829,9 @@ class OthersProfile extends HTMLElement {
     }
 
     const seen = new Set();
-    interestArr = interestArr.filter(x => (seen.has(x) ? false : (seen.add(x), true)));
+    interestArr = interestArr.filter((x) =>
+      seen.has(x) ? false : (seen.add(x), true)
+    );
 
     const interestListEl = this.querySelector(".interest-list");
     if (interestListEl) {
@@ -804,4 +854,5 @@ class OthersProfile extends HTMLElement {
     }
   }
 }
+
 customElements.define("com-othersprofile", OthersProfile);
