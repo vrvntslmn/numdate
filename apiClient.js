@@ -147,5 +147,26 @@ export const api = {
     return request("/api/matches");
   },
 
+  matches() {
+    return request("/api/matches");
+  },
+ 
+  getMessages(otherId, limit = 200) {
+    return request(`/api/messages?other=${encodeURIComponent(otherId)}&limit=${limit}`);
+  },
+ 
+  sendMessage({ otherId, text, type = "text" }) {
+    return request("/api/messages", {
+      method: "POST",
+      body: { other: otherId, text, type },
+    });
+  },
+ 
+  selectOtherProfile(userId) {
+    return request("/api/othersprofile/select", {
+      method: "POST",
+      body: { userId },
+    });
+  },
   
 };
