@@ -293,11 +293,6 @@ class ComMessenger extends HTMLElement {
               font-family: 'Roboto Condensed', sans-serif;
           }
 
-          .stories-header {
-              padding: 16px 20px;
-              border-bottom: 1px solid #EFEFEF;
-          }
-
           .search-box {
               display: flex;
               align-items: center;
@@ -357,7 +352,11 @@ class ComMessenger extends HTMLElement {
               display: none;
               white-space: nowrap;
           }
-
+          .header-banner.is-muted{
+            display:inline-block;
+            background:#F5F5F5;
+            color:#555;
+          }
           .chat-user-actions {
               margin-left: auto;
               display: flex;
@@ -1267,34 +1266,30 @@ class ComMessenger extends HTMLElement {
       dateOverlay: $("#dateOverlay"),
       dateCancelBtn: $("#dateCancelBtn"),
       dateSendBtn: $("#dateSendBtn"),
-      blockBtn: $("#blockBtn"),
-      reportBtn: $("#reportBtn"),
-      deleteChatBtn: $("#deleteChatBtn"),
       conversationList: $("#conversationList"),
-      conversationItems: $$(".conversation-item"),
-      emojiItems: $$(".emoji-item"),
+      searchInput: $("#conversationSearch"),
       actionsToggle: $("#actionsToggle"),
       detailsPanel: $("#detailsPanel"),
       detailsCloseBtn: $("#detailsCloseBtn"),
       muteToggle: $("#muteToggle"),
+      reportBtn: $("#reportBtn"),
+      blockBtn: $("#blockBtn"),
+      deleteChatBtn: $("#deleteChatBtn"),
       reportOverlay: $("#reportOverlay"),
       reportCloseBtn: $("#reportCloseBtn"),
       reportBackBtn: $("#reportBackBtn"),
-      reportRows: $$(".report-row"),
       confirmOverlay: $("#confirmOverlay"),
       confirmTitle: $("#confirmTitle"),
       confirmText: $("#confirmText"),
       confirmPrimaryBtn: $("#confirmPrimaryBtn"),
       confirmCancelBtn: $("#confirmCancelBtn"),
-      searchInput: $("#conversationSearch"),
       emptyState: $("#emptyState"),
       emptyNewMessageBtn: $("#emptyNewMessageBtn"),
       chatApp: this.shadowRoot.querySelector(".chat-app"),
       backBtn: this.shadowRoot.querySelector(".back-btn"),
       chatProfileLink: $("#chatProfileLink"),
-
-
     };
+
 
     this.currentUserAvatar =
       this.els.headerAvatar?.getAttribute("src") || this.currentUserAvatar;
@@ -1393,15 +1388,17 @@ class ComMessenger extends HTMLElement {
 
     if (searchInput) {
       searchInput.addEventListener("input", () => {
+        const items = this.els.conversationItems || [];
         const q = searchInput.value.toLowerCase().trim();
-        this.els.conversationItems.forEach(item => {
+
+        items.forEach(item => {
           const name = (item.dataset.user || "").toLowerCase();
           const snippet = (item.querySelector(".conversation-snippet")?.textContent || "").toLowerCase();
-          const match = !q || name.includes(q) || snippet.includes(q);
-          item.style.display = match ? "flex" : "none";
+          item.style.display = (!q || name.includes(q) || snippet.includes(q)) ? "flex" : "none";
         });
       });
     }
+
 
     if (emptyNewMessageBtn) {
       emptyNewMessageBtn.addEventListener("click", () => {
@@ -1417,19 +1414,17 @@ class ComMessenger extends HTMLElement {
       this.els.emojiPanel.classList.toggle("is-open");
     });
 
-    this.els.emojiItems.forEach((btn) => {
+    const emojiItems = Array.from(this.shadowRoot.querySelectorAll(".emoji-item"));
+    emojiItems.forEach((btn) => {
       btn.addEventListener("click", () => {
         const user = this.getActiveUserName();
-        if (
-          user &&
-          (this.blockedUsers.has(user) || this.reportedUsers.has(user))
-        )
-          return;
-        const emoji = btn.dataset.emoji;
-        this.els.messageInput.value += emoji;
+        if (user && (this.blockedUsers.has(user) || this.reportedUsers.has(user))) return;
+
+        this.els.messageInput.value += btn.dataset.emoji;
         this.els.messageInput.focus();
       });
     });
+
 
     // Date
     this.els.dateBtn.addEventListener("click", (e) => {
@@ -1625,47 +1620,47 @@ class ComMessenger extends HTMLElement {
         this.els.detailsPanel.classList.remove("is-open");
       }
     });
-// ✅ Chat header profile click -> OthersProfile (session based)
-if (this.els.chatProfileLink) {
-  this.els.chatProfileLink.addEventListener("click", (e) => {
-    e.preventDefault();
+    // ✅ Chat header profile click -> OthersProfile (session based)
+    if (this.els.chatProfileLink) {
+      this.els.chatProfileLink.addEventListener("click", (e) => {
+        e.preventDefault();
 
-    const otherId = this.activeOtherId; // ✅ чи энд already set хийж байгаа
-    if (!otherId) {
-      console.warn("No activeOtherId yet. Select a conversation first.");
-      return;
+        const otherId = this.activeOtherId; // ✅ чи энд already set хийж байгаа
+        if (!otherId) {
+          console.warn("No activeOtherId yet. Select a conversation first.");
+          return;
+        }
+
+        this.openOthersProfileBySession(otherId);
+      });
     }
-
-    this.openOthersProfileBySession(otherId);
-  });
-}
 
   }
 
   async openOthersProfileBySession(otherId) {
-  if (!otherId) {
-    console.warn("openOthersProfileBySession: missing otherId");
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/othersprofile/select", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ userId: otherId }),
-    });
-
-    if (!res.ok) {
-      console.error("select failed:", res.status, await res.text());
+    if (!otherId) {
+      console.warn("openOthersProfileBySession: missing otherId");
       return;
     }
 
-    window.location.hash = "#/othersprofile";
-  } catch (e) {
-    console.error("openOthersProfileBySession error:", e);
+    try {
+      const res = await fetch("/api/othersprofile/select", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId: otherId }),
+      });
+
+      if (!res.ok) {
+        console.error("select failed:", res.status, await res.text());
+        return;
+      }
+
+      window.location.hash = "#/othersprofile";
+    } catch (e) {
+      console.error("openOthersProfileBySession error:", e);
+    }
   }
-}
 
 
   closeDateOverlay() {
@@ -1767,16 +1762,10 @@ if (this.els.chatProfileLink) {
       this.els.blockBtn.textContent = isBlocked ? "Unblock" : "Block";
     }
     if (this.els.headerBanner) {
-      if (isMuted) {
-        this.els.headerBanner.style.display = "inline-block";
-        this.els.headerBanner.textContent = "Muted";
-        this.els.headerBanner.style.background = "#F5F5F5";
-        this.els.headerBanner.style.color = "#555";
-      } else {
-        this.els.headerBanner.style.display = "none";
-        this.els.headerBanner.textContent = "";
-      }
+      this.els.headerBanner.classList.toggle("is-muted", isMuted);
+      this.els.headerBanner.textContent = isMuted ? "Muted" : "";
     }
+
 
     if (this.els.muteToggle) {
       this.els.muteToggle.checked = isMuted;
