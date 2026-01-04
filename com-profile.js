@@ -70,6 +70,7 @@ class Profile extends HTMLElement{
             likes = {},
             interests = {},
             major,
+            work,
         } = p;
 
         let age = null;
@@ -93,6 +94,13 @@ class Profile extends HTMLElement{
 
         const majorEl = $('.major p');
         if (majorEl && major) majorEl.textContent = major;
+
+        const workEl = $('.work');
+        if (workEl && work) {
+            workEl.querySelector('p').textContent = work;
+            workEl.style.display = 'block';
+        }
+
         
         const aboutBlock = $('.about');
         const hasAbout =
@@ -1040,15 +1048,20 @@ class Profile extends HTMLElement{
                                 <article class="major">
                                     <h5>Хөтөлбөр</h5>
                                     <div>
-                                        <svg width="20" height="20" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M15.8112 5.23191C15.8112 4.24805 15.8112 3.75612 15.7031 3.35251C15.4096 2.25724 14.5541 1.40174 13.4589 1.10827C13.0553 1.00012 12.5633 1.00012 11.5795 1.00012C10.5956 1.00012 10.1037 1.00012 9.70007 1.10827C8.6048 1.40174 7.7493 2.25724 7.45582 3.35251C7.34768 3.75612 7.34768 4.24805 7.34768 5.23191M4.38543 20.0432H18.7735C19.9585 20.0432 20.551 20.0432 21.0036 19.8125C21.4018 19.6097 21.7254 19.286 21.9283 18.8879C22.1589 18.4352 22.1589 17.8427 22.1589 16.6577V8.61733C22.1589 7.43232 22.1589 6.83982 21.9283 6.3872C21.7254 5.98907 21.4018 5.66538 21.0036 5.46252C20.551 5.23191 19.9585 5.23191 18.7735 5.23191H4.38543C3.20042 5.23191 2.60791 5.23191 2.1553 5.46252C1.75717 5.66538 1.43348 5.98907 1.23062 6.3872C1 6.83982 1 7.43232 1 8.61733V16.6577C1 17.8427 1 18.4352 1.23062 18.8879C1.43348 19.286 1.75717 19.6097 2.1553 19.8125C2.60791 20.0432 3.20042 20.0432 4.38543 20.0432Z" stroke="#5D5B5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 8.65738V15.8037C4 16.2305 4 16.4439 4.05465 16.6322C4.10299 16.7988 4.18187 16.9506 4.28558 17.0765C4.40287 17.2188 4.5634 17.3142 4.88446 17.5051L10.2845 20.715C10.5468 20.8709 10.678 20.9489 10.8156 20.9796C10.9375 21.0068 11.0625 21.0068 11.1844 20.9796C11.322 20.9489 11.4532 20.8709 11.7155 20.715L17.1155 17.5051C17.4366 17.3142 17.5971 17.2188 17.7144 17.0765C17.8181 16.9506 17.897 16.7988 17.9453 16.6322C18 16.4439 18 16.2305 18 15.8037V8.65738M1 6.8741L10.6422 1.14251C10.7734 1.06453 10.839 1.02554 10.9078 1.01019C10.9687 0.996602 11.0313 0.996602 11.0922 1.01019C11.161 1.02554 11.2266 1.06453 11.3578 1.14251L21 6.8741L11.3578 12.6057C11.2266 12.6837 11.161 12.7227 11.0922 12.738C11.0313 12.7516 10.9687 12.7516 10.9078 12.738C10.839 12.7227 10.7734 12.6837 10.6422 12.6057L1 6.8741Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                         <p></p>
                                     </div>
                                 </article>
                                 <article class="work">
                                     <h5>Ажил</h5>
-                                    <div><p></p></div>
+                                    <div>
+                                        <svg width="20" height="20" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15.8112 5.23191C15.8112 4.24805 15.8112 3.75612 15.7031 3.35251C15.4096 2.25724 14.5541 1.40174 13.4589 1.10827C13.0553 1.00012 12.5633 1.00012 11.5795 1.00012C10.5956 1.00012 10.1037 1.00012 9.70007 1.10827C8.6048 1.40174 7.7493 2.25724 7.45582 3.35251C7.34768 3.75612 7.34768 4.24805 7.34768 5.23191M4.38543 20.0432H18.7735C19.9585 20.0432 20.551 20.0432 21.0036 19.8125C21.4018 19.6097 21.7254 19.286 21.9283 18.8879C22.1589 18.4352 22.1589 17.8427 22.1589 16.6577V8.61733C22.1589 7.43232 22.1589 6.83982 21.9283 6.3872C21.7254 5.98907 21.4018 5.66538 21.0036 5.46252C20.551 5.23191 19.9585 5.23191 18.7735 5.23191H4.38543C3.20042 5.23191 2.60791 5.23191 2.1553 5.46252C1.75717 5.66538 1.43348 5.98907 1.23062 6.3872C1 6.83982 1 7.43232 1 8.61733V16.6577C1 17.8427 1 18.4352 1.23062 18.8879C1.43348 19.286 1.75717 19.6097 2.1553 19.8125C2.60791 20.0432 3.20042 20.0432 4.38543 20.0432Z" stroke="#5D5B5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p></p>
+                                    </div>
                                 </article>
                             </article>
                             <article class='likes'>
@@ -1329,6 +1342,7 @@ class Profile extends HTMLElement{
                                 <path d="M1 12.1111H19.7614C20.3181 12.1111 20.5964 12.1111 20.7554 12.0034C20.894 11.9094 20.9825 11.7652 20.9984 11.6071C21.0167 11.4258 20.8735 11.2055 20.5871 10.7649L18.1484 7.01289C18.0404 6.84661 17.9863 6.76347 17.9652 6.67472C17.9465 6.59621 17.9465 6.5149 17.9652 6.4364C17.9863 6.34764 18.0404 6.2645 18.1484 6.09823L20.5871 2.34622C20.8735 1.90559 21.0167 1.68527 20.9984 1.50399C20.9825 1.34593 20.894 1.20171 20.7554 1.10776C20.5964 1 20.3181 1 19.7614 1H1L1 21" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
+
                             </div>
                         </article>
                         <button class="plus-btn" id="plusAbout">НЭМЭХ</button>
@@ -1346,15 +1360,20 @@ class Profile extends HTMLElement{
                         <article class="major">
                             <h5>Хөтөлбөр</h5>
                             <div>
-                                <svg width="20" height="20" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15.8112 5.23191C15.8112 4.24805 15.8112 3.75612 15.7031 3.35251C15.4096 2.25724 14.5541 1.40174 13.4589 1.10827C13.0553 1.00012 12.5633 1.00012 11.5795 1.00012C10.5956 1.00012 10.1037 1.00012 9.70007 1.10827C8.6048 1.40174 7.7493 2.25724 7.45582 3.35251C7.34768 3.75612 7.34768 4.24805 7.34768 5.23191M4.38543 20.0432H18.7735C19.9585 20.0432 20.551 20.0432 21.0036 19.8125C21.4018 19.6097 21.7254 19.286 21.9283 18.8879C22.1589 18.4352 22.1589 17.8427 22.1589 16.6577V8.61733C22.1589 7.43232 22.1589 6.83982 21.9283 6.3872C21.7254 5.98907 21.4018 5.66538 21.0036 5.46252C20.551 5.23191 19.9585 5.23191 18.7735 5.23191H4.38543C3.20042 5.23191 2.60791 5.23191 2.1553 5.46252C1.75717 5.66538 1.43348 5.98907 1.23062 6.3872C1 6.83982 1 7.43232 1 8.61733V16.6577C1 17.8427 1 18.4352 1.23062 18.8879C1.43348 19.286 1.75717 19.6097 2.1553 19.8125C2.60791 20.0432 3.20042 20.0432 4.38543 20.0432Z" stroke="#5D5B5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 8.65738V15.8037C4 16.2305 4 16.4439 4.05465 16.6322C4.10299 16.7988 4.18187 16.9506 4.28558 17.0765C4.40287 17.2188 4.5634 17.3142 4.88446 17.5051L10.2845 20.715C10.5468 20.8709 10.678 20.9489 10.8156 20.9796C10.9375 21.0068 11.0625 21.0068 11.1844 20.9796C11.322 20.9489 11.4532 20.8709 11.7155 20.715L17.1155 17.5051C17.4366 17.3142 17.5971 17.2188 17.7144 17.0765C17.8181 16.9506 17.897 16.7988 17.9453 16.6322C18 16.4439 18 16.2305 18 15.8037V8.65738M1 6.8741L10.6422 1.14251C10.7734 1.06453 10.839 1.02554 10.9078 1.01019C10.9687 0.996602 11.0313 0.996602 11.0922 1.01019C11.161 1.02554 11.2266 1.06453 11.3578 1.14251L21 6.8741L11.3578 12.6057C11.2266 12.6837 11.161 12.7227 11.0922 12.738C11.0313 12.7516 10.9687 12.7516 10.9078 12.738C10.839 12.7227 10.7734 12.6837 10.6422 12.6057L1 6.8741Z" stroke="#55565A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <p></p>
                             </div>
                         </article>
                         <article class="work">
                             <h5>Ажил</h5>
-                            <div><p></p></div>
+                            <div>
+                                <svg width="20" height="20" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15.8112 5.23191C15.8112 4.24805 15.8112 3.75612 15.7031 3.35251C15.4096 2.25724 14.5541 1.40174 13.4589 1.10827C13.0553 1.00012 12.5633 1.00012 11.5795 1.00012C10.5956 1.00012 10.1037 1.00012 9.70007 1.10827C8.6048 1.40174 7.7493 2.25724 7.45582 3.35251C7.34768 3.75612 7.34768 4.24805 7.34768 5.23191M4.38543 20.0432H18.7735C19.9585 20.0432 20.551 20.0432 21.0036 19.8125C21.4018 19.6097 21.7254 19.286 21.9283 18.8879C22.1589 18.4352 22.1589 17.8427 22.1589 16.6577V8.61733C22.1589 7.43232 22.1589 6.83982 21.9283 6.3872C21.7254 5.98907 21.4018 5.66538 21.0036 5.46252C20.551 5.23191 19.9585 5.23191 18.7735 5.23191H4.38543C3.20042 5.23191 2.60791 5.23191 2.1553 5.46252C1.75717 5.66538 1.43348 5.98907 1.23062 6.3872C1 6.83982 1 7.43232 1 8.61733V16.6577C1 17.8427 1 18.4352 1.23062 18.8879C1.43348 19.286 1.75717 19.6097 2.1553 19.8125C2.60791 20.0432 3.20042 20.0432 4.38543 20.0432Z" stroke="#5D5B5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p></p>
+                            </div>
                         </article>
                         <button class="plus-btn" id="plusJob">НЭМЭХ</button>
                     </article>
@@ -1718,6 +1737,7 @@ class Profile extends HTMLElement{
         setOrUnset('loveLanguage', $('.loveLang p')?.textContent, p.loveLanguage);
         setOrUnset('bio', $('textarea.bio')?.value, p.bio);
         setOrUnset('major', $('.major p')?.textContent, p.major);
+        setOrUnset('work', $('.work p')?.textContent, p.work);
 
         setOrUnset('about.height', $('.height p')?.textContent, p.about?.height);
         setOrUnset('about.mbti', $('.mbti p')?.textContent, p.about?.mbti);
@@ -1957,6 +1977,67 @@ class Profile extends HTMLElement{
             fileInput.value = '';
         };
     }
+
+    confirmDialog({ title, message = "", confirmText = "OK", cancelText = "Cancel", variant = "danger" } = {}) {
+        return new Promise((resolve) => {
+            let modal = this.querySelector('#nmConfirm');
+            if (!modal) {
+                this.insertAdjacentHTML('beforeend', `
+                    <div id="nmConfirm" class="nm-confirm" style="display:none;">
+                    <div class="nm-confirm__panel" role="dialog" aria-modal="true">
+                        <div class="nm-confirm__head">
+                        <h3 class="nm-confirm__title"></h3>
+                        </div>
+                        <p class="nm-confirm__msg"></p>
+                        <div class="nm-confirm__actions">
+                        <button class="nm-confirm__btn nm-cancel" type="button"></button>
+                        <button class="nm-confirm__btn nm-ok" type="button"></button>
+                        </div>
+                    </div>
+                    </div>
+                `);
+                modal = this.querySelector('#nmConfirm');
+
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) close(false);
+                });
+
+                window.addEventListener('keydown', (e) => {
+                    if (modal.style.display !== 'none' && e.key === 'Escape') close(false);
+                });
+            }
+
+            const panel = modal.querySelector('.nm-confirm__panel');
+            const titleEl = modal.querySelector('.nm-confirm__title');
+            const msgEl = modal.querySelector('.nm-confirm__msg');
+            const cancelBtn = modal.querySelector('.nm-cancel');
+            const okBtn = modal.querySelector('.nm-ok');
+
+            titleEl.textContent = title || "";
+            msgEl.textContent = message || "";
+            cancelBtn.textContent = cancelText;
+            okBtn.textContent = confirmText;
+
+            okBtn.classList.toggle('is-danger', variant === 'danger');
+
+            const close = (val) => {
+                modal.style.display = 'none';
+                modal.classList.remove('open');
+                cancelBtn.onclick = null;
+                okBtn.onclick = null;
+                resolve(val);
+            };
+
+            cancelBtn.onclick = () => close(false);
+            okBtn.onclick = () => close(true);
+
+            modal.style.display = 'grid';
+            requestAnimationFrame(() => modal.classList.add('open'));
+
+            okBtn.focus();
+        });
+    }
+
 
     enableExit(edit){
     const exitBtn = edit.querySelector('.exit');
