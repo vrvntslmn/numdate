@@ -7,6 +7,7 @@ class Home extends HTMLElement {
         this.profileSwipe = null;
         this.dropdownFilter = null;
         this.likedIds = new Set();
+        this.matchedIds = new Set();
         this.me = null;
         this.meId = "";
     }
@@ -19,31 +20,58 @@ class Home extends HTMLElement {
             this.likedIds = new Set();
         }
     }
+    async loadMatchedIds() {
+        try {
+            const matches = await api.getMatches();
+            const myId = this.meId;
+            const ids = new Set();
+
+            (matches || []).forEach(m => {
+                const a = this.idStr(m.userId || m._id);
+                const b = this.idStr(m.otherId || m.otherUserId || m.other);
+                const l = this.idStr(m.leftUserId || m.left);
+                const r = this.idStr(m.rightUserId || m.right);
+
+                [a, b, l, r].forEach(x => {
+                    if (x && x !== myId) ids.add(x);
+                });
+            });
+
+            this.matchedIds = ids;
+            console.log("MATCHED IDS =", [...ids]);
+        } catch (e) {
+            console.warn("loadMatchedIds failed:", e);
+            this.matchedIds = new Set();
+        }
+    }
     async loadMe() {
         try {
             const data = await api.me();
             const u = data?.user || data;
             this.me = u || null;
-            this.meId = String(u?._id || u?.userId || "");
+            this.meId = this.idStr(u?._id || u?.userId);
+            console.log("ME ID =", this.meId, u);
         } catch (e) {
             console.warn("loadMe failed:", e);
             this.me = null;
             this.meId = "";
         }
     }
-
     removeMe(list) {
         const myId = this.meId;
         if (!myId) return list;
 
-        return list.filter(p => {
-            const pid = String(p.userId || p._id || "");
+        return (list || []).filter(p => {
+            const pid = this.idStr(p.userId || p._id);
             return pid !== myId;
         });
     }
+
     getProfileId(profile) {
-        return profile?.userId ? String(profile.userId) : null;
+        const id = this.idStr(profile?.userId || profile?._id);
+        return id || null;
     }
+
 
     markLiked(profile) {
         const id = this.getProfileId(profile);
@@ -58,7 +86,26 @@ class Home extends HTMLElement {
         });
     }
 
+    removeMatched(list) {
+        if (!this.matchedIds || this.matchedIds.size === 0) return list;
 
+        return (list || []).filter(p => {
+            const id = this.idStr(p.userId || p._id);
+            if (!id) return true;
+            return !this.matchedIds.has(id);
+        });
+    }
+
+    idStr(v) {
+        if (!v) return "";
+        if (typeof v === "object") {
+            if (v.$oid) return String(v.$oid);
+            if (v.oid) return String(v.oid);
+            if (v._id) return this.idStr(v._id);
+            if (typeof v.toHexString === "function") return v.toHexString();
+        }
+        return String(v);
+    }
     connectedCallback() {
 
         this.innerHTML = `
@@ -1108,6 +1155,7 @@ class Home extends HTMLElement {
 
     async initializeComponents() {
         await this.loadMe();
+        await this.loadMatchedIds();
         await this.loadLikedIds();
         await this.fetchProfiles();
 
@@ -1115,7 +1163,6 @@ class Home extends HTMLElement {
         this.initializeDropdownColors();
         this.profileSwipe = new ProfileSwipe(this);
         this.setupEventListeners();
-
         this.profileSwipe.updateProfile();
     }
 
@@ -1129,18 +1176,26 @@ class Home extends HTMLElement {
     async fetchProfiles() {
         try {
             const data = await api.getProfiles();
+            let list = Array.isArray(data) ? data : (data?.profiles || data?.data || []);
 
-            const withoutMe = this.removeMe(data);
-            this.allProfiles = this.removeLiked(withoutMe);
-            this.filteredProfiles = [...this.allProfiles];
+            list = this.removeMe(list);
+            list = this.removeMatched(list);
+            list = this.removeLiked(list);
+
+            console.log("PROFILES after filters =", list.map(p => this.idStr(p.userId || p._id)));
+            this.allProfiles = list;
+            this.filteredProfiles = [...list];
         } catch (error) {
             console.error("Error fetching profiles:", error);
-
-            const withoutMe = this.removeMe(this.getDummyProfiles());
-            this.allProfiles = this.removeLiked(withoutMe);
-            this.filteredProfiles = [...this.allProfiles];
+            let list = this.getDummyProfiles();
+            list = this.removeMe(list);
+            list = this.removeMatched(list);
+            list = this.removeLiked(list);
+            this.allProfiles = list;
+            this.filteredProfiles = [...list];
         }
     }
+
     setupEventListeners() {
         const filterButton = this.querySelector('.filter');
         if (filterButton) {
@@ -1173,10 +1228,7 @@ class Home extends HTMLElement {
                     alert(err.message || "Профайл сонгож чадсангүй");
                 }
             });
-
         }
-
-
     }
 
     applyFilters(filters) {
@@ -1186,7 +1238,6 @@ class Home extends HTMLElement {
             console.warn('No profiles available');
             return;
         }
-
         let result = this.allProfiles.filter(profile => {
             for (const [category, selectedValues] of Object.entries(filters)) {
                 if (!selectedValues || selectedValues.length === 0) continue;
